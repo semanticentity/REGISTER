@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$1010 Assembly Extensions for MTMC-16</title>
+  <style>
+    :root {
+      --fg: #e0e0e0;
+      --bg: #0a0a0f;
+      --accent: #9bbc0f;
+      --dim: #666;
+      --code-bg: #111;
+      --border: #222;
+      --warn: #ff6600;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { color: var(--accent); font-family: 'Courier New', monospace; margin: 0 0 5px 0; }
+    .tagline { color: var(--dim); font-size: 14px; margin-bottom: 30px; }
+    h2 { color: var(--accent); font-size: 18px; margin: 40px 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+    h3 { color: var(--fg); font-size: 15px; margin: 25px 0 10px 0; }
+    p { margin: 10px 0; }
+    code { background: var(--code-bg); padding: 2px 6px; font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent); }
+    pre { background: var(--code-bg); border: 1px solid var(--border); padding: 15px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; }
+    pre code { background: none; padding: 0; }
+    .comment { color: #666; }
+    .op { color: var(--accent); }
+    .num { color: #ff6666; }
+    .label { color: #66ccff; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 12px; border: 1px solid var(--border); }
+    th { background: var(--code-bg); color: var(--accent); font-weight: normal; }
+    td { font-family: 'Courier New', monospace; }
+    td:first-child { color: var(--accent); }
+    .note { background: #1a1a00; border-left: 3px solid var(--warn); padding: 10px 15px; margin: 15px 0; font-size: 13px; }
+    .manifesto { border-left: 3px solid var(--accent); padding-left: 20px; margin: 30px 0; font-style: italic; color: var(--dim); }
+    a { color: var(--accent); }
+    .cycles { color: var(--dim); font-size: 11px; }
+    .flag { display: inline-block; width: 8px; text-align: center; }
+    .flag.set { color: var(--accent); }
+    .flag.clr { color: var(--dim); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>$1010 ASM</h1>
+    <p class="tagline">Assembly extensions for MTMC-16. Inspired by SPC-700. 23 instructions.</p>
+
+    <div class="manifesto">
+      The SPC-700 taught us: extend the base, don't replace it.<br>
+      MTMC-16 has MOV, ADD, JMP. We add what audio needs.<br>
+      Bit ops for steps. Loops for patterns. Syscalls for sound.
+    </div>
+
+    <!-- ==================== PHILOSOPHY ==================== -->
+    <h2>Philosophy</h2>
+    <p>MTMC-16 is the CPU. $1010 is the memory map. These instructions bridge them.</p>
+
+    <p><strong>What SPC-700 taught us:</strong></p>
+    <ul>
+      <li>6502 base + audio extensions = powerful simplicity</li>
+      <li>Bit operations are essential (each step = 1 bit conceptually)</li>
+      <li>Loop primitives eliminate boilerplate</li>
+      <li>Direct page addressing speeds up hot paths</li>
+    </ul>
+
+    <p><strong>Design constraints:</strong></p>
+    <ul>
+      <li>≤24 new opcodes (fits in one page of documentation)</li>
+      <li>Complement MTMC-16 base instructions, don't duplicate</li>
+      <li>Each instruction teaches a CS concept</li>
+      <li>Immediate audio feedback where possible</li>
+    </ul>
+
+    <!-- ==================== REGISTERS ==================== -->
+    <h2>Registers</h2>
+    <p>$1010 extensions use MTMC-16's registers plus one audio-specific addition:</p>
+
+    <table>
+      <tr><th>Register</th><th>Size</th><th>Purpose</th></tr>
+      <tr><td>A</td><td>8-bit</td><td>Accumulator (from MTMC-16)</td></tr>
+      <tr><td>X</td><td>8-bit</td><td>Index register (from MTMC-16)</td></tr>
+      <tr><td>Y</td><td>8-bit</td><td>Index register (from MTMC-16)</td></tr>
+      <tr><td>S</td><td>4-bit</td><td>Step register (0-15, current sequencer step)</td></tr>
+      <tr><td>V</td><td>3-bit</td><td>Voice register (0-4: kick, snare, lead, bass, noise)</td></tr>
+    </table>
+
+    <p class="note">
+      <strong>S and V are shortcuts.</strong> S mirrors $1502 (SEQ_STEP). V selects which voice
+      base address to use. They exist to make common patterns one instruction instead of three.
+    </p>
+
+    <!-- ==================== ADDRESSING ==================== -->
+    <h2>Addressing Modes</h2>
+    <table>
+      <tr><th>Mode</th><th>Syntax</th><th>Example</th><th>Description</th></tr>
+      <tr><td>Immediate</td><td>#val</td><td>GATE #1</td><td>Literal value</td></tr>
+      <tr><td>Direct</td><td>$xx</td><td>POKE $00</td><td>Direct page offset ($1000 + xx)</td></tr>
+      <tr><td>Absolute</td><td>$xxxx</td><td>POKE $1100</td><td>Full 16-bit address</td></tr>
+      <tr><td>Voice-indexed</td><td>V+x</td><td>GATE V+0</td><td>Voice base + offset</td></tr>
+      <tr><td>Step-indexed</td><td>$xx,S</td><td>POKE $00,S</td><td>Direct page + step register</td></tr>
+      <tr><td>Bit</td><td>$xx.b</td><td>SBIT $00.3</td><td>Bit b of address</td></tr>
+    </table>
+
+    <p><strong>Voice base addresses:</strong></p>
+    <pre><code>V=0 (kick)  → $1000    V=1 (snare) → $1020    V=2 (lead)  → $1100
+V=3 (bass)  → $1200    V=4 (noise) → $1300</code></pre>
+
+    <!-- ==================== INSTRUCTIONS ==================== -->
+    <h2>Instructions</h2>
+
+    <h3>Memory Operations</h3>
+    <p>Basic read/write. MTMC-16 likely has these; included for completeness.</p>
+    <table>
+      <tr><th>Instruction</th><th>Opcode</th><th>Bytes</th><th>Cycles</th><th>Description</th></tr>
+      <tr><td>POKE $xx, #val</td><td>10</td><td>3</td><td>3</td><td>Store immediate to direct page ($1000+xx)</td></tr>
+      <tr><td>POKE $xx, A</td><td>11</td><td>2</td><td>3</td><td>Store A to direct page</td></tr>
+      <tr><td>POKE $xx,S, A</td><td>12</td><td>2</td><td>4</td><td>Store A to direct page + step</td></tr>
+      <tr><td>PEEK $xx</td><td>13</td><td>2</td><td>3</td><td>Load direct page to A</td></tr>
+      <tr><td>PEEK $xx,S</td><td>14</td><td>2</td><td>4</td><td>Load direct page + step to A</td></tr>
+      <tr><td>FILL $xx, #len, #val</td><td>15</td><td>4</td><td>4+len</td><td>Fill len bytes with val</td></tr>
+      <tr><td>COPY $src, $dst, #len</td><td>16</td><td>5</td><td>4+len*2</td><td>Copy len bytes src→dst</td></tr>
+    </table>
+
+    <h3>Bit Operations</h3>
+    <p>Essential for step sequencing. Each step is conceptually a bit.</p>
+    <table>
+      <tr><th>Instruction</th><th>Opcode</th><th>Bytes</th><th>Cycles</th><th>Description</th></tr>
+      <tr><td>SBIT $xx.b</td><td>20</td><td>2</td><td>4</td><td>Set bit b at $1000+xx (step ON)</td></tr>
+      <tr><td>CBIT $xx.b</td><td>21</td><td>2</td><td>4</td><td>Clear bit b (step OFF)</td></tr>
+      <tr><td>TBIT $xx.b</td><td>22</td><td>2</td><td>4</td><td>Toggle bit b</td></tr>
+      <tr><td>BSET $xx.b, rel</td><td>23</td><td>3</td><td>3/5</td><td>Branch if bit set</td></tr>
+      <tr><td>BCLR $xx.b, rel</td><td>24</td><td>3</td><td>3/5</td><td>Branch if bit clear</td></tr>
+    </table>
+    <p class="note">
+      <strong>Teaching moment:</strong> Why bits? A 16-step pattern fits in 2 bytes.
+      <code>SBIT $00.0</code> sets step 0. This is how hardware thinks.
+    </p>
+
+    <h3>Voice Operations</h3>
+    <p>High-level voice control. Uses V register for voice selection.</p>
+    <table>
+      <tr><th>Instruction</th><th>Opcode</th><th>Bytes</th><th>Cycles</th><th>Description</th></tr>
+      <tr><td>SELV #v</td><td>30</td><td>2</td><td>2</td><td>Set voice register (0-4)</td></tr>
+      <tr><td>GATE #step, #val</td><td>31</td><td>3</td><td>4</td><td>Set gate at step for current voice</td></tr>
+      <tr><td>NOTE #step, #midi</td><td>32</td><td>3</td><td>4</td><td>Set MIDI note at step (lead/bass)</td></tr>
+      <tr><td>TRIG</td><td>33</td><td>1</td><td>6</td><td>Immediate trigger current voice (syscall)</td></tr>
+      <tr><td>MUTE</td><td>34</td><td>1</td><td>3</td><td>Mute current voice (clear all gates)</td></tr>
+    </table>
+
+    <h3>Sequencer Control</h3>
+    <p>Transport and timing. These are syscalls—they talk to the host.</p>
+    <table>
+      <tr><th>Instruction</th><th>Opcode</th><th>Bytes</th><th>Cycles</th><th>Description</th></tr>
+      <tr><td>PLAY</td><td>40</td><td>1</td><td>3</td><td>Start sequencer (set $1500 bit 0)</td></tr>
+      <tr><td>STOP</td><td>41</td><td>1</td><td>3</td><td>Stop sequencer (clear $1500 bit 0)</td></tr>
+      <tr><td>TICK</td><td>42</td><td>1</td><td>*</td><td>Wait one step (syscall, blocks)</td></tr>
+      <tr><td>WAIT #n</td><td>43</td><td>2</td><td>*</td><td>Wait n steps</td></tr>
+      <tr><td>SYNC</td><td>44</td><td>1</td><td>*</td><td>Wait until step 0 (loop boundary)</td></tr>
+      <tr><td>BPM #tempo</td><td>45</td><td>2</td><td>3</td><td>Set tempo (40-200)</td></tr>
+    </table>
+    <p class="note">
+      <strong>* = variable timing.</strong> TICK/WAIT/SYNC block until audio thread signals.
+      This is the syscall boundary between CPU and audio.
+    </p>
+
+    <h3>Loop Primitives</h3>
+    <p>Like SPC-700's DBNZ. Essential for pattern iteration.</p>
+    <table>
+      <tr><th>Instruction</th><th>Opcode</th><th>Bytes</th><th>Cycles</th><th>Description</th></tr>
+      <tr><td>LOOP #n, rel</td><td>50</td><td>3</td><td>3/5</td><td>Decrement hidden counter, branch if ≠0</td></tr>
+      <tr><td>STEP+</td><td>51</td><td>1</td><td>2</td><td>Increment S register (S = (S+1) & 15)</td></tr>
+      <tr><td>STEP-</td><td>52</td><td>1</td><td>2</td><td>Decrement S register</td></tr>
+      <tr><td>STEPS #n</td><td>53</td><td>2</td><td>2</td><td>Set S register directly</td></tr>
+    </table>
+
+    <!-- ==================== EXAMPLES ==================== -->
+    <h2>Examples</h2>
+
+    <h3>Four-on-the-floor kick</h3>
+    <pre><code><span class="comment">; Classic house kick pattern: x...x...x...x...</span>
+<span class="op">SELV</span>  <span class="num">#0</span>           <span class="comment">; Select kick voice</span>
+<span class="op">GATE</span>  <span class="num">#0</span>, <span class="num">#1</span>       <span class="comment">; Step 0: ON</span>
+<span class="op">GATE</span>  <span class="num">#4</span>, <span class="num">#1</span>       <span class="comment">; Step 4: ON</span>
+<span class="op">GATE</span>  <span class="num">#8</span>, <span class="num">#1</span>       <span class="comment">; Step 8: ON</span>
+<span class="op">GATE</span>  <span class="num">#12</span>, <span class="num">#1</span>      <span class="comment">; Step 12: ON</span>
+<span class="op">PLAY</span>                <span class="comment">; Start sequencer</span></code></pre>
+
+    <h3>Same thing with bit operations</h3>
+    <pre><code><span class="comment">; Direct memory approach (teaches memory layout)</span>
+<span class="op">SBIT</span>  <span class="num">$00.0</span>        <span class="comment">; $1000 bit 0 = step 0</span>
+<span class="op">SBIT</span>  <span class="num">$00.4</span>        <span class="comment">; $1000 bit 4 = step 4</span>
+<span class="op">SBIT</span>  <span class="num">$01.0</span>        <span class="comment">; $1001 bit 0 = step 8</span>
+<span class="op">SBIT</span>  <span class="num">$01.4</span>        <span class="comment">; $1001 bit 4 = step 12</span>
+<span class="op">PLAY</span></code></pre>
+    <p class="note">
+      <strong>Teaching:</strong> Why two bytes? 16 steps = 16 bits = 2 bytes.
+      Steps 0-7 in $1000, steps 8-15 in $1001. This is how the SPC-700 thinks too.
+    </p>
+
+    <h3>Euclidean rhythm generator</h3>
+    <pre><code><span class="comment">; E(5,16) - distribute 5 hits across 16 steps</span>
+<span class="comment">; Algorithm: Bjorklund/Bresenham</span>
+<span class="label">euclid:</span>
+    <span class="op">SELV</span>  <span class="num">#0</span>         <span class="comment">; Kick voice</span>
+    <span class="op">MUTE</span>              <span class="comment">; Clear existing pattern</span>
+    <span class="op">STEPS</span> <span class="num">#0</span>         <span class="comment">; S = 0</span>
+    <span class="comment">; A = accumulator, X = hits remaining</span>
+    MOV   A, <span class="num">#0</span>       <span class="comment">; error accumulator</span>
+    MOV   X, <span class="num">#5</span>       <span class="comment">; 5 hits to place</span>
+<span class="label">.loop:</span>
+    ADD   A, <span class="num">#5</span>       <span class="comment">; error += hits</span>
+    CMP   A, <span class="num">#16</span>      <span class="comment">; error >= steps?</span>
+    BCC   <span class="label">.skip</span>
+    SUB   A, <span class="num">#16</span>      <span class="comment">; error -= steps</span>
+    <span class="op">GATE</span>  S, <span class="num">#1</span>       <span class="comment">; Place hit at current step</span>
+    DEX
+<span class="label">.skip:</span>
+    <span class="op">STEP+</span>             <span class="comment">; S++</span>
+    CMP   S, <span class="num">#16</span>
+    BNE   <span class="label">.loop</span>
+    <span class="op">PLAY</span></code></pre>
+
+    <h3>Live step recording</h3>
+    <pre><code><span class="comment">; Record hits in real-time (like MPC)</span>
+<span class="label">record:</span>
+    <span class="op">SELV</span>  <span class="num">#1</span>         <span class="comment">; Snare voice</span>
+    <span class="op">PLAY</span>
+<span class="label">.loop:</span>
+    <span class="op">TICK</span>              <span class="comment">; Wait for next step</span>
+    PEEK  $F0         <span class="comment">; Read input port (hypothetical)</span>
+    BEQ   <span class="label">.loop</span>       <span class="comment">; No input? Continue</span>
+    <span class="op">GATE</span>  S, <span class="num">#1</span>       <span class="comment">; Record hit at current step</span>
+    <span class="op">TRIG</span>              <span class="comment">; Immediate feedback</span>
+    JMP   <span class="label">.loop</span></code></pre>
+
+    <h3>Pattern copy (scene change)</h3>
+    <pre><code><span class="comment">; Copy pattern from scene 1 to scene 0</span>
+<span class="comment">; Scene 1 kick at $1800, scene 0 kick at $1000</span>
+<span class="op">COPY</span>  <span class="num">$1800</span>, <span class="num">$1000</span>, <span class="num">#16</span>   <span class="comment">; Copy 16 bytes</span></code></pre>
+
+    <!-- ==================== SYSCALLS ==================== -->
+    <h2>Syscall Interface</h2>
+    <p>TICK, WAIT, SYNC, and TRIG cross the CPU/audio boundary. Implementation:</p>
+
+    <pre><code><span class="comment">// Host-side (JavaScript/Rust/C)</span>
+<span class="comment">// Called by WASM when CPU executes TICK</span>
+function syscall_tick() {
+  return new Promise(resolve => {
+    audioScheduler.onNextStep(() => resolve());
+  });
+}
+
+<span class="comment">// Called by WASM when CPU executes TRIG</span>
+function syscall_trigger(voice) {
+  const funcs = [playKick, playSnare, playLead, playBass, playNoise];
+  funcs[voice](audioCtx.currentTime);
+}</code></pre>
+
+    <p><strong>WASM imports:</strong></p>
+    <pre><code>(import "audio" "tick" (func $tick))
+(import "audio" "trigger" (func $trigger (param i32)))
+(import "audio" "wait" (func $wait (param i32)))
+(import "audio" "sync" (func $sync))</code></pre>
+
+    <!-- ==================== TEACHING ==================== -->
+    <h2>Teaching Map</h2>
+    <table>
+      <tr><th>Instruction</th><th>CS Concept</th></tr>
+      <tr><td>POKE/PEEK</td><td>Memory-mapped I/O, load/store architecture</td></tr>
+      <tr><td>SBIT/CBIT/TBIT</td><td>Bitwise operations, bit manipulation</td></tr>
+      <tr><td>BSET/BCLR</td><td>Conditional branching on individual bits</td></tr>
+      <tr><td>LOOP</td><td>Counted loops, loop invariants</td></tr>
+      <tr><td>TICK/WAIT</td><td>Blocking syscalls, async boundaries</td></tr>
+      <tr><td>FILL/COPY</td><td>Memory operations, DMA concept</td></tr>
+      <tr><td>SELV + GATE</td><td>Indirection, register-based addressing</td></tr>
+      <tr><td>Euclidean example</td><td>Bresenham's algorithm, integer math</td></tr>
+    </table>
+
+    <!-- ==================== COMPARISON ==================== -->
+    <h2>Comparison to SPC-700</h2>
+    <table>
+      <tr><th>Feature</th><th>SPC-700</th><th>$1010 ASM</th></tr>
+      <tr><td>Base architecture</td><td>6502</td><td>MTMC-16</td></tr>
+      <tr><td>Address space</td><td>64KB</td><td>64KB (audio at $1000)</td></tr>
+      <tr><td>Bit operations</td><td>SET1, CLR1, etc.</td><td>SBIT, CBIT, TBIT</td></tr>
+      <tr><td>Loop primitive</td><td>DBNZ</td><td>LOOP</td></tr>
+      <tr><td>Audio trigger</td><td>Write to DSP regs</td><td>TRIG syscall</td></tr>
+      <tr><td>New opcodes</td><td>~30</td><td>23</td></tr>
+    </table>
+
+    <div class="manifesto">
+      SPC-700 shipped in 49 million SNES consoles.<br>
+      Those instructions made the music of a generation.<br>
+      $1010 ASM: same ideas, modern teaching, your computer.
+    </div>
+
+    <p style="margin-top:40px; color: var(--dim); font-size: 12px;">
+      <a href="1010tour.html">$1010 Language Tour</a> &middot;
+      <a href="1010sequencer.html">Full Sequencer</a> &middot;
+      <a href="1010arcade.html">Game Boy Arcade</a>
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>$1010 APU - Step Debugger</title>
+  <style>
+    :root {
+      --gb-0: #9bbc0f;
+      --gb-1: #8bac0f;
+      --gb-2: #306230;
+      --gb-3: #0f380f;
+      --bg: #0a0a0f;
+      --panel: #111;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { color: var(--gb-0); margin: 0 0 5px 0; font-size: 18px; }
+    h2 { color: var(--gb-1); margin: 15px 0 8px 0; font-size: 14px; }
+    .subtitle { color: #666; margin-bottom: 15px; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      max-width: 1000px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid #333;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    /* Step controls */
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button {
+      background: linear-gradient(180deg, #333 0%, #222 100%);
+      color: var(--gb-0);
+      border: 1px solid #444;
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    button:hover { background: #444; }
+    button:active { background: #222; }
+    button.primary { border-color: var(--gb-0); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .step-indicator {
+      font-size: 24px;
+      color: var(--gb-0);
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    /* Step grid */
+    .step-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(16, 1fr);
+      gap: 2px;
+      font-size: 10px;
+    }
+    .step-header {
+      background: #1a1a1a;
+      padding: 4px;
+      text-align: center;
+      color: #666;
+    }
+    .step-header.current {
+      background: var(--gb-2);
+      color: var(--gb-0);
+    }
+    .voice-label {
+      background: #1a1a1a;
+      padding: 4px 8px;
+      color: #888;
+      text-align: right;
+    }
+    .step-cell {
+      background: #0a0a0a;
+      padding: 4px;
+      text-align: center;
+      color: #444;
+      border: 1px solid transparent;
+    }
+    .step-cell.active {
+      background: var(--gb-3);
+      color: var(--gb-0);
+      border-color: var(--gb-2);
+    }
+    .step-cell.current {
+      border-color: var(--gb-0);
+      box-shadow: 0 0 5px var(--gb-0);
+    }
+    .step-cell.triggered {
+      background: var(--gb-0);
+      color: var(--gb-3);
+      animation: flash 0.3s ease-out;
+    }
+    @keyframes flash {
+      from { background: #fff; }
+      to { background: var(--gb-0); }
+    }
+
+    /* Memory view */
+    .mem-section {
+      margin-bottom: 10px;
+    }
+    .mem-label {
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .mem-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .mem-byte {
+      background: #0a0a0a;
+      padding: 2px 4px;
+      color: #666;
+      min-width: 24px;
+      text-align: center;
+      font-size: 10px;
+    }
+    .mem-byte.highlight {
+      background: var(--gb-3);
+      color: var(--gb-0);
+    }
+    .mem-byte.changed {
+      background: #442200;
+      color: #ff8800;
+    }
+
+    /* Event log */
+    .event-log {
+      height: 200px;
+      overflow-y: auto;
+      background: #050505;
+      padding: 8px;
+      font-size: 11px;
+    }
+    .event {
+      margin-bottom: 4px;
+      padding: 2px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .event-step { color: var(--gb-0); }
+    .event-voice { color: #888; }
+    .event-params { color: #666; }
+    .event-gate { color: #0f0; }
+
+    /* Registers */
+    .reg-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .reg {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: #0a0a0a;
+    }
+    .reg-name { color: #888; }
+    .reg-value { color: var(--gb-0); font-weight: bold; }
+
+    /* Pattern selector */
+    select {
+      background: #222;
+      color: var(--gb-0);
+      border: 1px solid #444;
+      padding: 6px;
+      font-family: inherit;
+    }
+
+    /* Sidebar */
+    .sidebar h2 { margin-top: 0; }
+
+    /* Explanation panel */
+    .explanation {
+      background: #0a0a0f;
+      border: 1px dashed #333;
+      padding: 10px;
+      color: #888;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .explanation code {
+      background: #1a1a1a;
+      padding: 1px 4px;
+      color: var(--gb-0);
+    }
+  </style>
+</head>
+<body>
+  <h1>$1010 APU - Step Debugger</h1>
+  <p class="subtitle">Educational tool for understanding the sequencer tick-by-tick</p>
+
+  <div class="main-layout">
+    <div class="main-content">
+      <!-- Controls -->
+      <div class="panel">
+        <div class="controls">
+          <button id="btn-reset">RESET</button>
+          <button id="btn-step" class="primary">STEP</button>
+          <button id="btn-play">PLAY</button>
+          <button id="btn-stop" disabled>STOP</button>
+          <span class="step-indicator">Step: <span id="current-step">0</span></span>
+          <span style="margin-left: auto;">
+            Pattern:
+            <select id="pattern-select">
+              <option value="four_on_floor">Four on Floor</option>
+              <option value="backbeat">Backbeat</option>
+              <option value="minimal">Minimal</option>
+              <option value="voice_test">Voice Test</option>
+              <option value="empty">Empty</option>
+            </select>
+            <button id="btn-load">LOAD</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- Step Grid -->
+      <div class="panel">
+        <h2>Pattern Grid</h2>
+        <div class="step-grid" id="step-grid">
+          <!-- Header row -->
+          <div class="step-header"></div>
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Memory View -->
+      <div class="panel">
+        <h2>Memory Inspector</h2>
+        <div id="memory-view">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <!-- Registers -->
+      <div class="panel">
+        <h2>Sequencer Registers</h2>
+        <div class="reg-grid">
+          <div class="reg"><span class="reg-name">$1500 CTRL</span><span class="reg-value" id="reg-ctrl">00</span></div>
+          <div class="reg"><span class="reg-name">$1501 TEMPO</span><span class="reg-value" id="reg-tempo">78</span></div>
+          <div class="reg"><span class="reg-name">$1502 STEP</span><span class="reg-value" id="reg-step">00</span></div>
+          <div class="reg"><span class="reg-name">$1503 SWING</span><span class="reg-value" id="reg-swing">00</span></div>
+        </div>
+      </div>
+
+      <!-- Event Log -->
+      <div class="panel">
+        <h2>Event Log</h2>
+        <div class="event-log" id="event-log">
+          <div class="event" style="color:#666;">Click STEP or PLAY to begin...</div>
+        </div>
+      </div>
+
+      <!-- Explanation -->
+      <div class="panel">
+        <h2>What's Happening</h2>
+        <div class="explanation" id="explanation">
+          The sequencer reads <code>gate</code> bytes from memory at each step.
+          If gate > 0, the voice triggers. For LEAD and BASS, the gate value
+          IS the MIDI note number.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============ MEMORY SIMULATION ============
+    const mem = new Uint8Array(65536);
+    let currentStep = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let prevMem = new Uint8Array(65536);
+
+    // Memory map
+    const VOICE_ADDRS = {
+      kick:  { gate: 0x1000, pitch: 0x1010 },
+      snare: { gate: 0x1020, tone: 0x1030, snap: 0x1040 },
+      lead:  { gate: 0x1100, arp: 0x1110 },
+      bass:  { gate: 0x1200, fm: 0x1210 },
+      noise: { gate: 0x1300, decay: 0x1310 }
+    };
+
+    const SEQ_ADDRS = {
+      ctrl: 0x1500,
+      tempo: 0x1501,
+      step: 0x1502,
+      swing: 0x1503
+    };
+
+    // ============ PATTERNS ============
+    const PATTERNS = {
+      four_on_floor: {
+        kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+        snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+        lead:  [60,0,0,0,0,0,0,0,67,0,0,0,0,0,0,0],
+        bass:  [36,0,0,0,0,0,0,0,48,0,0,0,0,0,0,0],
+        noise: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+      },
+      backbeat: {
+        kick:  [1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],
+        snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+        lead:  [64,0,0,0,0,0,0,0,0,0,67,0,0,0,0,0],
+        bass:  [40,0,0,40,0,0,0,0,43,0,0,45,0,0,0,0],
+        noise: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+      },
+      minimal: {
+        kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+        snare: [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+        lead:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        bass:  [24,0,0,0,0,0,0,0,24,0,0,0,0,0,0,0],
+        noise: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+      },
+      voice_test: {
+        kick:  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        snare: [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+        lead:  [0,0,0,0,0,0,0,0,60,0,0,0,0,0,0,0],
+        bass:  [0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0],
+        noise: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+      },
+      empty: {
+        kick:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        snare: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        lead:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        noise: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      }
+    };
+
+    // ============ AUDIO ============
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function midiToFreq(note) {
+      return 440 * Math.pow(2, (note - 69) / 12);
+    }
+
+    function playKick(pitch = 36) {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(midiToFreq(pitch + 24), now);
+      osc.frequency.exponentialRampToValueAtTime(midiToFreq(pitch), now + 0.1);
+      gain.gain.setValueAtTime(0.6, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }
+
+    function playSnare() {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const bufferSize = ctx.sampleRate * 0.1;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+      noise.connect(gain).connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + 0.15);
+    }
+
+    function playLead(note) {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = midiToFreq(note);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+
+    function playBass(note) {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.value = midiToFreq(note);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    }
+
+    function playNoise() {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const bufferSize = ctx.sampleRate * 0.05;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 8000;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+      noise.connect(filter).connect(gain).connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + 0.1);
+    }
+
+    // ============ INIT ============
+    function init() {
+      mem[SEQ_ADDRS.tempo] = 120;
+      mem[SEQ_ADDRS.swing] = 0;
+      mem[SEQ_ADDRS.ctrl] = 0;
+      mem[SEQ_ADDRS.step] = 0;
+      loadPattern('four_on_floor');
+      buildStepGrid();
+      updateUI();
+    }
+
+    function loadPattern(name) {
+      const p = PATTERNS[name];
+      if (!p) return;
+
+      for (let i = 0; i < 16; i++) {
+        mem[VOICE_ADDRS.kick.gate + i] = p.kick[i];
+        mem[VOICE_ADDRS.snare.gate + i] = p.snare[i];
+        mem[VOICE_ADDRS.lead.gate + i] = p.lead[i];
+        mem[VOICE_ADDRS.bass.gate + i] = p.bass[i];
+        mem[VOICE_ADDRS.noise.gate + i] = p.noise[i];
+      }
+
+      logEvent(`Loaded pattern: ${name}`);
+      updateUI();
+    }
+
+    // ============ UI BUILDING ============
+    function buildStepGrid() {
+      const grid = document.getElementById('step-grid');
+      grid.innerHTML = '';
+
+      // Header row
+      grid.appendChild(createEl('div', 'step-header', ''));
+      for (let i = 0; i < 16; i++) {
+        const header = createEl('div', 'step-header', i.toString(16).toUpperCase());
+        header.id = `header-${i}`;
+        grid.appendChild(header);
+      }
+
+      // Voice rows
+      const voices = ['KICK', 'SNARE', 'LEAD', 'BASS', 'NOISE'];
+      const voiceKeys = ['kick', 'snare', 'lead', 'bass', 'noise'];
+
+      voices.forEach((voice, vi) => {
+        grid.appendChild(createEl('div', 'voice-label', voice));
+        for (let i = 0; i < 16; i++) {
+          const cell = createEl('div', 'step-cell', '');
+          cell.id = `cell-${voiceKeys[vi]}-${i}`;
+          grid.appendChild(cell);
+        }
+      });
+    }
+
+    function createEl(tag, className, text) {
+      const el = document.createElement(tag);
+      el.className = className;
+      el.textContent = text;
+      return el;
+    }
+
+    // ============ UI UPDATE ============
+    function updateUI() {
+      // Save prev memory for diff highlighting
+      prevMem.set(mem);
+
+      // Step indicator
+      document.getElementById('current-step').textContent = currentStep;
+
+      // Registers
+      document.getElementById('reg-ctrl').textContent = mem[SEQ_ADDRS.ctrl].toString(16).padStart(2, '0').toUpperCase();
+      document.getElementById('reg-tempo').textContent = mem[SEQ_ADDRS.tempo].toString(16).padStart(2, '0').toUpperCase();
+      document.getElementById('reg-step').textContent = mem[SEQ_ADDRS.step].toString(16).padStart(2, '0').toUpperCase();
+      document.getElementById('reg-swing').textContent = mem[SEQ_ADDRS.swing].toString(16).padStart(2, '0').toUpperCase();
+
+      // Headers
+      for (let i = 0; i < 16; i++) {
+        const header = document.getElementById(`header-${i}`);
+        header.classList.toggle('current', i === currentStep);
+      }
+
+      // Grid cells
+      const voiceKeys = ['kick', 'snare', 'lead', 'bass', 'noise'];
+      voiceKeys.forEach(voice => {
+        const baseAddr = VOICE_ADDRS[voice].gate;
+        for (let i = 0; i < 16; i++) {
+          const cell = document.getElementById(`cell-${voice}-${i}`);
+          const val = mem[baseAddr + i];
+          cell.classList.toggle('active', val > 0);
+          cell.classList.toggle('current', i === currentStep);
+          cell.textContent = val > 0 ? val.toString(16).toUpperCase() : '';
+        }
+      });
+
+      // Memory view
+      updateMemoryView();
+    }
+
+    function updateMemoryView() {
+      const view = document.getElementById('memory-view');
+      const sections = [
+        { label: 'KICK Gate ($1000)', addr: 0x1000, len: 16 },
+        { label: 'SNARE Gate ($1020)', addr: 0x1020, len: 16 },
+        { label: 'LEAD Gate ($1100)', addr: 0x1100, len: 16 },
+        { label: 'BASS Gate ($1200)', addr: 0x1200, len: 16 },
+        { label: 'NOISE Gate ($1300)', addr: 0x1300, len: 16 },
+        { label: 'Sequencer ($1500)', addr: 0x1500, len: 4 }
+      ];
+
+      view.innerHTML = '';
+      sections.forEach(sec => {
+        const div = document.createElement('div');
+        div.className = 'mem-section';
+
+        const label = document.createElement('div');
+        label.className = 'mem-label';
+        label.textContent = sec.label;
+        div.appendChild(label);
+
+        const row = document.createElement('div');
+        row.className = 'mem-row';
+        for (let i = 0; i < sec.len; i++) {
+          const addr = sec.addr + i;
+          const byte = document.createElement('span');
+          byte.className = 'mem-byte';
+          byte.textContent = mem[addr].toString(16).padStart(2, '0');
+
+          // Highlight current step position
+          if (sec.len === 16 && i === currentStep) {
+            byte.classList.add('highlight');
+          }
+          row.appendChild(byte);
+        }
+        div.appendChild(row);
+        view.appendChild(div);
+      });
+    }
+
+    // ============ EVENT LOG ============
+    function logEvent(msg) {
+      const log = document.getElementById('event-log');
+      const event = document.createElement('div');
+      event.className = 'event';
+      event.innerHTML = msg;
+      log.insertBefore(event, log.firstChild);
+
+      // Trim log
+      while (log.children.length > 50) {
+        log.removeChild(log.lastChild);
+      }
+    }
+
+    // ============ TICK LOGIC ============
+    function tick() {
+      const triggered = [];
+
+      // Update step register
+      mem[SEQ_ADDRS.step] = currentStep;
+
+      // Check each voice
+      const kickGate = mem[VOICE_ADDRS.kick.gate + currentStep];
+      if (kickGate) {
+        const pitch = mem[VOICE_ADDRS.kick.pitch + currentStep] || 36;
+        triggered.push({ voice: 'KICK', gate: kickGate, params: `pitch=${pitch}` });
+        playKick(pitch);
+        flashCell('kick', currentStep);
+      }
+
+      const snareGate = mem[VOICE_ADDRS.snare.gate + currentStep];
+      if (snareGate) {
+        triggered.push({ voice: 'SNARE', gate: snareGate, params: '' });
+        playSnare();
+        flashCell('snare', currentStep);
+      }
+
+      const leadGate = mem[VOICE_ADDRS.lead.gate + currentStep];
+      if (leadGate) {
+        triggered.push({ voice: 'LEAD', gate: leadGate, params: `note=${leadGate}` });
+        playLead(leadGate);
+        flashCell('lead', currentStep);
+      }
+
+      const bassGate = mem[VOICE_ADDRS.bass.gate + currentStep];
+      if (bassGate) {
+        const fm = mem[VOICE_ADDRS.bass.fm + currentStep] || 40;
+        triggered.push({ voice: 'BASS', gate: bassGate, params: `note=${bassGate}` });
+        playBass(bassGate);
+        flashCell('bass', currentStep);
+      }
+
+      const noiseGate = mem[VOICE_ADDRS.noise.gate + currentStep];
+      if (noiseGate) {
+        triggered.push({ voice: 'NOISE', gate: noiseGate, params: '' });
+        playNoise();
+        flashCell('noise', currentStep);
+      }
+
+      // Log
+      if (triggered.length > 0) {
+        const voiceList = triggered.map(t =>
+          `<span class="event-voice">${t.voice}</span>` +
+          (t.params ? ` <span class="event-params">(${t.params})</span>` : '')
+        ).join(', ');
+        logEvent(`<span class="event-step">Step ${currentStep.toString(16).toUpperCase()}</span>: ${voiceList}`);
+      } else {
+        logEvent(`<span class="event-step">Step ${currentStep.toString(16).toUpperCase()}</span>: <span style="color:#444">silence</span>`);
+      }
+
+      // Update explanation
+      updateExplanation(triggered);
+
+      // Advance
+      currentStep = (currentStep + 1) & 15;
+      updateUI();
+    }
+
+    function flashCell(voice, step) {
+      const cell = document.getElementById(`cell-${voice}-${step}`);
+      cell.classList.add('triggered');
+      setTimeout(() => cell.classList.remove('triggered'), 300);
+    }
+
+    function updateExplanation(triggered) {
+      const el = document.getElementById('explanation');
+      if (triggered.length === 0) {
+        el.innerHTML = `Step <code>${(currentStep).toString(16).toUpperCase()}</code>: All gate bytes are 0. No voices trigger.`;
+      } else {
+        const lines = triggered.map(t => {
+          const addr = VOICE_ADDRS[t.voice.toLowerCase()].gate + currentStep;
+          return `<code>$${addr.toString(16).toUpperCase()}</code> = ${t.gate} triggers ${t.voice}`;
+        });
+        el.innerHTML = `Step <code>${(currentStep).toString(16).toUpperCase()}</code>:<br>` + lines.join('<br>');
+      }
+    }
+
+    // ============ CONTROLS ============
+    document.getElementById('btn-step').onclick = () => {
+      tick();
+    };
+
+    document.getElementById('btn-reset').onclick = () => {
+      currentStep = 0;
+      mem[SEQ_ADDRS.step] = 0;
+      logEvent('<span style="color:#888">Reset to step 0</span>');
+      updateUI();
+    };
+
+    document.getElementById('btn-play').onclick = () => {
+      isPlaying = true;
+      mem[SEQ_ADDRS.ctrl] = 3;
+      document.getElementById('btn-play').disabled = true;
+      document.getElementById('btn-stop').disabled = false;
+      document.getElementById('btn-step').disabled = true;
+
+      const bpm = mem[SEQ_ADDRS.tempo];
+      const stepMs = (60 / bpm / 4) * 1000;
+
+      logEvent(`<span style="color:#0f0">PLAY @ ${bpm} BPM</span>`);
+
+      const loop = () => {
+        if (!isPlaying) return;
+        tick();
+        playTimer = setTimeout(loop, stepMs);
+      };
+      loop();
+    };
+
+    document.getElementById('btn-stop').onclick = () => {
+      isPlaying = false;
+      mem[SEQ_ADDRS.ctrl] = 0;
+      if (playTimer) clearTimeout(playTimer);
+      document.getElementById('btn-play').disabled = false;
+      document.getElementById('btn-stop').disabled = true;
+      document.getElementById('btn-step').disabled = false;
+      logEvent('<span style="color:#f00">STOP</span>');
+      updateUI();
+    };
+
+    document.getElementById('btn-load').onclick = () => {
+      loadPattern(document.getElementById('pattern-select').value);
+    };
+
+    // Init
+    init();
+  </script>
+</body>
+</html>

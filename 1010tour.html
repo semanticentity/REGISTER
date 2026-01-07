@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$1010 Language Tour</title>
+  <style>
+    :root {
+      --fg: #e0e0e0;
+      --bg: #0a0a0f;
+      --accent: #9bbc0f;
+      --dim: #666;
+      --code-bg: #111;
+      --border: #222;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+      font-size: 32px;
+      margin: 0 0 5px 0;
+    }
+    .tagline {
+      color: var(--dim);
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+    h2 {
+      color: var(--accent);
+      font-size: 18px;
+      margin: 40px 0 15px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      color: var(--fg);
+      font-size: 15px;
+      margin: 25px 0 10px 0;
+    }
+    p { margin: 10px 0; }
+    code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--accent);
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 15px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+    }
+    .highlight { color: var(--accent); }
+    .comment { color: #666; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+    }
+    th {
+      background: var(--code-bg);
+      color: var(--accent);
+      font-weight: normal;
+    }
+    td { font-family: 'Courier New', monospace; }
+    td:first-child { color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 15px 0;
+    }
+    .card {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 15px;
+    }
+    .card h4 {
+      color: var(--accent);
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+    }
+    .card p {
+      color: var(--dim);
+      font-size: 13px;
+      margin: 0;
+    }
+    .primitive {
+      display: flex;
+      align-items: baseline;
+      gap: 15px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .primitive:last-child { border-bottom: none; }
+    .primitive-name {
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+      min-width: 120px;
+    }
+    .primitive-desc { color: var(--dim); font-size: 13px; }
+    .toc {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 15px 20px;
+      margin: 20px 0;
+    }
+    .toc a {
+      color: var(--dim);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .toc a:hover { color: var(--accent); }
+    .toc ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .toc li { margin: 5px 0; }
+    a { color: var(--accent); }
+    .manifesto {
+      border-left: 3px solid var(--accent);
+      padding-left: 20px;
+      margin: 30px 0;
+      font-style: italic;
+      color: var(--dim);
+    }
+    .byte-size {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>$1010</h1>
+    <p class="tagline">A memory-mapped audio primitive. 180-byte core. Infinite leverage.</p>
+
+    <div class="manifesto">
+      Sound is memory. Memory is bytes. Bytes are yours.<br>
+      POKE $1000, hear kick. That's it. That's the language.
+    </div>
+
+    <p style="font-size:13px; color:var(--dim);">
+      <strong>Philosophy:</strong> Tiny core, explicit extensions. Like htmx—extend HTML, don't replace it.
+      $1010 extends memory, doesn't hide it. A student's first program is 2 lines.
+      ADSR, tuning, effects load as packs when you need them.
+    </p>
+
+    <nav class="toc">
+      <strong>Contents</strong>
+      <ul>
+        <li><a href="#core">Core Concept</a></li>
+        <li><a href="#memory">Memory Map</a></li>
+        <li><a href="#primitives">Primitives</a></li>
+        <li><a href="#format">Tweet Format</a></li>
+        <li><a href="#wasm">WASM Mapping</a></li>
+        <li><a href="#syscalls">Syscalls</a></li>
+        <li><a href="#targets">Compile Targets</a></li>
+        <li><a href="#extend">Extending</a></li>
+        <li><a href="#packs">$1010 Packs</a></li>
+        <li><a href="#teaching">Teaching Map</a></li>
+      </ul>
+    </nav>
+
+    <!-- ==================== CORE ==================== -->
+    <h2 id="core">Core Concept</h2>
+    <p>$1010 is a <strong>memory-mapped audio coprocessor</strong>. Write bytes to addresses, hear sound. No API, no drivers, no abstraction.</p>
+
+    <pre><code><span class="comment">; Make a kick drum</span>
+POKE $1000, 1      <span class="comment">; gate ON at step 0</span>
+POKE $1500, 3      <span class="comment">; start sequencer</span>
+<span class="comment">; That's it. Kick plays.</span></code></pre>
+
+    <p>The entire spec fits in <span class="byte-size">&lt;300 BYTES</span> of memory. A full song fits in a tweet.</p>
+
+    <!-- ==================== MEMORY ==================== -->
+    <h2 id="memory">Memory Map</h2>
+    <p>Audio lives at <code>$1000-$15FF</code>. Everything is a byte. Core is ~180 bytes.</p>
+
+    <h3>Core (Required)</h3>
+    <p>The minimum to make sound. No extensions needed.</p>
+    <table>
+      <tr><th>Address</th><th>Size</th><th>Function</th></tr>
+      <tr><td>$1000</td><td>16</td><td>KICK gate (1=trigger per step)</td></tr>
+      <tr><td>$1010</td><td>16</td><td>KICK pitch (MIDI note, default 36)</td></tr>
+      <tr><td>$1020</td><td>16</td><td>SNARE gate</td></tr>
+      <tr><td>$1030</td><td>16</td><td>SNARE tone</td></tr>
+      <tr><td>$1040</td><td>16</td><td>SNARE snap</td></tr>
+      <tr><td>$1100</td><td>16</td><td>LEAD gate (value = MIDI note)</td></tr>
+      <tr><td>$1110</td><td>16</td><td>LEAD arp offset</td></tr>
+      <tr><td>$1200</td><td>16</td><td>BASS gate (value = MIDI note)</td></tr>
+      <tr><td>$1210</td><td>16</td><td>BASS FM amount</td></tr>
+      <tr><td>$1300</td><td>16</td><td>NOISE gate</td></tr>
+      <tr><td>$1310</td><td>16</td><td>NOISE decay</td></tr>
+      <tr><td>$1500</td><td>1</td><td>SEQ_CTRL (bit0=play, bit1=loop)</td></tr>
+      <tr><td>$1501</td><td>1</td><td>SEQ_TEMPO (BPM, 40-200)</td></tr>
+      <tr><td>$1502</td><td>1</td><td>SEQ_STEP (current step, 0-15)</td></tr>
+      <tr><td>$1503</td><td>1</td><td>SEQ_SWING (0-100%)</td></tr>
+    </table>
+    <p><span class="byte-size">180 BYTES</span> = full 5-voice beat. That's the core.</p>
+
+    <h3>XMixer Pack (Optional)</h3>
+    <p>Volume, pan, basic mixing. Load when you need levels.</p>
+    <table>
+      <tr><th>Address</th><th>Size</th><th>Function</th><th>Range</th></tr>
+      <tr><td>$1050</td><td>5</td><td>VOICE_VOL (per voice)</td><td>0-127 unsigned</td></tr>
+      <tr><td>$1055</td><td>5</td><td>VOICE_PAN (per voice)</td><td>-64 to +63 signed</td></tr>
+      <tr><td>$105A</td><td>1</td><td>MASTER_VOL</td><td>0-127</td></tr>
+      <tr><td>$105B</td><td>1</td><td>MASTER_PAN</td><td>-64 to +63</td></tr>
+    </table>
+
+    <h3>XEnv Pack (Optional)</h3>
+    <p>ADSR envelopes. Load when you need shaped sounds vs raw gates.</p>
+    <table>
+      <tr><th>Address</th><th>Size</th><th>Function</th><th>Range</th></tr>
+      <tr><td>$1060</td><td>4</td><td>KICK ADSR (A, D, S, R)</td><td>0-255 each</td></tr>
+      <tr><td>$1064</td><td>4</td><td>SNARE ADSR</td><td>0-255 each</td></tr>
+      <tr><td>$1068</td><td>4</td><td>LEAD ADSR</td><td>0-255 each</td></tr>
+      <tr><td>$106C</td><td>4</td><td>BASS ADSR</td><td>0-255 each</td></tr>
+      <tr><td>$1070</td><td>4</td><td>NOISE ADSR</td><td>0-255 each</td></tr>
+    </table>
+    <p>20 bytes. A=attack time, D=decay time, S=sustain level, R=release time.</p>
+
+    <h3>XTuning Pack (Optional)</h3>
+    <p>Microtuning, alternative temperaments, per-voice detune. Load when 440Hz 12-TET isn't enough.</p>
+    <table>
+      <tr><th>Address</th><th>Size</th><th>Function</th><th>Values</th></tr>
+      <tr><td>$10A0</td><td>1</td><td>TUNING_MODE</td><td>0=12-TET, 1=JUST, 2=PYTH, 3=COLUNDI</td></tr>
+      <tr><td>$10A1</td><td>2</td><td>A4_REF (16-bit)</td><td>400-480 Hz (default 440)</td></tr>
+      <tr><td>$10A3</td><td>5</td><td>VOICE_DETUNE</td><td>-100 to +100 cents (stored +128)</td></tr>
+    </table>
+    <p>8 bytes. Teaches: why 440Hz? why 12 equal divisions? what's Just Intonation?</p>
+
+    <h3>Tuning Modes</h3>
+    <table>
+      <tr><th>Mode</th><th>Description</th><th>Teaching</th></tr>
+      <tr><td>12-TET</td><td>Equal temperament, 2^(n/12)</td><td>Default. Compromise tuning for key changes.</td></tr>
+      <tr><td>JUST</td><td>Pure ratios (5:4 third, 3:2 fifth)</td><td>Why thirds sound "off" in 12-TET. Beatless intervals.</td></tr>
+      <tr><td>PYTH</td><td>Pythagorean (perfect fifths stack)</td><td>Why we need temperament. Wolf intervals.</td></tr>
+      <tr><td>COLUNDI</td><td>Aleksi Perälä's 47-frequency sequence</td><td>Music beyond the grid. Non-octave tuning.</td></tr>
+    </table>
+
+    <!-- ==================== PRIMITIVES ==================== -->
+    <h2 id="primitives">Primitives</h2>
+    <p>Everything in $1010 reduces to these primitives:</p>
+
+    <div class="primitive"><span class="primitive-name">BYTE</span><span class="primitive-desc">8 bits. 0-255 unsigned, or -128 to +127 signed (two's complement).</span></div>
+    <div class="primitive"><span class="primitive-name">ADDRESS</span><span class="primitive-desc">16-bit pointer into memory. Written as $XXXX hex.</span></div>
+    <div class="primitive"><span class="primitive-name">GATE</span><span class="primitive-desc">0 = silent, &gt;0 = trigger. For melodic voices, value = MIDI note.</span></div>
+    <div class="primitive"><span class="primitive-name">STEP</span><span class="primitive-desc">One of 16 positions (0-F). Sequencer reads gates at each step.</span></div>
+    <div class="primitive"><span class="primitive-name">TICK</span><span class="primitive-desc">One step advance. Rate = 60/BPM/4 seconds (16th notes).</span></div>
+    <div class="primitive"><span class="primitive-name">VOICE</span><span class="primitive-desc">Sound generator. 5 total: kick, snare, lead, bass, noise.</span></div>
+    <div class="primitive"><span class="primitive-name">PATTERN</span><span class="primitive-desc">16 bytes of gate data. One pattern per voice.</span></div>
+
+    <!-- ==================== FORMAT ==================== -->
+    <h2 id="format">Tweet Format</h2>
+    <p>A song in 280 characters or less:</p>
+
+    <pre><code>BPM:122
+1000:x...x...x...x...
+1020:....x.......x...
+1100:39..3C..40..39..
+1200:21......21..24..</code></pre>
+
+    <h3>Syntax</h3>
+    <table>
+      <tr><th>Token</th><th>Meaning</th></tr>
+      <tr><td>BPM:120</td><td>Set tempo</td></tr>
+      <tr><td>1000:</td><td>Address prefix (hex)</td></tr>
+      <tr><td>x</td><td>Gate ON (trigger)</td></tr>
+      <tr><td>.</td><td>Gate OFF (rest)</td></tr>
+      <tr><td>3C</td><td>Hex byte (60 = middle C)</td></tr>
+    </table>
+
+    <h3>MIDI Note Reference</h3>
+    <pre><code>C2=24  C3=36  C4=48  C5=60  C6=72
+D=+2   E=+4   F=+5   G=+7   A=+9   B=+11
+<span class="comment"># Example: E4 = 48+4 = 52 = 0x34</span></code></pre>
+
+    <!-- ==================== WASM ==================== -->
+    <h2 id="wasm">WASM Mapping</h2>
+    <p>$1010 compiles to WebAssembly. Memory-mapped addresses become WASM linear memory.</p>
+
+    <pre><code><span class="comment">;; WASM memory layout (64KB page)</span>
+(memory (export "memory") 1)
+
+<span class="comment">;; Address constants</span>
+(global $KICK_GATE i32 (i32.const 0x1000))
+(global $SEQ_CTRL  i32 (i32.const 0x1500))
+(global $SEQ_TEMPO i32 (i32.const 0x1501))
+
+<span class="comment">;; Read/write primitives</span>
+(func $read (param $addr i32) (result i32)
+  (i32.load8_u (local.get $addr)))
+
+(func $write (param $addr i32) (param $val i32)
+  (i32.store8 (local.get $addr) (local.get $val)))</code></pre>
+
+    <h3>WASM Exports</h3>
+    <table>
+      <tr><th>Export</th><th>Signature</th><th>Function</th></tr>
+      <tr><td>memory</td><td>Memory</td><td>64KB linear memory</td></tr>
+      <tr><td>init</td><td>() → void</td><td>Initialize sequencer</td></tr>
+      <tr><td>start</td><td>() → void</td><td>Start playback</td></tr>
+      <tr><td>stop</td><td>() → void</td><td>Stop playback</td></tr>
+      <tr><td>reset</td><td>() → void</td><td>Reset to step 0</td></tr>
+      <tr><td>tick</td><td>() → i32</td><td>Advance one step, returns playing status</td></tr>
+      <tr><td>read</td><td>(i32) → i32</td><td>Read byte from address</td></tr>
+      <tr><td>write</td><td>(i32, i32) → void</td><td>Write byte to address</td></tr>
+      <tr><td>getStep</td><td>() → i32</td><td>Current step (0-15)</td></tr>
+      <tr><td>getTempo</td><td>() → i32</td><td>Current BPM</td></tr>
+      <tr><td>setTempo</td><td>(i32) → void</td><td>Set BPM</td></tr>
+      <tr><td>isPlaying</td><td>() → i32</td><td>1 if playing, 0 if stopped</td></tr>
+    </table>
+
+    <!-- ==================== SYSCALLS ==================== -->
+    <h2 id="syscalls">Syscalls / Imports</h2>
+    <p>WASM imports audio triggers from the host. The host handles synthesis.</p>
+
+    <pre><code><span class="comment">;; Host must provide these</span>
+(import "audio" "triggerKick"  (func (param i32)))           <span class="comment">; pitch</span>
+(import "audio" "triggerSnare" (func (param i32 i32)))       <span class="comment">; tone, snap</span>
+(import "audio" "triggerLead"  (func (param i32)))           <span class="comment">; note</span>
+(import "audio" "triggerBass"  (func (param i32 i32)))       <span class="comment">; note, fm</span>
+(import "audio" "triggerNoise" (func (param i32)))           <span class="comment">; decay</span></code></pre>
+
+    <h3>Tick Cycle</h3>
+    <pre><code><span class="comment">// Host calls tick() at BPM rate</span>
+setInterval(() => {
+  if (wasm.tick()) {           <span class="comment">// returns 1 if playing</span>
+    updateUI(wasm.getStep());
+  }
+}, (60 / bpm / 4) * 1000);     <span class="comment">// 16th note interval</span></code></pre>
+
+    <p><strong>Division of labor:</strong></p>
+    <ul>
+      <li><strong>WASM</strong>: sequencer state, memory, step logic</li>
+      <li><strong>Host</strong>: timing, audio synthesis, UI</li>
+    </ul>
+
+    <!-- ==================== TARGETS ==================== -->
+    <h2 id="targets">Compile Targets</h2>
+    <p>The $1010 DSL compiles to multiple backends:</p>
+
+    <div class="grid">
+      <div class="card">
+        <h4>MTMC-16 Assembly</h4>
+        <p>Native target. Runs on Carson Gross's teaching VM. Uses sys memcopy for pattern loading.</p>
+      </div>
+      <div class="card">
+        <h4>WebAssembly (.wat)</h4>
+        <p>Browser target. Linear memory maps 1:1. Host provides Web Audio synthesis.</p>
+      </div>
+      <div class="card">
+        <h4>C</h4>
+        <p>Embedded target. uint8_t arrays, function calls. Portable to Arduino, Pi Pico, etc.</p>
+      </div>
+      <div class="card">
+        <h4>Rust</h4>
+        <p>Safe embedded. Same memory model, stricter types. no_std compatible.</p>
+      </div>
+      <div class="card">
+        <h4>Intel HEX</h4>
+        <p>Raw binary. Flash directly to EEPROM. Old school ROM distribution.</p>
+      </div>
+    </div>
+
+    <p>Same 260-byte song, five different machines.</p>
+
+    <!-- ==================== EXTEND ==================== -->
+    <h2 id="extend">Extending $1010</h2>
+    <p>The spec is minimal by design. Extension points:</p>
+
+    <h3>Add a Voice</h3>
+    <pre><code><span class="comment">; Reserve $1400-$14FF for new voice</span>
+$1400: gate[16]    <span class="comment">; trigger pattern</span>
+$1410: param1[16]  <span class="comment">; voice-specific</span>
+$1420: param2[16]
+
+<span class="comment">; Add import to WASM</span>
+(import "audio" "triggerMyVoice" (func (param i32 i32)))</code></pre>
+
+    <h3>Add Effects</h3>
+    <pre><code><span class="comment">; Effects region at $1600</span>
+$1600: FX_REVERB   <span class="comment">; 0-127</span>
+$1601: FX_DELAY    <span class="comment">; 0-127</span>
+$1602: FX_FILTER   <span class="comment">; 0-255 (cutoff)</span></code></pre>
+
+    <h3>Longer Patterns</h3>
+    <pre><code><span class="comment">; 32-step mode: use $1504 as length register</span>
+$1504: SEQ_LENGTH  <span class="comment">; 16, 32, or 64</span>
+
+<span class="comment">; Second page of patterns at $1800</span></code></pre>
+
+    <h3>Embed in Your App</h3>
+    <pre><code class="language-js"><span class="comment">// Minimal embedding</span>
+const mem = new Uint8Array(65536);
+const KICK = 0x1000;
+
+mem[KICK + 0] = 1;  <span class="comment">// step 0: kick</span>
+mem[KICK + 4] = 1;  <span class="comment">// step 4: kick</span>
+
+<span class="comment">// Your tick loop</span>
+function tick(step) {
+  if (mem[KICK + step]) playKick();
+  if (mem[SNARE + step]) playSnare();
+  // ...
+}</code></pre>
+
+    <!-- ==================== PACKS ==================== -->
+    <h2 id="packs">$1010 Packs</h2>
+    <p>Core stays minimal (~180 bytes). Packs add capabilities. Load what you need.</p>
+
+    <h3>Tier 1: Essential Extensions</h3>
+    <p>Most projects load these. Still tiny.</p>
+    <table>
+      <tr><th>Pack</th><th>Region</th><th>Size</th><th>Teaches</th></tr>
+      <tr><td>XMixer</td><td>$1050-$105B</td><td>12 bytes</td><td>Volume, pan, signed bytes</td></tr>
+      <tr><td>XEnv</td><td>$1060-$1073</td><td>20 bytes</td><td>ADSR envelopes, time-varying state</td></tr>
+      <tr><td>XTuning</td><td>$10A0-$10A7</td><td>8 bytes</td><td>Temperament, A4 reference, cents</td></tr>
+    </table>
+    <p>Core + Tier 1 = ~220 bytes. Still fits in a tweet with room for patterns.</p>
+
+    <h3>Tier 2: Extended Capabilities</h3>
+    <table>
+      <tr><th>Pack</th><th>Region</th><th>Teaches</th></tr>
+      <tr><td>XSteps</td><td>$1600-$16FF</td><td>1-128 steps, polyrhythms</td></tr>
+      <tr><td>XTempo</td><td>$1700-$170F</td><td>16-bit values, endianness</td></tr>
+      <tr><td>XTheory</td><td>$1720-$173F</td><td>Scales, modes, time signatures</td></tr>
+      <tr><td>XChord</td><td>$1740-$175F</td><td>Harmony, inversions, voicings</td></tr>
+      <tr><td>XFX</td><td>$1800-$18FF</td><td>DSP, send/return routing</td></tr>
+      <tr><td>XEuclidean</td><td>$1B00-$1B3F</td><td>GCD algorithm, rhythm math</td></tr>
+      <tr><td>XLFO</td><td>$1B40-$1B7F</td><td>Periodic functions, sin/tri/saw</td></tr>
+      <tr><td>XMarkov</td><td>$1B80-$1BFF</td><td>Probability, state machines</td></tr>
+    </table>
+
+    <h3>Tier 3: Advanced / DAW-like</h3>
+    <table>
+      <tr><th>Pack</th><th>Region</th><th>Teaches</th></tr>
+      <tr><td>XFollow</td><td>$1C00-$1C3F</td><td>Clip follow actions (Ableton Live)</td></tr>
+      <tr><td>XMacro</td><td>$1C40-$1C8F</td><td>Parameter mapping, response curves</td></tr>
+      <tr><td>XSnapshot</td><td>$1C90-$1CAF</td><td>State save/morph/undo/interpolation</td></tr>
+      <tr><td>XPatch</td><td>$1D00-$1D7F</td><td>Modular routing (Max/MSP style)</td></tr>
+      <tr><td>XArp</td><td>$1D80-$1D9F</td><td>Arpeggiator patterns, sorting</td></tr>
+      <tr><td>XSeq</td><td>$1E00-$1E5F</td><td>Step conditions (Elektron style)</td></tr>
+      <tr><td>XClock</td><td>$1E60-$1E7F</td><td>Clock div/mult, sync, PPQN</td></tr>
+      <tr><td>XMath</td><td>$1E80-$1EBF</td><td>ALU operations (the CPU core!)</td></tr>
+      <tr><td>XCompare</td><td>$1EC0-$1EFF</td><td>Logic gates, comparators</td></tr>
+      <tr><td>XRecord</td><td>$1F00-$1F0F</td><td>Live pattern recording, circular buffers</td></tr>
+      <tr><td>XGrain</td><td>$1F10-$1F2F</td><td>Granular synthesis, window functions</td></tr>
+      <tr><td>XSample</td><td>$2000+</td><td>Sample buffers, playback</td></tr>
+    </table>
+
+    <h3>Example: XEnv Pack (ADSR)</h3>
+    <pre><code><span class="comment">; Lead voice: slow attack pad sound</span>
+POKE $1068, 200        <span class="comment">; A = slow attack (~800ms)</span>
+POKE $1069, 50         <span class="comment">; D = short decay</span>
+POKE $106A, 180        <span class="comment">; S = high sustain (70%)</span>
+POKE $106B, 150        <span class="comment">; R = medium release (~600ms)</span>
+
+<span class="comment">; Bass voice: punchy pluck</span>
+POKE $106C, 5          <span class="comment">; A = instant attack</span>
+POKE $106D, 80         <span class="comment">; D = medium decay</span>
+POKE $106E, 50         <span class="comment">; S = low sustain (20%)</span>
+POKE $106F, 40         <span class="comment">; R = quick release</span>
+
+<span class="comment">; Each value 0-255, scaled by synth (typically /255 * max_time)</span></code></pre>
+
+    <h3>Example: XTuning Pack</h3>
+    <pre><code><span class="comment">; Switch to Just Intonation</span>
+POKE $10A0, 1          <span class="comment">; mode = JUST</span>
+
+<span class="comment">; Or try Colundi (47 non-12TET frequencies)</span>
+POKE $10A0, 3          <span class="comment">; mode = COLUNDI</span>
+
+<span class="comment">; 432 Hz tuning (A4 = 432 instead of 440)</span>
+POKE $10A1, $B0        <span class="comment">; low byte of 432</span>
+POKE $10A2, $01        <span class="comment">; high byte</span>
+
+<span class="comment">; Detune lead +7 cents, bass -7 cents (instant thickness)</span>
+POKE $10A5, 135        <span class="comment">; lead: 128+7 = 135</span>
+POKE $10A6, 121        <span class="comment">; bass: 128-7 = 121</span></code></pre>
+
+    <h3>Example: XTempo Pack</h3>
+    <pre><code><span class="comment">; 16-bit BPM for extreme tempos</span>
+$1700: TEMPO_LO        <span class="comment">; Low byte</span>
+$1701: TEMPO_HI        <span class="comment">; High byte</span>
+
+<span class="comment">; 300 BPM = $2C + ($01 * 256)</span>
+POKE $1700, $2C        <span class="comment">; 44</span>
+POKE $1701, $01        <span class="comment">; 256</span>
+<span class="comment">; Total: 44 + 256 = 300 BPM</span></code></pre>
+
+    <h3>Example: XEuclidean Pack</h3>
+    <pre><code><span class="comment">; E(k,n) = distribute k hits across n steps</span>
+<span class="comment">; Famous rhythms from GCD math:</span>
+
+E(3,8)  = x..x..x.    <span class="comment">; Cuban tresillo</span>
+E(5,8)  = x.xx.xx.    <span class="comment">; Cinquillo</span>
+E(5,16) = x..x..x..x..x...  <span class="comment">; Bossa nova</span>
+E(7,16) = x.x.x.xx.x.x.x..  <span class="comment">; West African</span>
+
+<span class="comment">; Set kick to E(5,16):</span>
+POKE $1B00, 5          <span class="comment">; 5 hits</span>
+POKE $1B01, 16         <span class="comment">; 16 steps</span>
+POKE $1B0F, 1          <span class="comment">; enable</span></code></pre>
+
+    <h3>Example: XFollow Pack (from Ableton Live)</h3>
+    <pre><code><span class="comment">; After 4 plays, 70% chance jump to random slot</span>
+POKE $1C01, 4          <span class="comment">; play 4 times</span>
+POKE $1C02, 3          <span class="comment">; action = random</span>
+POKE $1C03, 70         <span class="comment">; 70% chance</span>
+POKE $1C00, 1          <span class="comment">; enable for kick</span></code></pre>
+
+    <h3>Example: XPatch Pack (from Max/MSP)</h3>
+    <pre><code><span class="comment">; Route LFO output to filter cutoff</span>
+POKE $1D10, $46        <span class="comment">; source = LFO1_VALUE ($1B46)</span>
+POKE $1D11, $1B
+POKE $1D12, $21        <span class="comment">; dest = FX_FILTER_CUTOFF ($1821)</span>
+POKE $1D13, $18
+POKE $1D14, 64         <span class="comment">; unity gain</span>
+POKE $1D00, 1          <span class="comment">; 1 patch active</span></code></pre>
+
+    <h3>Create Your Own</h3>
+    <p>Reserved regions for custom packs: <code>$1F30-$1FFF</code>, <code>$2000+</code></p>
+    <p>Share at <a href="https://1010lang.com/packs">1010lang.com/packs</a></p>
+
+    <!-- ==================== TEACHING ==================== -->
+    <h2 id="teaching">Teaching Map</h2>
+    <p>One primitive, entire CS curriculum:</p>
+
+    <table>
+      <tr><th>Concept</th><th>$1010 Mapping</th></tr>
+      <tr><td>Memory models</td><td>POKE address → hear result</td></tr>
+      <tr><td>Hex/binary</td><td>$3C = 60 = 0011 1100</td></tr>
+      <tr><td>Pointers</td><td>$1000 is an address</td></tr>
+      <tr><td>Arrays</td><td>Pattern = 16-byte array</td></tr>
+      <tr><td>Modular arithmetic</td><td>step = (step + 1) & 15</td></tr>
+      <tr><td>Boolean algebra</td><td>x=1, .=0, patterns are bitmasks</td></tr>
+      <tr><td>Two's complement</td><td>Signed pan: $C0 = -64</td></tr>
+      <tr><td>Clocks/timing</td><td>BPM → tick interval</td></tr>
+      <tr><td>Memory-mapped I/O</td><td>Write byte, hardware responds</td></tr>
+      <tr><td>Syscalls</td><td>WASM imports = OS interface</td></tr>
+      <tr><td>Compression</td><td>How small can a song be?</td></tr>
+      <tr><td>Regex/patterns</td><td>x...x... = x.{3}x.{3}</td></tr>
+      <tr><td>Set operations</td><td>OR two patterns = merge</td></tr>
+      <tr><td>GCD algorithm</td><td>Euclidean rhythms E(k,n)</td></tr>
+      <tr><td>Periodic functions</td><td>LFO = sin(2πft)</td></tr>
+      <tr><td>Probability</td><td>Markov chains, follow actions</td></tr>
+      <tr><td>Finite automata</td><td>State transitions, edge detection</td></tr>
+      <tr><td>Pointers/indirection</td><td>Patch cables route addresses</td></tr>
+      <tr><td>Serialization</td><td>Snapshot save/load state</td></tr>
+      <tr><td>Interpolation</td><td>Snapshot morph = lerp bytes</td></tr>
+      <tr><td>Response curves</td><td>Log/exp/S-curve for macros</td></tr>
+      <tr><td>ADSR envelopes</td><td>Time-varying state machine</td></tr>
+      <tr><td>Sorting</td><td>Arpeggiator up/down modes</td></tr>
+      <tr><td>Conditional exec</td><td>Step conditions (1st, fill, PRE)</td></tr>
+      <tr><td>Clock division</td><td>Frequency math, PPQN</td></tr>
+      <tr><td>ALU operations</td><td>XMath = the CPU core</td></tr>
+      <tr><td>Boolean logic</td><td>AND/OR/XOR gates, comparators</td></tr>
+      <tr><td>Circular buffers</td><td>Loop recording, undo history</td></tr>
+      <tr><td>Window functions</td><td>Grain envelopes (Hann, etc)</td></tr>
+    </table>
+
+    <div class="manifesto">
+      No abstractions hiding the truth.<br>
+      No frameworks. No "trust me."<br>
+      Just bytes and speakers.
+    </div>
+
+    <p style="margin-top:40px; color: var(--dim); font-size: 12px;">
+      <a href="https://1010lang.com">1010lang.com</a> &middot;
+      <a href="1010tweet.html">Tweet Player</a> &middot;
+      <a href="1010sequencer.html">Full Sequencer</a> &middot;
+      <a href="1010arcade.html">Game Boy Arcade</a> &middot;
+      <a href="1010debugger.html">Step Debugger</a>
+    </p>
+  </div>
+</body>
+</html>

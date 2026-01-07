@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$1010ARCADE - MTMC-16 Game Boy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gb-0: #9bbc0f; /* lightest */
+      --gb-1: #8bac0f;
+      --gb-2: #306230;
+      --gb-3: #0f380f; /* darkest */
+      --shell: #8b8b8b;
+      --shell-dark: #4a4a4a;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      color: var(--gb-0);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px var(--gb-0);
+    }
+
+    /* Game Boy Shell */
+    .gameboy {
+      background: linear-gradient(180deg, var(--shell) 0%, var(--shell-dark) 100%);
+      border-radius: 20px 20px 60px 60px;
+      padding: 20px;
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.5),
+        inset 0 2px 0 rgba(255,255,255,0.2);
+    }
+
+    .screen-bezel {
+      background: var(--shell-dark);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .screen-label {
+      color: #333;
+      font-size: 0.6rem;
+      text-align: center;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    #lcd {
+      background: var(--gb-0);
+      image-rendering: pixelated;
+      border: 4px solid #2a2a2a;
+      border-radius: 4px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .dpad {
+      width: 80px;
+      height: 80px;
+      position: relative;
+    }
+
+    .dpad-btn {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      background: #2a2a2a;
+      border: none;
+      cursor: pointer;
+    }
+    .dpad-btn:hover { background: #3a3a3a; }
+    .dpad-btn:active { background: #1a1a1a; }
+    .dpad-up { top: 0; left: 27px; border-radius: 4px 4px 0 0; }
+    .dpad-down { bottom: 0; left: 27px; border-radius: 0 0 4px 4px; }
+    .dpad-left { left: 0; top: 27px; border-radius: 4px 0 0 4px; }
+    .dpad-right { right: 0; top: 27px; border-radius: 0 4px 4px 0; }
+    .dpad-center { top: 27px; left: 27px; }
+
+    .action-btns {
+      display: flex;
+      gap: 15px;
+      transform: rotate(-25deg);
+    }
+
+    .action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #8b1e3f;
+      border: none;
+      color: #333;
+      font-weight: bold;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #5a1428;
+    }
+    .action-btn:active {
+      box-shadow: 0 2px 0 #5a1428;
+      transform: translateY(2px);
+    }
+
+    .menu-btns {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .menu-btn {
+      width: 40px;
+      height: 12px;
+      background: #555;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transform: rotate(-10deg);
+    }
+
+    .brand {
+      text-align: center;
+      color: #333;
+      font-size: 0.7rem;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .status {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--gb-2);
+    }
+
+    .info {
+      margin-top: 1rem;
+      font-size: 0.65rem;
+      color: #666;
+      text-align: center;
+      max-width: 320px;
+    }
+  </style>
+</head>
+<body>
+  <h1>$1010ARCADE</h1>
+
+  <div class="gameboy">
+    <div class="screen-bezel">
+      <div class="screen-label">DOT MATRIX WITH STEREO SOUND</div>
+      <canvas id="lcd" width="160" height="144"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="dpad">
+        <button class="dpad-btn dpad-up" data-key="ArrowUp"></button>
+        <button class="dpad-btn dpad-down" data-key="ArrowDown"></button>
+        <button class="dpad-btn dpad-left" data-key="ArrowLeft"></button>
+        <button class="dpad-btn dpad-right" data-key="ArrowRight"></button>
+        <div class="dpad-btn dpad-center"></div>
+      </div>
+
+      <div class="action-btns">
+        <button class="action-btn" id="btn-b">B</button>
+        <button class="action-btn" id="btn-a">A</button>
+      </div>
+    </div>
+
+    <div class="menu-btns">
+      <button class="menu-btn" id="btn-select" title="Select"></button>
+      <button class="menu-btn" id="btn-start" title="Start"></button>
+    </div>
+
+    <div class="brand">$1010 AUDIO COPROCESSOR</div>
+  </div>
+
+  <div class="status" id="status">Click to start</div>
+  <div class="info">
+    MTMC-16 Game Demo<br>
+    Games use $1010 coprocessor for all audio<br>
+    Arrow keys / D-pad to control | A=Action | B=Back
+  </div>
+
+<script>
+// ============ $1010 AUDIO COPROCESSOR EMULATION ============
+// Memory-mapped audio at $1000-$15FF
+const MEM = new Uint8Array(0x2000);
+
+// ============ GAME CENTER (IndexedDB) ============
+const GameCenter = {
+  db: null,
+  dbName: '$1010Arcade',
+  dbVersion: 1,
+
+  async init() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve(this.db);
+      };
+
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+
+        // High scores store: one per game
+        if (!db.objectStoreNames.contains('highscores')) {
+          const hsStore = db.createObjectStore('highscores', { keyPath: 'id', autoIncrement: true });
+          hsStore.createIndex('game', 'game', { unique: false });
+          hsStore.createIndex('score', 'score', { unique: false });
+        }
+
+        // Player stats store
+        if (!db.objectStoreNames.contains('stats')) {
+          db.createObjectStore('stats', { keyPath: 'key' });
+        }
+
+        // Achievements store (for future expansion)
+        if (!db.objectStoreNames.contains('achievements')) {
+          db.createObjectStore('achievements', { keyPath: 'id' });
+        }
+      };
+    });
+  },
+
+  async saveHighScore(game, score, lines = 0) {
+    if (!this.db) await this.init();
+    const tx = this.db.transaction('highscores', 'readwrite');
+    const store = tx.objectStore('highscores');
+    const entry = {
+      game,
+      score,
+      lines,
+      date: Date.now(),
+      initials: 'AAA' // Default, can be updated
+    };
+    store.add(entry);
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve(entry);
+      tx.onerror = () => reject(tx.error);
+    });
+  },
+
+  async getHighScores(game, limit = 10) {
+    if (!this.db) await this.init();
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('highscores', 'readonly');
+      const store = tx.objectStore('highscores');
+      const index = store.index('game');
+      const request = index.getAll(game);
+
+      request.onsuccess = () => {
+        const scores = request.result
+          .sort((a, b) => b.score - a.score)
+          .slice(0, limit);
+        resolve(scores);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  },
+
+  async getTopScore(game) {
+    const scores = await this.getHighScores(game, 1);
+    return scores[0]?.score || 0;
+  },
+
+  async updateStats(game, score, won = false) {
+    if (!this.db) await this.init();
+    const stats = await this.getStats();
+
+    stats.totalGames = (stats.totalGames || 0) + 1;
+    stats.totalScore = (stats.totalScore || 0) + score;
+    stats[`${game}Games`] = (stats[`${game}Games`] || 0) + 1;
+    stats[`${game}TotalScore`] = (stats[`${game}TotalScore`] || 0) + score;
+    stats[`${game}BestScore`] = Math.max(stats[`${game}BestScore`] || 0, score);
+    if (won) stats[`${game}Wins`] = (stats[`${game}Wins`] || 0) + 1;
+    stats.lastPlayed = Date.now();
+
+    const tx = this.db.transaction('stats', 'readwrite');
+    const store = tx.objectStore('stats');
+    store.put({ key: 'player', ...stats });
+
+    return new Promise((resolve) => {
+      tx.oncomplete = () => resolve(stats);
+    });
+  },
+
+  async getStats() {
+    if (!this.db) await this.init();
+    return new Promise((resolve) => {
+      const tx = this.db.transaction('stats', 'readonly');
+      const store = tx.objectStore('stats');
+      const request = store.get('player');
+
+      request.onsuccess = () => resolve(request.result || {});
+      request.onerror = () => resolve({});
+    });
+  },
+
+  async unlockAchievement(id, name, desc) {
+    if (!this.db) await this.init();
+    const tx = this.db.transaction('achievements', 'readwrite');
+    const store = tx.objectStore('achievements');
+
+    // Check if already unlocked
+    const existing = await new Promise(r => {
+      const req = store.get(id);
+      req.onsuccess = () => r(req.result);
+      req.onerror = () => r(null);
+    });
+
+    if (existing) return null; // Already unlocked
+
+    const achievement = { id, name, desc, unlockedAt: Date.now() };
+    store.put(achievement);
+    return achievement;
+  },
+
+  async getAchievements() {
+    if (!this.db) await this.init();
+    return new Promise((resolve) => {
+      const tx = this.db.transaction('achievements', 'readonly');
+      const store = tx.objectStore('achievements');
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => resolve([]);
+    });
+  },
+
+  async clearAll() {
+    if (!this.db) await this.init();
+    const tx = this.db.transaction(['highscores', 'stats', 'achievements'], 'readwrite');
+    tx.objectStore('highscores').clear();
+    tx.objectStore('stats').clear();
+    tx.objectStore('achievements').clear();
+  }
+};
+
+// Initialize GameCenter on load
+let gcReady = false;
+let topScores = { tetris: 0, snake: 0 };
+
+GameCenter.init().then(async () => {
+  gcReady = true;
+  topScores.tetris = await GameCenter.getTopScore('tetris');
+  topScores.snake = await GameCenter.getTopScore('snake');
+  console.log('$1010ARCADE GameCenter ready!', topScores);
+}).catch(err => console.warn('GameCenter init failed:', err));
+
+// Game Boy LCD colors
+const C = ['#9bbc0f', '#8bac0f', '#306230', '#0f380f'];
+
+// Canvas setup
+const canvas = document.getElementById('lcd');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// Audio context (initialized on user interaction)
+let audioCtx = null;
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  document.getElementById('status').innerText = 'Audio ready!';
+}
+
+// ============ $1010 SOUND FUNCTIONS ============
+// These demonstrate how games write to $1010 memory for sound
+
+function playKick() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(150, t);
+  osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+  gain.gain.setValueAtTime(0.5, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.2);
+  // Write to $1010 memory (for educational demo)
+  MEM[0x1000] = 1; // Kick gate on
+}
+
+function playSnare() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Noise burst
+  const bufferSize = audioCtx.sampleRate * 0.1;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.value = 1000;
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0.3, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+  noise.connect(filter).connect(gain).connect(audioCtx.destination);
+  noise.start(t);
+  MEM[0x1020] = 1; // Snare gate
+}
+
+function playNote(freq, duration = 0.15) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.15, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + duration);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + duration + 0.01);
+}
+
+function playLineClear(lines) {
+  if (!audioCtx) return;
+  const freqs = [262, 330, 392, 523]; // C E G C
+  freqs.slice(0, lines).forEach((f, i) => {
+    setTimeout(() => playNote(f, 0.2), i * 80);
+  });
+}
+
+function playEat() {
+  playNote(600, 0.08);
+  setTimeout(() => playNote(800, 0.08), 50);
+}
+
+function playGameOver() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(400, t);
+  osc.frequency.exponentialRampToValueAtTime(100, t + 0.5);
+  gain.gain.setValueAtTime(0.2, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.6);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.7);
+}
+
+function playMove() {
+  playNote(200, 0.03);
+}
+
+function playRotate() {
+  playNote(400, 0.05);
+}
+
+function playDrop() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(150, t);
+  osc.frequency.exponentialRampToValueAtTime(50, t + 0.1);
+  gain.gain.setValueAtTime(0.2, t);
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + 0.15);
+}
+
+// ============ GAME STATE ============
+const GameState = {
+  mode: 'menu', // 'menu', 'tetris', 'snake', 'highscores', 'stats'
+  menuSelection: 0,
+  hsGameIndex: 0, // Which game's high scores to show
+  score: 0,
+  level: 1,
+  gameLoop: null,
+  tetris: {
+    board: null,
+    piece: null,
+    shape: null,
+    pieceX: 3,
+    pieceY: 0,
+    next: null,
+    linesCleared: 0
+  },
+  snake: {
+    body: [],
+    dir: { x: 1, y: 0 },
+    nextDir: { x: 1, y: 0 },
+    food: { x: 0, y: 0 },
+    grow: 0
+  }
+};
+
+// ============ TETRIS ============
+const TETROMINOS = {
+  I: { shape: [[1,1,1,1]], color: '#00ffff' },
+  O: { shape: [[1,1],[1,1]], color: '#ffff00' },
+  T: { shape: [[0,1,0],[1,1,1]], color: '#ff00ff' },
+  S: { shape: [[0,1,1],[1,1,0]], color: '#00ff00' },
+  Z: { shape: [[1,1,0],[0,1,1]], color: '#ff0000' },
+  L: { shape: [[1,0],[1,0],[1,1]], color: '#ff8800' },
+  J: { shape: [[0,1],[0,1],[1,1]], color: '#0088ff' }
+};
+const TETRO_KEYS = Object.keys(TETROMINOS);
+
+const TET_W = 10, TET_H = 20, TET_CELL = 7, TET_OX = 45, TET_OY = 2;
+const SNK_W = 16, SNK_H = 14, SNK_CELL = 10;
+
+function randomTetromino() {
+  return TETRO_KEYS[Math.floor(Math.random() * TETRO_KEYS.length)];
+}
+
+function rotateTetromino(shape) {
+  const rows = shape.length, cols = shape[0].length;
+  const rotated = [];
+  for (let c = 0; c < cols; c++) {
+    rotated.push([]);
+    for (let r = rows - 1; r >= 0; r--) {
+      rotated[c].push(shape[r][c]);
+    }
+  }
+  return rotated;
+}
+
+function tetrisInit() {
+  const t = GameState.tetris;
+  t.board = Array(TET_H).fill(null).map(() => Array(TET_W).fill(0));
+  t.piece = randomTetromino();
+  t.shape = JSON.parse(JSON.stringify(TETROMINOS[t.piece].shape));
+  t.next = randomTetromino();
+  t.pieceX = 3;
+  t.pieceY = 0;
+  t.linesCleared = 0;
+  GameState.score = 0;
+  GameState.level = 1;
+}
+
+function tetrisCollision(px, py, shape) {
+  const t = GameState.tetris;
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape[y].length; x++) {
+      if (shape[y][x]) {
+        const newX = px + x;
+        const newY = py + y;
+        if (newX < 0 || newX >= TET_W || newY >= TET_H) return true;
+        if (newY >= 0 && t.board[newY][newX]) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function tetrisPlacePiece() {
+  const t = GameState.tetris;
+  for (let y = 0; y < t.shape.length; y++) {
+    for (let x = 0; x < t.shape[y].length; x++) {
+      if (t.shape[y][x]) {
+        const boardY = t.pieceY + y;
+        const boardX = t.pieceX + x;
+        if (boardY >= 0 && boardY < TET_H && boardX >= 0 && boardX < TET_W) {
+          t.board[boardY][boardX] = 1;
+        }
+      }
+    }
+  }
+  playDrop();
+
+  // Check for line clears
+  let lines = 0;
+  for (let y = TET_H - 1; y >= 0; y--) {
+    if (t.board[y].every(cell => cell !== 0)) {
+      t.board.splice(y, 1);
+      t.board.unshift(Array(TET_W).fill(0));
+      lines++;
+      y++;
+    }
+  }
+
+  if (lines > 0) {
+    t.linesCleared += lines;
+    const points = [0, 100, 300, 500, 800][lines] * GameState.level;
+    GameState.score += points;
+    GameState.level = Math.floor(t.linesCleared / 10) + 1;
+    playLineClear(lines);
+    document.getElementById('status').innerText = lines === 4 ? 'TETRIS!' : `${lines} LINE${lines > 1 ? 'S' : ''}!`;
+  }
+
+  // Spawn next piece
+  t.piece = t.next;
+  t.shape = JSON.parse(JSON.stringify(TETROMINOS[t.piece].shape));
+  t.next = randomTetromino();
+  t.pieceX = 3;
+  t.pieceY = 0;
+
+  if (tetrisCollision(t.pieceX, t.pieceY, t.shape)) {
+    playGameOver();
+    const isNewRecord = GameState.score > topScores.tetris;
+    document.getElementById('status').innerText = isNewRecord
+      ? `NEW HIGH SCORE: ${GameState.score}!`
+      : `GAME OVER! Score: ${GameState.score}`;
+    stopGame();
+
+    // Save to GameCenter
+    if (gcReady) {
+      GameCenter.saveHighScore('tetris', GameState.score, t.linesCleared);
+      GameCenter.updateStats('tetris', GameState.score);
+      if (isNewRecord) topScores.tetris = GameState.score;
+
+      // Check achievements
+      if (t.linesCleared >= 4) GameCenter.unlockAchievement('tetris_first', 'TETRIS!', 'Clear 4 lines at once');
+      if (GameState.score >= 1000) GameCenter.unlockAchievement('tetris_1k', 'Getting Started', 'Score 1000+ in Tetris');
+      if (GameState.score >= 10000) GameCenter.unlockAchievement('tetris_10k', 'Block Master', 'Score 10000+ in Tetris');
+    }
+
+    setTimeout(() => { GameState.mode = 'menu'; drawMenu(); }, 2500);
+  }
+}
+
+function tetrisStep() {
+  const t = GameState.tetris;
+  if (!t.shape) return;
+  if (!tetrisCollision(t.pieceX, t.pieceY + 1, t.shape)) {
+    t.pieceY++;
+  } else {
+    tetrisPlacePiece();
+  }
+  drawTetris();
+}
+
+function tetrisMove(dx) {
+  const t = GameState.tetris;
+  if (!tetrisCollision(t.pieceX + dx, t.pieceY, t.shape)) {
+    t.pieceX += dx;
+    playMove();
+    drawTetris();
+  }
+}
+
+function tetrisRotate() {
+  const t = GameState.tetris;
+  const newShape = rotateTetromino(t.shape);
+  for (let offset of [0, -1, 1, -2, 2]) {
+    if (!tetrisCollision(t.pieceX + offset, t.pieceY, newShape)) {
+      t.pieceX += offset;
+      t.shape = newShape;
+      playRotate();
+      drawTetris();
+      return;
+    }
+  }
+}
+
+function tetrisDrop() {
+  const t = GameState.tetris;
+  while (!tetrisCollision(t.pieceX, t.pieceY + 1, t.shape)) {
+    t.pieceY++;
+  }
+  tetrisPlacePiece();
+  drawTetris();
+}
+
+function tetrisSoftDrop() {
+  const t = GameState.tetris;
+  if (!tetrisCollision(t.pieceX, t.pieceY + 1, t.shape)) {
+    t.pieceY++;
+    drawTetris();
+  }
+}
+
+// ============ SNAKE ============
+function snakeInit() {
+  const s = GameState.snake;
+  s.body = [{x: 8, y: 7}, {x: 7, y: 7}, {x: 6, y: 7}];
+  s.dir = {x: 1, y: 0};
+  s.nextDir = {x: 1, y: 0};
+  s.grow = 0;
+  GameState.score = 0;
+  snakeSpawnFood();
+}
+
+function snakeSpawnFood() {
+  const s = GameState.snake;
+  let attempts = 0;
+  do {
+    s.food = {
+      x: Math.floor(Math.random() * SNK_W),
+      y: Math.floor(Math.random() * SNK_H)
+    };
+    attempts++;
+  } while (s.body.some(seg => seg.x === s.food.x && seg.y === s.food.y) && attempts < 100);
+}
+
+function snakeStep() {
+  const s = GameState.snake;
+  s.dir = s.nextDir;
+
+  const newHead = {
+    x: (s.body[0].x + s.dir.x + SNK_W) % SNK_W,
+    y: (s.body[0].y + s.dir.y + SNK_H) % SNK_H
+  };
+
+  if (s.body.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
+    playGameOver();
+    const isNewRecord = GameState.score > topScores.snake;
+    document.getElementById('status').innerText = isNewRecord
+      ? `NEW HIGH SCORE: ${GameState.score}!`
+      : `GAME OVER! Score: ${GameState.score}`;
+    stopGame();
+
+    // Save to GameCenter
+    if (gcReady) {
+      GameCenter.saveHighScore('snake', GameState.score, s.body.length);
+      GameCenter.updateStats('snake', GameState.score);
+      if (isNewRecord) topScores.snake = GameState.score;
+
+      // Check achievements
+      if (s.body.length >= 10) GameCenter.unlockAchievement('snake_10', 'Growing', 'Reach length 10 in Snake');
+      if (s.body.length >= 25) GameCenter.unlockAchievement('snake_25', 'Long Boi', 'Reach length 25 in Snake');
+      if (GameState.score >= 500) GameCenter.unlockAchievement('snake_500', 'Hungry', 'Score 500+ in Snake');
+    }
+
+    setTimeout(() => { GameState.mode = 'menu'; drawMenu(); }, 2500);
+    return;
+  }
+
+  s.body.unshift(newHead);
+
+  if (newHead.x === s.food.x && newHead.y === s.food.y) {
+    GameState.score += 10;
+    s.grow += 2;
+    playEat();
+    snakeSpawnFood();
+    document.getElementById('status').innerText = `Score: ${GameState.score}`;
+    if (GameState.score % 50 === 0) GameState.level++;
+  }
+
+  if (s.grow > 0) {
+    s.grow--;
+  } else {
+    s.body.pop();
+  }
+
+  drawSnake();
+}
+
+function snakeChangeDir(dx, dy) {
+  const s = GameState.snake;
+  if (s.dir.x !== -dx || s.dir.y !== -dy) {
+    s.nextDir = {x: dx, y: dy};
+  }
+}
+
+// ============ DRAWING ============
+function drawMenu() {
+  ctx.fillStyle = C[0];
+  ctx.fillRect(0, 0, 160, 144);
+
+  ctx.fillStyle = C[3];
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText('$1010ARCADE', 30, 20);
+
+  ctx.font = '8px monospace';
+  const games = ['TETRIS', 'SNAKE'];
+  const gameKeys = ['tetris', 'snake'];
+  games.forEach((game, i) => {
+    const isSelected = i === GameState.menuSelection;
+    ctx.fillStyle = isSelected ? C[3] : C[2];
+    ctx.fillText(isSelected ? '> ' + game : '  ' + game, 40, 50 + i * 16);
+
+    // Show high score next to each game
+    const hi = topScores[gameKeys[i]] || 0;
+    ctx.fillStyle = C[1];
+    ctx.font = '6px monospace';
+    ctx.fillText(`HI:${hi}`, 105, 50 + i * 16);
+    ctx.font = '8px monospace';
+  });
+
+  // Navigation hints
+  ctx.fillStyle = C[2];
+  ctx.font = '6px monospace';
+  ctx.fillText('UP/DOWN: Select game', 30, 92);
+  ctx.fillText('A or ENTER: Play', 30, 102);
+  ctx.fillText('SELECT(S): High Scores', 30, 112);
+  ctx.fillText('START(T): Player Stats', 30, 122);
+
+  ctx.fillStyle = C[1];
+  ctx.fillText('$1010 AUDIO COPROCESSOR', 18, 138);
+}
+
+// Cached high scores for display
+let cachedScores = [];
+
+async function drawHighScores() {
+  ctx.fillStyle = C[0];
+  ctx.fillRect(0, 0, 160, 144);
+
+  const games = ['TETRIS', 'SNAKE'];
+  const gameKeys = ['tetris', 'snake'];
+  const game = gameKeys[GameState.hsGameIndex];
+
+  ctx.fillStyle = C[3];
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText('HIGH SCORES', 35, 14);
+
+  // Game tabs
+  ctx.font = '8px monospace';
+  games.forEach((g, i) => {
+    ctx.fillStyle = i === GameState.hsGameIndex ? C[3] : C[2];
+    ctx.fillText(i === GameState.hsGameIndex ? '[' + g + ']' : ' ' + g + ' ', i * 75 + 10, 28);
+  });
+
+  // Fetch scores if needed
+  if (gcReady) {
+    cachedScores = await GameCenter.getHighScores(game, 5);
+  }
+
+  // Draw scores
+  ctx.font = '7px monospace';
+  if (cachedScores.length === 0) {
+    ctx.fillStyle = C[2];
+    ctx.fillText('No scores yet!', 45, 60);
+    ctx.fillText('Play to set records', 35, 75);
+  } else {
+    cachedScores.forEach((entry, i) => {
+      ctx.fillStyle = i === 0 ? C[3] : C[2];
+      const date = new Date(entry.date);
+      const dateStr = `${date.getMonth()+1}/${date.getDate()}`;
+      ctx.fillText(`${i+1}. ${entry.score.toString().padStart(6)} ${dateStr}`, 20, 45 + i * 14);
+    });
+  }
+
+  // Navigation hint
+  ctx.fillStyle = C[1];
+  ctx.font = '6px monospace';
+  ctx.fillText('</>: Switch game', 35, 120);
+  ctx.fillText('B: Back to menu', 40, 132);
+}
+
+async function drawStats() {
+  ctx.fillStyle = C[0];
+  ctx.fillRect(0, 0, 160, 144);
+
+  ctx.fillStyle = C[3];
+  ctx.font = 'bold 10px monospace';
+  ctx.fillText('PLAYER STATS', 32, 14);
+
+  let stats = {};
+  if (gcReady) {
+    stats = await GameCenter.getStats();
+  }
+
+  ctx.font = '6px monospace';
+  ctx.fillStyle = C[2];
+
+  const totalGames = stats.totalGames || 0;
+  const totalScore = stats.totalScore || 0;
+
+  ctx.fillText(`Total Games: ${totalGames}`, 15, 35);
+  ctx.fillText(`Total Score: ${totalScore}`, 15, 47);
+
+  ctx.fillStyle = C[3];
+  ctx.fillText('TETRIS', 15, 65);
+  ctx.fillStyle = C[2];
+  ctx.fillText(`  Games: ${stats.tetrisGames || 0}`, 15, 77);
+  ctx.fillText(`  Best:  ${stats.tetrisBestScore || 0}`, 15, 87);
+
+  ctx.fillStyle = C[3];
+  ctx.fillText('SNAKE', 90, 65);
+  ctx.fillStyle = C[2];
+  ctx.fillText(`  Games: ${stats.snakeGames || 0}`, 90, 77);
+  ctx.fillText(`  Best:  ${stats.snakeBestScore || 0}`, 90, 87);
+
+  // Achievements
+  let achievements = [];
+  if (gcReady) {
+    achievements = await GameCenter.getAchievements();
+  }
+
+  ctx.fillStyle = C[3];
+  ctx.fillText(`Achievements: ${achievements.length}`, 15, 105);
+
+  if (achievements.length > 0) {
+    ctx.fillStyle = C[1];
+    achievements.slice(0, 3).forEach((a, i) => {
+      ctx.fillText(`* ${a.name}`, 20, 117 + i * 9);
+    });
+  }
+
+  ctx.fillStyle = C[1];
+  ctx.fillText('B: Back to menu', 40, 140);
+}
+
+function drawTetris() {
+  const t = GameState.tetris;
+
+  ctx.fillStyle = C[0];
+  ctx.fillRect(0, 0, 160, 144);
+
+  // Playfield border
+  ctx.strokeStyle = C[3];
+  ctx.lineWidth = 1;
+  ctx.strokeRect(TET_OX - 1, TET_OY - 1, TET_W * TET_CELL + 2, TET_H * TET_CELL + 2);
+
+  // Grid lines
+  ctx.strokeStyle = C[1];
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x <= TET_W; x++) {
+    ctx.beginPath();
+    ctx.moveTo(TET_OX + x * TET_CELL, TET_OY);
+    ctx.lineTo(TET_OX + x * TET_CELL, TET_OY + TET_H * TET_CELL);
+    ctx.stroke();
+  }
+  for (let y = 0; y <= TET_H; y++) {
+    ctx.beginPath();
+    ctx.moveTo(TET_OX, TET_OY + y * TET_CELL);
+    ctx.lineTo(TET_OX + TET_W * TET_CELL, TET_OY + y * TET_CELL);
+    ctx.stroke();
+  }
+
+  // Placed blocks
+  for (let y = 0; y < TET_H; y++) {
+    for (let x = 0; x < TET_W; x++) {
+      if (t.board[y][x]) {
+        ctx.fillStyle = C[3];
+        ctx.fillRect(TET_OX + x * TET_CELL + 1, TET_OY + y * TET_CELL + 1, TET_CELL - 2, TET_CELL - 2);
+      }
+    }
+  }
+
+  // Current piece
+  if (t.shape) {
+    ctx.fillStyle = C[2];
+    for (let y = 0; y < t.shape.length; y++) {
+      for (let x = 0; x < t.shape[y].length; x++) {
+        if (t.shape[y][x]) {
+          const px = TET_OX + (t.pieceX + x) * TET_CELL;
+          const py = TET_OY + (t.pieceY + y) * TET_CELL;
+          if (py >= TET_OY) {
+            ctx.fillRect(px + 1, py + 1, TET_CELL - 2, TET_CELL - 2);
+          }
+        }
+      }
+    }
+
+    // Ghost piece
+    let ghostY = t.pieceY;
+    while (!tetrisCollision(t.pieceX, ghostY + 1, t.shape)) ghostY++;
+    if (ghostY !== t.pieceY) {
+      ctx.strokeStyle = C[2];
+      ctx.lineWidth = 1;
+      for (let y = 0; y < t.shape.length; y++) {
+        for (let x = 0; x < t.shape[y].length; x++) {
+          if (t.shape[y][x]) {
+            const px = TET_OX + (t.pieceX + x) * TET_CELL;
+            const py = TET_OY + (ghostY + y) * TET_CELL;
+            ctx.strokeRect(px + 1, py + 1, TET_CELL - 2, TET_CELL - 2);
+          }
+        }
+      }
+    }
+  }
+
+  // Next piece preview
+  ctx.fillStyle = C[3];
+  ctx.font = '6px monospace';
+  ctx.fillText('NEXT', 4, 10);
+  if (t.next && TETROMINOS[t.next]) {
+    const nextShape = TETROMINOS[t.next].shape;
+    ctx.fillStyle = C[2];
+    for (let y = 0; y < nextShape.length; y++) {
+      for (let x = 0; x < nextShape[y].length; x++) {
+        if (nextShape[y][x]) {
+          ctx.fillRect(4 + x * 5, 14 + y * 5, 4, 4);
+        }
+      }
+    }
+  }
+
+  // Score/level
+  ctx.fillStyle = C[3];
+  ctx.font = '6px monospace';
+  ctx.fillText('SCORE', 120, 10);
+  ctx.fillText(GameState.score.toString(), 120, 20);
+  ctx.fillText('LEVEL', 120, 35);
+  ctx.fillText(GameState.level.toString(), 120, 45);
+  ctx.fillText('LINES', 120, 60);
+  ctx.fillText(t.linesCleared.toString(), 120, 70);
+
+  // Controls
+  ctx.fillStyle = C[1];
+  ctx.font = '5px monospace';
+  ctx.fillText('<>:MOVE', 120, 100);
+  ctx.fillText('^:ROTATE', 120, 108);
+  ctx.fillText('v:SOFT', 120, 116);
+  ctx.fillText('A:DROP', 120, 124);
+  ctx.fillText('B:MENU', 120, 132);
+}
+
+function drawSnake() {
+  const s = GameState.snake;
+
+  ctx.fillStyle = C[0];
+  ctx.fillRect(0, 0, 160, 144);
+
+  // Border
+  ctx.strokeStyle = C[3];
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0, 0, SNK_W * SNK_CELL, SNK_H * SNK_CELL);
+
+  // Grid dots
+  ctx.fillStyle = C[1];
+  for (let x = 0; x < SNK_W; x++) {
+    for (let y = 0; y < SNK_H; y++) {
+      ctx.fillRect(x * SNK_CELL + 4, y * SNK_CELL + 4, 1, 1);
+    }
+  }
+
+  // Food (blinking)
+  ctx.fillStyle = (Date.now() % 400 < 200) ? C[3] : C[2];
+  ctx.fillRect(s.food.x * SNK_CELL + 2, s.food.y * SNK_CELL + 2, SNK_CELL - 4, SNK_CELL - 4);
+
+  // Snake body
+  s.body.forEach((seg, i) => {
+    if (i === 0) {
+      // Head
+      ctx.fillStyle = C[3];
+      ctx.fillRect(seg.x * SNK_CELL + 1, seg.y * SNK_CELL + 1, SNK_CELL - 2, SNK_CELL - 2);
+      // Eyes
+      ctx.fillStyle = C[0];
+      const eyeOff = s.dir.x !== 0 ? {x: s.dir.x > 0 ? 5 : 2, y: 2} : {x: 2, y: s.dir.y > 0 ? 5 : 2};
+      ctx.fillRect(seg.x * SNK_CELL + eyeOff.x, seg.y * SNK_CELL + eyeOff.y, 2, 2);
+      ctx.fillRect(seg.x * SNK_CELL + eyeOff.x, seg.y * SNK_CELL + (s.dir.x !== 0 ? 5 : eyeOff.y), 2, 2);
+    } else {
+      ctx.fillStyle = i < s.body.length / 2 ? C[3] : C[2];
+      ctx.fillRect(seg.x * SNK_CELL + 2, seg.y * SNK_CELL + 2, SNK_CELL - 4, SNK_CELL - 4);
+    }
+  });
+
+  // Score
+  ctx.fillStyle = C[3];
+  ctx.font = '8px monospace';
+  ctx.fillText(`SCORE:${GameState.score} LEN:${s.body.length}`, 2, 142);
+}
+
+// ============ GAME CONTROL ============
+function startGame(game) {
+  initAudio();
+  stopGame();
+  GameState.mode = game;
+  GameState.level = 1;
+
+  if (game === 'tetris') {
+    tetrisInit();
+    document.getElementById('status').innerText = 'TETRIS - Good luck!';
+    const getInterval = () => Math.max(100, 500 - (GameState.level - 1) * 40);
+    const loop = () => {
+      if (GameState.mode === 'tetris') {
+        tetrisStep();
+        GameState.gameLoop = setTimeout(loop, getInterval());
+      }
+    };
+    GameState.gameLoop = setTimeout(loop, getInterval());
+    drawTetris();
+  } else if (game === 'snake') {
+    snakeInit();
+    document.getElementById('status').innerText = 'SNAKE - Eat the dots!';
+    const getInterval = () => Math.max(80, 200 - (GameState.level - 1) * 15);
+    const loop = () => {
+      if (GameState.mode === 'snake') {
+        snakeStep();
+        GameState.gameLoop = setTimeout(loop, getInterval());
+      }
+    };
+    GameState.gameLoop = setTimeout(loop, getInterval());
+    drawSnake();
+  }
+}
+
+function stopGame() {
+  if (GameState.gameLoop) {
+    clearTimeout(GameState.gameLoop);
+    GameState.gameLoop = null;
+  }
+}
+
+// ============ INPUT ============
+document.addEventListener('keydown', (e) => {
+  initAudio();
+
+  if (GameState.mode === 'menu') {
+    switch(e.key) {
+      case 'ArrowUp':
+        GameState.menuSelection = (GameState.menuSelection + 1) % 2;
+        playMove();
+        drawMenu();
+        break;
+      case 'ArrowDown':
+        GameState.menuSelection = (GameState.menuSelection + 1) % 2;
+        playMove();
+        drawMenu();
+        break;
+      case 'Enter':
+      case 'a':
+      case 'A':
+        const games = ['tetris', 'snake'];
+        startGame(games[GameState.menuSelection]);
+        break;
+      case 's':
+      case 'S':
+        // SELECT button - show high scores
+        GameState.mode = 'highscores';
+        GameState.hsGameIndex = GameState.menuSelection;
+        drawHighScores();
+        break;
+      case 't':
+      case 'T':
+        // START button - show stats
+        GameState.mode = 'stats';
+        drawStats();
+        break;
+    }
+  } else if (GameState.mode === 'highscores') {
+    switch(e.key) {
+      case 'ArrowLeft':
+        GameState.hsGameIndex = (GameState.hsGameIndex + 1) % 2;
+        playMove();
+        drawHighScores();
+        break;
+      case 'ArrowRight':
+        GameState.hsGameIndex = (GameState.hsGameIndex + 1) % 2;
+        playMove();
+        drawHighScores();
+        break;
+      case 'b':
+      case 'B':
+      case 'Escape':
+        GameState.mode = 'menu';
+        drawMenu();
+        break;
+    }
+    e.preventDefault();
+  } else if (GameState.mode === 'stats') {
+    switch(e.key) {
+      case 'b':
+      case 'B':
+      case 'Escape':
+        GameState.mode = 'menu';
+        drawMenu();
+        break;
+    }
+    e.preventDefault();
+  } else if (GameState.mode === 'tetris') {
+    switch(e.key) {
+      case 'ArrowLeft': tetrisMove(-1); break;
+      case 'ArrowRight': tetrisMove(1); break;
+      case 'ArrowDown': tetrisSoftDrop(); break;
+      case 'ArrowUp':
+      case 'z':
+      case 'Z': tetrisRotate(); break;
+      case 'a':
+      case 'A':
+      case ' ': tetrisDrop(); break;
+      case 'b':
+      case 'B':
+      case 'Escape':
+        stopGame();
+        GameState.mode = 'menu';
+        drawMenu();
+        break;
+    }
+    e.preventDefault();
+  } else if (GameState.mode === 'snake') {
+    switch(e.key) {
+      case 'ArrowLeft': snakeChangeDir(-1, 0); break;
+      case 'ArrowRight': snakeChangeDir(1, 0); break;
+      case 'ArrowUp': snakeChangeDir(0, -1); break;
+      case 'ArrowDown': snakeChangeDir(0, 1); break;
+      case 'b':
+      case 'B':
+      case 'Escape':
+        stopGame();
+        GameState.mode = 'menu';
+        drawMenu();
+        break;
+    }
+    e.preventDefault();
+  }
+});
+
+// D-pad buttons
+document.querySelectorAll('.dpad-btn').forEach(btn => {
+  btn.onclick = () => {
+    const key = btn.dataset.key;
+    if (key) {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key }));
+    }
+  };
+});
+
+// A/B buttons
+document.getElementById('btn-a').onclick = () => {
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
+};
+document.getElementById('btn-b').onclick = () => {
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b' }));
+};
+document.getElementById('btn-start').onclick = () => {
+  if (GameState.mode === 'menu') {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 't' })); // Stats
+  } else {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+  }
+};
+document.getElementById('btn-select').onclick = () => {
+  if (GameState.mode === 'menu') {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 's' })); // High scores
+  }
+};
+
+// Start at menu
+drawMenu();
+</script>
+</body>
+</html>
