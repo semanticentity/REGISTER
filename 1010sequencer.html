@@ -4435,6 +4435,7 @@
         // Initialize pack defaults
         initXFMDefaults();
         initXFXDefaults();
+        initXSIDDefaults();
 
         // Start effects update loop
         setInterval(updateMasterEffects, 50);
@@ -5434,6 +5435,182 @@
 
     // Register FM as a lead synth option
     SYNTH_IDS.lead.push('fm');
+
+    // ============ SID SYNTH (XSID PACK) ============
+    // Commodore 64 SID 6581 inspired synthesis
+    // Ring modulation, oscillator sync, multimode filter
+    const XSID = {
+      OSC1_WAVE:     0x1450,  // 0=tri, 1=saw, 2=pulse, 3=noise
+      OSC1_DUTY:     0x1451,  // Pulse width 0-255
+      OSC1_SYNC:     0x1452,  // Sync to OSC2 (bit 0)
+      OSC1_RING:     0x1453,  // Ring mod with OSC2 (bit 0)
+      OSC2_WAVE:     0x1454,
+      OSC2_DUTY:     0x1455,
+      OSC2_DETUNE:   0x1456,  // Detune cents (-128 to +127)
+      OSC2_OCTAVE:   0x1457,  // Octave offset (-2 to +2, stored as 0-4)
+      OSC3_WAVE:     0x1458,
+      OSC3_DUTY:     0x1459,
+      OSC3_DETUNE:   0x145A,
+      OSC3_OCTAVE:   0x145B,
+      FILTER_ROUTE:  0x145C,  // Which oscs hit filter (bits 0-2)
+      FILTER_TYPE:   0x145D,  // 0=LP, 1=HP, 2=BP, 3=Notch
+      FILTER_CUTOFF: 0x145E,  // 0-255
+      FILTER_RESO:   0x145F,  // 0-255 (famous SID resonance!)
+    };
+
+    // Initialize XSID defaults
+    function initXSIDDefaults() {
+      MEM[XSID.OSC1_WAVE] = 2;     // Pulse
+      MEM[XSID.OSC1_DUTY] = 128;   // 50% duty
+      MEM[XSID.OSC2_WAVE] = 1;     // Saw
+      MEM[XSID.OSC2_DETUNE] = 133; // +5 cents (128 = center)
+      MEM[XSID.OSC2_OCTAVE] = 2;   // Same octave
+      MEM[XSID.OSC3_WAVE] = 0;     // Triangle (sub)
+      MEM[XSID.OSC3_OCTAVE] = 1;   // -1 octave
+      MEM[XSID.FILTER_ROUTE] = 7;  // All through filter
+      MEM[XSID.FILTER_TYPE] = 0;   // Lowpass
+      MEM[XSID.FILTER_CUTOFF] = 200;
+      MEM[XSID.FILTER_RESO] = 100;
+    }
+
+    // SID-style synth with 3 oscillators, ring mod, sync, filter
+    SYNTHS['sid'] = function(t, note, params, adsr = {a:0.01, d:0.15, s:0.6, r:0.25}) {
+      const baseF = noteToHz(note, 2);
+      const dest = getAudioDest();
+      const waveTypes = ['triangle', 'sawtooth', 'square', 'custom']; // custom = noise
+
+      // Create filter (the famous SID filter!)
+      const filter = audioCtx.createBiquadFilter();
+      const filterTypes = ['lowpass', 'highpass', 'bandpass', 'notch'];
+      filter.type = filterTypes[MEM[XSID.FILTER_TYPE] & 3];
+      filter.frequency.value = 100 + (MEM[XSID.FILTER_CUTOFF] / 255) * 7900;
+      // SID resonance is legendary - can self-oscillate
+      filter.Q.value = 0.5 + (MEM[XSID.FILTER_RESO] / 255) * 25;
+      filter.connect(dest);
+
+      const peakVol = 0.2;
+      const sustainVol = peakVol * adsr.s;
+      const totalTime = adsr.a + adsr.d + 0.15 + adsr.r;
+
+      // Create 3 oscillators
+      const oscs = [];
+      const gains = [];
+
+      for (let i = 0; i < 3; i++) {
+        const baseAddr = XSID.OSC1_WAVE + i * 4;
+        const wave = MEM[baseAddr] & 3;
+        const duty = MEM[baseAddr + 1] || 128;
+        const detune = (MEM[baseAddr + 2] || 128) - 128; // -128 to +127 cents
+        const octave = (MEM[baseAddr + 3] || 2) - 2;     // -2 to +2 octaves
+
+        // Calculate frequency with octave and detune
+        let f = baseF * Math.pow(2, octave);
+        f *= Math.pow(2, detune / 1200); // cents to ratio
+
+        let osc;
+        if (wave === 3) {
+          // Noise oscillator
+          const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.5, audioCtx.sampleRate);
+          const d = buf.getChannelData(0);
+          for (let j = 0; j < d.length; j++) d[j] = Math.random() * 2 - 1;
+          osc = audioCtx.createBufferSource();
+          osc.buffer = buf;
+          osc.loop = true;
+        } else {
+          osc = audioCtx.createOscillator();
+          osc.type = waveTypes[wave];
+          osc.frequency.value = f;
+
+          // Pulse width for square wave (fake it with phase offset)
+          if (wave === 2 && duty !== 128) {
+            // Create a second oscillator for PWM effect
+            const pwmOsc = audioCtx.createOscillator();
+            const pwmGain = audioCtx.createGain();
+            pwmOsc.type = 'sawtooth';
+            pwmOsc.frequency.value = f;
+            // Invert and offset based on duty cycle
+            pwmGain.gain.value = (duty - 128) / 255;
+            pwmOsc.connect(pwmGain);
+            const mixer = audioCtx.createGain();
+            mixer.gain.value = 0.5;
+            pwmGain.connect(mixer);
+            pwmOsc.start(t);
+            pwmOsc.stop(t + totalTime);
+          }
+        }
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(peakVol / 3, t + adsr.a);
+        gain.gain.linearRampToValueAtTime(Math.max(0.001, sustainVol / 3), t + adsr.a + adsr.d);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + totalTime);
+
+        oscs.push(osc);
+        gains.push(gain);
+
+        // Route through filter or direct based on FILTER_ROUTE
+        const routeToFilter = (MEM[XSID.FILTER_ROUTE] >> i) & 1;
+        if (wave !== 3) osc.connect(gain);
+        else osc.connect(gain);
+
+        if (routeToFilter) {
+          gain.connect(filter);
+        } else {
+          gain.connect(dest);
+        }
+
+        osc.start(t);
+        osc.stop(t + totalTime + 0.05);
+      }
+
+      // Ring modulation: OSC1 amplitude modulated by OSC2
+      if (MEM[XSID.OSC1_RING] & 1) {
+        // Ring mod = multiply two signals
+        // In Web Audio, we use a gain node whose gain is modulated
+        const ringMod = audioCtx.createGain();
+        ringMod.gain.value = 0;
+        // OSC2 modulates the gain of OSC1
+        gains[1].connect(ringMod.gain);
+        // Reconnect OSC1 through ring mod
+        gains[0].disconnect();
+        gains[0].connect(ringMod);
+        const routeToFilter = MEM[XSID.FILTER_ROUTE] & 1;
+        if (routeToFilter) {
+          ringMod.connect(filter);
+        } else {
+          ringMod.connect(dest);
+        }
+      }
+
+      // Hard sync: OSC1 synced to OSC2 (simplified - restart OSC1 at OSC2 frequency)
+      if (MEM[XSID.OSC1_SYNC] & 1) {
+        // True hard sync isn't possible in Web Audio without AudioWorklet
+        // Fake it by adding harmonics
+        if (oscs[0].type) {
+          // Add extra harmonics to simulate sync "buzz"
+          const syncOsc = audioCtx.createOscillator();
+          const syncGain = audioCtx.createGain();
+          const f2 = oscs[1].frequency ? oscs[1].frequency.value : baseF;
+          syncOsc.type = 'sawtooth';
+          syncOsc.frequency.value = f2 + (baseF % f2); // Residual frequency
+          syncGain.gain.value = 0.15;
+          syncGain.gain.exponentialRampToValueAtTime(0.001, t + totalTime * 0.5);
+          syncOsc.connect(syncGain);
+          const routeToFilter = MEM[XSID.FILTER_ROUTE] & 1;
+          if (routeToFilter) {
+            syncGain.connect(filter);
+          } else {
+            syncGain.connect(dest);
+          }
+          syncOsc.start(t);
+          syncOsc.stop(t + totalTime);
+        }
+      }
+    };
+
+    // Register SID as synth options
+    SYNTH_IDS.lead.push('sid');
+    SYNTH_IDS.bass.push('sid');
 
     // Legacy wrappers - read synth selector from MEMORY (MTMC-16 style!)
     function playKick(t, p) { SYNTHS[getVoiceSynth('kick')](t, 0, [p]); }
