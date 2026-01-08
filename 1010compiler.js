@@ -751,16 +751,42 @@ seq_stop:
     (i32.store8 (i32.const 0x1502) (local.get $step))
   )
 
+  ;; Voice base address lookup table (stored at 0x0F00-0x0F09)
+  ;; voice 0=kick($1000), 1=snare($1020), 2=lead($1100), 3=bass($1200), 4=noise($1300)
+  (data (i32.const 0x0F00) "\\00\\10")  ;; voice 0: $1000
+  (data (i32.const 0x0F02) "\\20\\10")  ;; voice 1: $1020
+  (data (i32.const 0x0F04) "\\00\\11")  ;; voice 2: $1100
+  (data (i32.const 0x0F06) "\\00\\12")  ;; voice 3: $1200
+  (data (i32.const 0x0F08) "\\00\\13")  ;; voice 4: $1300
+
+  ;; Get voice base address from lookup table
+  (func $voice_base (param $voice i32) (result i32)
+    (i32.load16_u
+      (i32.add
+        (i32.const 0x0F00)
+        (i32.mul (local.get $voice) (i32.const 2))
+      )
+    )
+  )
+
   ;; Get gate value for voice at step
   (func (export "get_gate") (param $voice i32) (param $step i32) (result i32)
     (i32.load8_u
       (i32.add
-        (i32.add
-          (i32.const 0x1000)
-          (i32.mul (local.get $voice) (i32.const 0x100))
-        )
+        (call $voice_base (local.get $voice))
         (local.get $step)
       )
+    )
+  )
+
+  ;; Set gate value for voice at step
+  (func (export "set_gate") (param $voice i32) (param $step i32) (param $val i32)
+    (i32.store8
+      (i32.add
+        (call $voice_base (local.get $voice))
+        (local.get $step)
+      )
+      (local.get $val)
     )
   )
 )
