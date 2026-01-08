@@ -4313,12 +4313,173 @@
       syncGridsFromMem();
     }
 
+    // ============ MASTER EFFECTS BUS ============
+    // All voices connect here → effects chain → destination
+    let masterBus = null;
+    let masterGain = null;
+    let masterFilter = null;
+    let masterDelay = null;
+    let masterDelayGain = null;
+    let masterBitcrush = null;
+
+    // XFX Memory Map: $1080-$10BF
+    const XFX = {
+      BITCRUSH_BITS:   0x105D,  // 8=normal, 4=crunchy, 2=gameboy, 1=pulse
+      BITCRUSH_RATE:   0x105E,  // Sample rate reduction (0-3)
+      FILTER_TYPE:     0x1080,  // 0=off, 1=LP, 2=HP, 3=BP, 4=Notch
+      FILTER_CUTOFF:   0x1081,  // 0-255 → 100Hz-8000Hz
+      FILTER_RESO:     0x1082,  // 0-255 → Q 0.5-20
+      FILTER_ENV:      0x1083,  // Envelope amount
+      DELAY_TIME_LO:   0x1090,  // Delay ms low byte
+      DELAY_TIME_HI:   0x1091,  // Delay ms high byte
+      DELAY_FEEDBACK:  0x1092,  // 0-255 → 0-90% feedback
+      DELAY_MIX:       0x1093,  // 0-255 → dry/wet
+      MASTER_VOL:      0x10A8,  // Master volume 0-255
+    };
+
+    // XFM Memory Map: $1400-$144F
+    const XFM = {
+      OP1_RATIO:    0x1400,  // Frequency ratio (0-255 → 0.5x-16x)
+      OP1_LEVEL:    0x1401,  // Output level
+      OP1_FEEDBACK: 0x1402,  // Self-modulation
+      OP1_WAVE:     0x1403,  // Waveform (0=sin, 1=saw, 2=sq, 3=tri)
+      OP2_RATIO:    0x1404,
+      OP2_LEVEL:    0x1405,
+      OP2_FEEDBACK: 0x1406,
+      OP2_WAVE:     0x1407,
+      OP3_RATIO:    0x1408,
+      OP3_LEVEL:    0x1409,
+      OP3_FEEDBACK: 0x140A,
+      OP3_WAVE:     0x140B,
+      OP4_RATIO:    0x140C,
+      OP4_LEVEL:    0x140D,
+      OP4_FEEDBACK: 0x140E,
+      OP4_WAVE:     0x140F,
+      ALGORITHM:    0x1410,  // 0-7: operator routing
+      GLOBAL_FB:    0x1411,  // Global feedback
+      // ADSR for each operator
+      OP1_A: 0x1420, OP1_D: 0x1421, OP1_S: 0x1422, OP1_R: 0x1423,
+      OP2_A: 0x1424, OP2_D: 0x1425, OP2_S: 0x1426, OP2_R: 0x1427,
+      OP3_A: 0x1428, OP3_D: 0x1429, OP3_S: 0x142A, OP3_R: 0x142B,
+      OP4_A: 0x142C, OP4_D: 0x142D, OP4_S: 0x142E, OP4_R: 0x142F,
+    };
+
+    // Initialize XFM defaults (DX7-style electric piano)
+    function initXFMDefaults() {
+      MEM[XFM.OP1_RATIO] = 32;   // 1x
+      MEM[XFM.OP1_LEVEL] = 200;
+      MEM[XFM.OP1_WAVE] = 0;     // sine
+      MEM[XFM.OP2_RATIO] = 64;   // 2x
+      MEM[XFM.OP2_LEVEL] = 150;
+      MEM[XFM.OP2_WAVE] = 0;
+      MEM[XFM.OP3_RATIO] = 96;   // 3x
+      MEM[XFM.OP3_LEVEL] = 100;
+      MEM[XFM.OP3_WAVE] = 0;
+      MEM[XFM.OP4_RATIO] = 224;  // 7x (metallic)
+      MEM[XFM.OP4_LEVEL] = 80;
+      MEM[XFM.OP4_WAVE] = 0;
+      MEM[XFM.ALGORITHM] = 0;
+      // Fast attack, medium decay for bell-like
+      MEM[XFM.OP1_A] = 5; MEM[XFM.OP1_D] = 100; MEM[XFM.OP1_S] = 60; MEM[XFM.OP1_R] = 80;
+      MEM[XFM.OP2_A] = 5; MEM[XFM.OP2_D] = 60;  MEM[XFM.OP2_S] = 30; MEM[XFM.OP2_R] = 60;
+      MEM[XFM.OP3_A] = 5; MEM[XFM.OP3_D] = 40;  MEM[XFM.OP3_S] = 20; MEM[XFM.OP3_R] = 50;
+      MEM[XFM.OP4_A] = 5; MEM[XFM.OP4_D] = 20;  MEM[XFM.OP4_S] = 10; MEM[XFM.OP4_R] = 30;
+    }
+
+    // Initialize XFX defaults
+    function initXFXDefaults() {
+      MEM[XFX.BITCRUSH_BITS] = 0;   // Off (0 = no crush)
+      MEM[XFX.BITCRUSH_RATE] = 0;   // No rate reduction
+      MEM[XFX.FILTER_TYPE] = 0;     // Off
+      MEM[XFX.FILTER_CUTOFF] = 200; // High cutoff
+      MEM[XFX.FILTER_RESO] = 30;    // Low resonance
+      MEM[XFX.DELAY_TIME_LO] = 0;   // No delay
+      MEM[XFX.DELAY_TIME_HI] = 0;
+      MEM[XFX.DELAY_FEEDBACK] = 80;
+      MEM[XFX.DELAY_MIX] = 60;
+      MEM[XFX.MASTER_VOL] = 200;
+    }
+
     function initAudio() {
       if (!audioCtx) {
         audioCtx = new AudioContext();
+
+        // Create master effects chain
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.8;
+
+        // Master filter (controlled by XFX)
+        masterFilter = audioCtx.createBiquadFilter();
+        masterFilter.type = 'lowpass';
+        masterFilter.frequency.value = 8000;
+        masterFilter.Q.value = 1;
+
+        // Delay effect
+        masterDelay = audioCtx.createDelay(2.0);
+        masterDelay.delayTime.value = 0;
+        masterDelayGain = audioCtx.createGain();
+        masterDelayGain.gain.value = 0;
+
+        // Connect: masterGain → filter → destination
+        //                    ↘→ delay → delayGain ↗ (feedback loop)
+        masterGain.connect(masterFilter);
+        masterFilter.connect(audioCtx.destination);
+        masterGain.connect(masterDelay);
+        masterDelay.connect(masterDelayGain);
+        masterDelayGain.connect(masterFilter);
+        masterDelayGain.connect(masterDelay); // feedback
+
+        // Set masterBus as the target for all voices
+        masterBus = masterGain;
+
+        // Initialize pack defaults
+        initXFMDefaults();
+        initXFXDefaults();
+
+        // Start effects update loop
+        setInterval(updateMasterEffects, 50);
+
         document.getElementById('led').classList.add('on');
       }
-      document.getElementById('status').innerText = 'AUDIO READY';
+      document.getElementById('status').innerText = 'AUDIO READY [XFM+XFX]';
+    }
+
+    // Update master effects from memory (called periodically)
+    function updateMasterEffects() {
+      if (!audioCtx || !masterFilter) return;
+
+      // Master volume
+      const vol = MEM[XFX.MASTER_VOL] || 200;
+      masterGain.gain.value = vol / 255;
+
+      // Filter
+      const filterType = MEM[XFX.FILTER_TYPE] || 0;
+      if (filterType > 0) {
+        const types = ['lowpass', 'lowpass', 'highpass', 'bandpass', 'notch'];
+        masterFilter.type = types[filterType] || 'lowpass';
+        const cutoff = MEM[XFX.FILTER_CUTOFF] || 200;
+        masterFilter.frequency.value = 100 + (cutoff / 255) * 7900;
+        const reso = MEM[XFX.FILTER_RESO] || 30;
+        masterFilter.Q.value = 0.5 + (reso / 255) * 19.5;
+      } else {
+        masterFilter.frequency.value = 20000; // Bypass
+        masterFilter.Q.value = 0.5;
+      }
+
+      // Delay
+      const delayMs = MEM[XFX.DELAY_TIME_LO] + (MEM[XFX.DELAY_TIME_HI] << 8);
+      if (delayMs > 0) {
+        masterDelay.delayTime.value = Math.min(delayMs / 1000, 2.0);
+        const fb = MEM[XFX.DELAY_FEEDBACK] || 0;
+        masterDelayGain.gain.value = (fb / 255) * 0.9 * (MEM[XFX.DELAY_MIX] / 255);
+      } else {
+        masterDelayGain.gain.value = 0;
+      }
+    }
+
+    // Get audio destination (use master bus if available, else direct)
+    function getAudioDest() {
+      return masterBus || audioCtx.destination;
     }
 
     // ============ GRID INTERACTION ============
@@ -4879,7 +5040,7 @@
       osc.frequency.exponentialRampToValueAtTime(f, t + 0.06);
       gain.gain.setValueAtTime(0.7, t);
       gain.gain.exponentialRampToValueAtTime(0.01, t + decay);
-      osc.connect(gain).connect(audioCtx.destination);
+      osc.connect(gain).connect(getAudioDest());
       osc.start(t); osc.stop(t + decay + 0.05);
       if (clickLevel > 0.05) {
         const click = audioCtx.createOscillator();
@@ -4889,7 +5050,7 @@
         click.frequency.exponentialRampToValueAtTime(200, t + 0.01);
         clickGain.gain.setValueAtTime(clickLevel, t);
         clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
-        click.connect(clickGain).connect(audioCtx.destination);
+        click.connect(clickGain).connect(getAudioDest());
         click.start(t); click.stop(t + 0.03);
       }
       if (subLevel > 0.05) {
@@ -4899,7 +5060,7 @@
         sub.frequency.setValueAtTime(f * 0.5, t);
         subGain.gain.setValueAtTime(subLevel, t);
         subGain.gain.exponentialRampToValueAtTime(0.01, t + decay * 1.2);
-        sub.connect(subGain).connect(audioCtx.destination);
+        sub.connect(subGain).connect(getAudioDest());
         sub.start(t); sub.stop(t + decay * 1.2 + 0.05);
       }
     };
@@ -4924,7 +5085,7 @@
       osc.frequency.exponentialRampToValueAtTime(f, t + 0.02);
       g1.gain.setValueAtTime(0.5 * bodyMix, t);
       g1.gain.exponentialRampToValueAtTime(0.01, t + bodyTime);
-      osc.connect(g1).connect(audioCtx.destination);
+      osc.connect(g1).connect(getAudioDest());
       osc.start(t); osc.stop(t + bodyTime + 0.05);
       const noiseDecay = snap > 0 ? snap / 1000 : 0.1;
       const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.2, audioCtx.sampleRate);
@@ -4938,7 +5099,7 @@
       filt.frequency.value = hpFreq;
       g2.gain.setValueAtTime(0.6 * noiseMix, t);
       g2.gain.exponentialRampToValueAtTime(0.01, t + noiseDecay);
-      noise.connect(filt).connect(g2).connect(audioCtx.destination);
+      noise.connect(filt).connect(g2).connect(getAudioDest());
       noise.start(t); noise.stop(t + noiseDecay + 0.05);
     };
 
@@ -4983,7 +5144,7 @@
       gain.gain.setValueAtTime(Math.max(0.001, sustainVol), t + adsr.a + adsr.d + 0.1);
       gain.gain.exponentialRampToValueAtTime(0.001, t + totalTime);
 
-      osc.connect(gain).connect(audioCtx.destination);
+      osc.connect(gain).connect(getAudioDest());
       lfo.start(t);
       osc.start(t);
       lfo.stop(t + totalTime);
@@ -5025,7 +5186,7 @@
       sg.gain.linearRampToValueAtTime(peakVol, t + adsr.a);
       sg.gain.linearRampToValueAtTime(Math.max(0.001, sustainVol), t + adsr.a + adsr.d);
       sg.gain.exponentialRampToValueAtTime(0.001, t + totalTime);
-      sub.connect(sg).connect(audioCtx.destination);
+      sub.connect(sg).connect(getAudioDest());
       sub.start(t); sub.stop(t + totalTime + 0.01);
 
       // Main carrier with ADSR
@@ -5036,7 +5197,7 @@
       gain.gain.linearRampToValueAtTime(peakVol, t + adsr.a);
       gain.gain.linearRampToValueAtTime(Math.max(0.001, sustainVol), t + adsr.a + adsr.d);
       gain.gain.exponentialRampToValueAtTime(0.001, t + totalTime);
-      carrier.connect(filter).connect(gain).connect(audioCtx.destination);
+      carrier.connect(filter).connect(gain).connect(getAudioDest());
       carrier.start(t); carrier.stop(t + totalTime + 0.01);
     };
 
@@ -5053,7 +5214,7 @@
         osc.frequency.exponentialRampToValueAtTime(50, t + 0.1);
         gain.gain.setValueAtTime(0.4, t);
         gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-        osc.connect(gain).connect(audioCtx.destination);
+        osc.connect(gain).connect(getAudioDest());
         osc.start(t); osc.stop(t + 0.15);
       } else { // Hat
         const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.1, audioCtx.sampleRate);
@@ -5068,7 +5229,7 @@
         const decay = y > 10 ? 0.03 : 0.08;
         gain.gain.setValueAtTime(0.3, t);
         gain.gain.exponentialRampToValueAtTime(0.01, t + decay);
-        src.connect(filt).connect(gain).connect(audioCtx.destination);
+        src.connect(filt).connect(gain).connect(getAudioDest());
         src.start(t); src.stop(t + decay + 0.02);
       }
     };
@@ -5111,7 +5272,7 @@
       osc.frequency.exponentialRampToValueAtTime(f, t + 0.05);
       gain.gain.setValueAtTime(1, t);
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
-      osc.connect(gain).connect(audioCtx.destination);
+      osc.connect(gain).connect(getAudioDest());
       osc.start(t); osc.stop(t + 0.2);
       // Click transient
       const click = audioCtx.createOscillator();
@@ -5121,7 +5282,7 @@
       click.frequency.exponentialRampToValueAtTime(100, t + 0.01);
       cg.gain.setValueAtTime(0.3, t);
       cg.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
-      click.connect(cg).connect(audioCtx.destination);
+      click.connect(cg).connect(getAudioDest());
       click.start(t); click.stop(t + 0.02);
     };
 
@@ -5136,7 +5297,7 @@
       osc.frequency.exponentialRampToValueAtTime(f, t + 0.1);
       gain.gain.setValueAtTime(0.8, t);
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
-      osc.connect(gain).connect(audioCtx.destination);
+      osc.connect(gain).connect(getAudioDest());
       osc.start(t); osc.stop(t + 0.55);
       // Sub layer
       const sub = audioCtx.createOscillator();
@@ -5145,7 +5306,7 @@
       sub.frequency.value = f * 0.5;
       sg.gain.setValueAtTime(0.5, t);
       sg.gain.exponentialRampToValueAtTime(0.01, t + 0.6);
-      sub.connect(sg).connect(audioCtx.destination);
+      sub.connect(sg).connect(getAudioDest());
       sub.start(t); sub.stop(t + 0.65);
     };
 
@@ -5164,7 +5325,7 @@
         filt.Q.value = 2;
         gain.gain.setValueAtTime(0.5, t + i * 0.015);
         gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.015 + 0.1);
-        src.connect(filt).connect(gain).connect(audioCtx.destination);
+        src.connect(filt).connect(gain).connect(getAudioDest());
         src.start(t + i * 0.015);
       }
     };
@@ -5178,9 +5339,101 @@
       osc.frequency.exponentialRampToValueAtTime(300, t + 0.01);
       gain.gain.setValueAtTime(0.5, t);
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.03);
-      osc.connect(gain).connect(audioCtx.destination);
+      osc.connect(gain).connect(getAudioDest());
       osc.start(t); osc.stop(t + 0.04);
     };
+
+    // ============ FM SYNTH (XFM PACK) ============
+    // 4-operator FM synthesis inspired by Yamaha DX7 / Sega Genesis
+    // Algorithms define how operators modulate each other
+    const FM_ALGORITHMS = [
+      // Alg 0: [4→3→2→1]→out (classic FM stack)
+      { carriers: [0], modulators: [[1,2,3], [2,3], [3], []] },
+      // Alg 1: [4→3]→[2→1]→out (parallel stacks)
+      { carriers: [0], modulators: [[1], [2,3], [3], []] },
+      // Alg 2: [4,3,2]→1→out (3 modulators to carrier)
+      { carriers: [0], modulators: [[1,2,3], [], [], []] },
+      // Alg 3: [4→3→2, 4→1]→out (split feedback)
+      { carriers: [0,1], modulators: [[3], [2,3], [3], []] },
+      // Alg 4: [4→3, 2→1]→out (dual stacks)
+      { carriers: [0,2], modulators: [[1], [], [3], []] },
+      // Alg 5: [4,3,2,1]→out (all carriers, additive)
+      { carriers: [0,1,2,3], modulators: [[], [], [], []] },
+      // Alg 6: [4→3→2→1, 4→1]→out (feedback ring)
+      { carriers: [0], modulators: [[1,2,3], [2], [3], [0]] },
+      // Alg 7: [4→2, 3→1]→out (cross modulation)
+      { carriers: [0,1], modulators: [[2], [3], [], []] },
+    ];
+
+    SYNTHS['fm'] = function(t, note, params, adsr = {a:0.01, d:0.2, s:0.4, r:0.3}) {
+      const f = noteToHz(note, 2);
+      const algo = FM_ALGORITHMS[MEM[XFM.ALGORITHM] & 7];
+      const dest = getAudioDest();
+
+      // Create 4 operators
+      const ops = [];
+      const opGains = [];
+      for (let i = 0; i < 4; i++) {
+        const baseAddr = XFM.OP1_RATIO + i * 4;
+        const ratio = 0.5 + (MEM[baseAddr] / 255) * 15.5;
+        const level = MEM[baseAddr + 1] / 255;
+        const wave = MEM[baseAddr + 3] & 3;
+        const waveTypes = ['sine', 'sawtooth', 'square', 'triangle'];
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = waveTypes[wave];
+        osc.frequency.value = f * ratio;
+
+        // Operator envelope from XFM memory
+        const envBase = XFM.OP1_A + i * 4;
+        const a = (MEM[envBase] / 255) * 0.5;
+        const d = (MEM[envBase + 1] / 255) * 0.5;
+        const s = MEM[envBase + 2] / 255;
+        const r = (MEM[envBase + 3] / 255) * 1.0;
+        const totalTime = a + d + 0.1 + r;
+
+        const peakVol = level;
+        const sustainVol = peakVol * s;
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(peakVol, t + a);
+        gain.gain.linearRampToValueAtTime(Math.max(0.001, sustainVol), t + a + d);
+        gain.gain.setValueAtTime(Math.max(0.001, sustainVol), t + a + d + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + totalTime);
+
+        osc.connect(gain);
+        ops.push(osc);
+        opGains.push(gain);
+
+        osc.start(t);
+        osc.stop(t + totalTime + 0.05);
+      }
+
+      // Connect operators based on algorithm
+      for (let i = 0; i < 4; i++) {
+        const mods = algo.modulators[i];
+        if (mods && mods.length > 0) {
+          // This operator modulates others
+          for (const modTarget of mods) {
+            if (modTarget < 4) {
+              // Modulate the frequency of target operator
+              const modGain = audioCtx.createGain();
+              modGain.gain.value = f * ((MEM[XFM.OP1_RATIO + i * 4 + 1] / 255) * 2);
+              opGains[i].connect(modGain);
+              modGain.connect(ops[modTarget].frequency);
+            }
+          }
+        }
+      }
+
+      // Connect carriers to output
+      for (const c of algo.carriers) {
+        opGains[c].connect(dest);
+      }
+    };
+
+    // Register FM as a lead synth option
+    SYNTH_IDS.lead.push('fm');
 
     // Legacy wrappers - read synth selector from MEMORY (MTMC-16 style!)
     function playKick(t, p) { SYNTHS[getVoiceSynth('kick')](t, 0, [p]); }
