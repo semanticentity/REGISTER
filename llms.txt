@@ -1,0 +1,161 @@
+# REGISTER
+
+> A memory-mapped sound chip for teaching. Every setting is a byte at a fixed address in $1000-$1FFF. You make music by writing bytes (POKE) and you can read every setting back (PEEK). The memory map in memory-map.json is the whole contract: typed fields, ranges, and a note on every field.
+
+This file is for language models and other programs that want to write REGISTER songs and sounds. It is generated from memory-map.json and engine.js by tools/build-llms.js, and CI fails when it is out of date. Every example in it is run by the test suite: each line is sent to the console, the bar is rendered, and the voices it names must be heard.
+
+## How to write to the chip
+
+On any REGISTER page, open the console with the backtick key, or call `REGISTER.run(line)` from JavaScript. Lines look like this:
+
+- `POKE $1501, 120` writes one byte. `$` or `0x` is hex; plain numbers are decimal.
+- `POKE SEQ_TEMPO 120` does the same by name. Prefer names: they are harder to get wrong than addresses.
+- `POKE BASS_ENGINE pokey` and `POKE WAVE_MODE WSG 4-bit` use a field's own words: an option, or an engine's name.
+- `PEEK SEQ_TEMPO` reads a byte. `FIND unison` searches the map. `CAPS` lists what this machine implements.
+
+Writing a read-only byte, or an address outside every map, is an error with a reason. Nothing else is: rule 2 below.
+
+## Three rules
+
+1. One map, no overlaps. Every address belongs to exactly one region in memory-map.json.
+2. Unknown regions are ignored, not errors. A machine without a pack skips its bytes and plays the rest.
+3. Machines declare what they can do. CAPS ($15F0-$15F3) holds pack bits 0-31 and CAPS_EXT ($15F5-$15F8) bits 32-63. Read them before relying on a pack.
+
+## The core: a beat in 16 steps
+
+Five voices, 16 steps each. A step's byte is its gate: 0 is silent. For lead and bass the gate byte is the MIDI note (60 = middle C).
+
+```register hear=kick,snare,lead,bass,noise
+POKE SEQ_TEMPO 120
+POKE $1000, 1
+POKE $1004, 1
+POKE $1008, 1
+POKE $100C, 1
+POKE $1024, 1
+POKE $102C, 1
+POKE $1100, 64
+POKE $1106, 67
+POKE $110A, 71
+POKE $1200, 40
+POKE $1208, 43
+POKE $1302, 1
+POKE $130A, 1
+```
+
+Rows: KICK_GATE $1000, SNARE_GATE $1020, LEAD_GATE $1100, BASS_GATE $1200, NOISE_GATE $1300. Step n of a row is its start plus n.
+
+## Engines
+
+Each voice has an engine byte (KICK_ENGINE, SNARE_ENGINE, LEAD_ENGINE, BASS_ENGINE, NOISE_ENGINE). The value is an index into that voice's list:
+
+- KICK_ENGINE ($1058): 0 kick, 1 kick808, 2 kick909, 3 wave, 4 pokey
+- SNARE_ENGINE ($1059): 0 snare, 1 clap, 2 rim, 3 wave, 4 pokey
+- LEAD_ENGINE ($115A): 0 lead, 1 fm, 2 sid, 3 lpc, 4 wave, 5 pokey
+- BASS_ENGINE ($125A): 0 bass, 1 sid, 2 lpc, 3 wave, 4 pokey
+- NOISE_ENGINE ($135A): 0 noise, 1 wave, 2 pokey
+
+Engines with a chip bank (fm, sid, lpc, wave, pokey) read their settings from that pack. FM, SID, speech and the wavetable are one patch shared by every voice on that engine. POKEY gives each voice its own channel: BASS_POKEY_POLY, BASS_POKEY_DIV, BASS_POKEY_VOL and so on.
+
+```register hear=bass
+POKE $1200, 33
+POKE $1208, 33
+POKE BASS_ENGINE pokey
+POKE BASS_POKEY_POLY 4-bit
+POKE POKEY_CLOCK 64 kHz
+```
+
+```register hear=lead
+POKE $1100, 60
+POKE $1104, 64
+POKE $1108, 67
+POKE LEAD_ENGINE wave
+POKE WAVE_MODE WSG 4-bit
+```
+
+## Sounds as text
+
+A sound is a list of fields by name, without the voice prefix: `A` means LEAD_A on the lead and BASS_A on the bass. The voice you load it onto supplies the base address. Values are readable: numbers, option names, engine names. Lines a voice or machine does not have are skipped with a reason. `FROM` says which voice it was made on; render.js loads it onto that voice. Use `RegisterSounds.resolve(index, text, voice, opts)` to see what would be written on any voice, or the SND drawer in the sequencer.
+
+```sound hear=lead
+SOUND Bright Lead
+FROM lead
+; FM, two stacks, the classic arcade algorithm
+ENGINE = fm
+A = 2
+D = 60
+S = 170
+R = 50
+FM_ALGORITHM = 4
+OP1_RATIO = 16
+OP1_LEVEL = 200
+OP2_RATIO = 32
+OP2_LEVEL = 90
+OP3_RATIO = 16
+OP3_LEVEL = 120
+OP4_RATIO = 48
+OP4_LEVEL = 60
+```
+
+## Check your work by rendering
+
+A model cannot hear, so measure. `node tools/render.js song.txt` loads the sequencer in a headless browser, runs each line, renders the bars through the same engine as WAV export, and prints JSON: each voice's loudness and pitch played alone, the mix's peak, CAPS, and any fault. A voice you meant to hear with an rms near 0 did not sound. For lead and bass, `pitchHz` is the lowest repeating period and `centsOff` compares it with the nearest octave of the note you wrote: near 0 is in tune. Some engines add a sub-oscillator, so `octave` -1 can be right. A large `centsOff` means a wrong note, tuning or clock.
+
+```sh
+node tools/render.js song.txt --clear --bars 1
+```
+
+`--clear` starts from silence instead of the page's demo pattern.
+
+## Faults
+
+The chip skips what it cannot do and keeps playing, and records what it skipped in FAULT_CODE ($1511) and FAULT_ADDR ($1512). render.js reports it. Codes: 1 = a lock aimed outside the sound settings, 2 = the bus queue overflowed, 3 = an engine byte names no engine.
+
+## Packs
+
+In CAPS bit order: bit, name, addresses, what it is, its fields. llms-full.txt has every field with its range and note.
+
+- bit 0 CORE ($1000-$15F8): The beat: five voices, 16 steps each, plus tempo, swing and the CAPS words. Fields: KICK_GATE, KICK_PITCH, SNARE_GATE, SNARE_TONE, SNARE_SNAP, LEAD_GATE, LEAD_ARP, BASS_GATE, BASS_FM, BASS_FILT, NOISE_GATE, NOISE_DECAY, NOISE_TYPE, SEQ_CTRL, SEQ_TEMPO, SEQ_STEP, SEQ_SWING, CAPS, SPEC_VERSION, CAPS_EXT
+- bit 1 XVOICE ($1050-$135A): Voice character: drum shape, engine select, unison for lead and bass. Fields: KICK_DECAY, KICK_SWEEP, KICK_CLICK, KICK_SUB, SNARE_BODY_DECAY, SNARE_NOISE_LEVEL, SNARE_BODY_TUNE, SNARE_NOISE_BRIGHT, KICK_ENGINE, SNARE_ENGINE, LEAD_UNISON_SPREAD, LEAD_UNISON_COUNT, BASS_UNISON_SPREAD, BASS_UNISON_COUNT, LEAD_ENGINE, BASS_ENGINE, NOISE_ENGINE
+- bit 2 XENV ($1060-$1073): Attack, decay, sustain and release for each voice. Fields: KICK_A, KICK_D, KICK_S, KICK_R, SNARE_A, SNARE_D, SNARE_S, SNARE_R, LEAD_A, LEAD_D, LEAD_S, LEAD_R, BASS_A, BASS_D, BASS_S, BASS_R, NOISE_A, NOISE_D, NOISE_S, NOISE_R
+- bit 3 XFX ($1080-$109F): Master effects: filter with an envelope, delay, bitcrush. Fields: FILTER_TYPE, FILTER_CUTOFF, FILTER_RESO, FILTER_ENV, FILTER_ENV_FOLLOW, FILTER_ENV_CLOSE, DELAY_TIME, DELAY_FEEDBACK, DELAY_MIX, BITCRUSH_BITS, BITCRUSH_RATE
+- bit 4 XTUNING ($10A0-$10A7): Temperament, A4 reference and fine tune per voice. Fields: TUNING_MODE, A4_REF, KICK_FINE_TUNE, SNARE_FINE_TUNE, LEAD_FINE_TUNE, BASS_FINE_TUNE, NOISE_FINE_TUNE
+- bit 5 XMIXER ($10A8-$10B9): Master and per-voice volume and pan. Fields: MASTER_VOL, MASTER_PAN, KICK_VOL, SNARE_VOL, LEAD_VOL, BASS_VOL, NOISE_VOL, KICK_PAN, SNARE_PAN, LEAD_PAN, BASS_PAN, NOISE_PAN
+- bit 6 XVEL ($10C0-$1330): Velocity per voice. Fields: KICK_VEL, SNARE_VEL, LEAD_VEL, BASS_VEL, NOISE_VEL
+- bit 7 XSTEP ($1400-$149F): Per-step probability and ratchets for each voice. Fields: KICK_PROB, SNARE_PROB, LEAD_PROB, BASS_PROB, NOISE_PROB, KICK_RATCHET, SNARE_RATCHET, LEAD_RATCHET, BASS_RATCHET, NOISE_RATCHET
+- bit 8 XFM ($1900-$192F): 4-operator FM wired like the Yamaha YM2151 and YM2612. Fields: OP1_RATIO, OP1_LEVEL, OP1_FEEDBACK, OP1_WAVE, OP2_RATIO, OP2_LEVEL, OP2_FEEDBACK, OP2_WAVE, OP3_RATIO, OP3_LEVEL, OP3_FEEDBACK, OP3_WAVE, OP4_RATIO, OP4_LEVEL, OP4_FEEDBACK, OP4_WAVE, FM_ALGORITHM, FM_GLOBAL_FB, OP1_DT1, OP2_DT1, OP3_DT1, OP4_DT1, OP1_A, OP1_D, OP1_S, OP1_R, OP2_A, OP2_D, OP2_S, OP2_R, OP3_A, OP3_D, OP3_S, OP3_R, OP4_A, OP4_D, OP4_S, OP4_R
+- bit 9 XSID ($1A00-$1A0F): C64 SID style: 3 oscillators, ring mod, sync, filter. Fields: OSC1_WAVE, OSC1_DUTY, OSC1_SYNC, OSC1_RING, OSC2_WAVE, OSC2_DUTY, OSC2_DETUNE, OSC2_OCTAVE, OSC3_WAVE, OSC3_DUTY, OSC3_DETUNE, OSC3_OCTAVE, SID_FILTER_ROUTE, SID_FILTER_TYPE, SID_FILTER_CUTOFF, SID_FILTER_RESO
+- bit 10 XSTEPS ($1600-$16FF): planned, no bytes yet
+- bit 11 XTEMPO ($1700-$170F): planned, no bytes yet
+- bit 12 XTHEORY ($1720-$173F): planned, no bytes yet
+- bit 13 XCHORD ($1740-$175F): planned, no bytes yet
+- bit 14 XEUCLIDEAN ($1B00-$1B3F): planned, no bytes yet
+- bit 15 XLFO ($1B40-$1B7F): planned, no bytes yet
+- bit 16 XMARKOV ($1B80-$1BFF): planned, no bytes yet
+- bit 17 XFOLLOW ($1C00-$1C3F): planned, no bytes yet
+- bit 18 XMACRO ($1C40-$1C8F): planned, no bytes yet
+- bit 19 XSNAPSHOT ($1C90-$1CAF): planned, no bytes yet
+- bit 20 XPATCH ($1D00-$1D7F): planned, no bytes yet
+- bit 21 XARP ($1D80-$1D9F): planned, no bytes yet
+- bit 22 XSEQ ($1E00-$1E5F): Parameter locks: one byte changes on one step, then goes back. Fields: LOCK_COUNT, LOCKS
+- bit 23 XCLOCK ($1E60-$1E7F): planned, no bytes yet
+- bit 24 XMATH ($1E80-$1EBF): planned, no bytes yet
+- bit 25 XCOMPARE ($1EC0-$1EFF): planned, no bytes yet
+- bit 26 XRECORD ($1F00-$1F0F): planned, no bytes yet
+- bit 27 XGRAIN ($1F10-$1F2F): planned, no bytes yet
+- bit 28 XSCENE ($1504-$1504): Which of four pattern scenes is active. Fields: SEQ_SCENE
+- bit 29 XSONG ($1760-$18FF): Song arranger: timed POKE, COPY, JUMP and STOP events. Fields: SONG_POS, SONG_CTRL, SONG_COUNT, SONG_EVENTS, SONG_BANK
+- bit 30 XLPC ($14E0-$14EF): Speak & Spell speech: phonemes through formant filters. Fields: LPC_PHONEME, LPC_PITCH, LPC_ENERGY, LPC_VOICING, LPC_RESONANCE, LPC_FORMANT, LPC_BUZZ, LPC_RESERVED
+- bit 31 XWAVE ($1A20-$1A4F): Wavetable: 32 signed samples, SCC 8-bit or WSG 4-bit. Fields: WAVE_TABLE, WAVE_MODE
+- bit 32 XBUS ($1508-$150F): Bus budget: so many automation writes per step, and what happens to the rest. Fields: BUS_CTRL, BUS_SPEED, BUS_MODE, BUS_OVERFLOWS, BUS_LOAD
+- bit 33 XPOKEY ($1A50-$1A5F): Atari POKEY: clock dividers and polynomial counters, a channel per voice. Fields: KICK_POKEY_POLY, KICK_POKEY_DIV, KICK_POKEY_VOL, SNARE_POKEY_POLY, SNARE_POKEY_DIV, SNARE_POKEY_VOL, LEAD_POKEY_POLY, LEAD_POKEY_DIV, LEAD_POKEY_VOL, BASS_POKEY_POLY, BASS_POKEY_DIV, BASS_POKEY_VOL, NOISE_POKEY_POLY, NOISE_POKEY_DIV, NOISE_POKEY_VOL, POKEY_CLOCK
+- bit 34 XFAULT ($1510-$1513): Fault register: what the chip skipped, and halt on fault. Fields: FAULT_CTRL, FAULT_CODE, FAULT_ADDR
+
+## Files
+
+- [memory-map.json](memory-map.json): the contract, every region and field
+- [llms-full.txt](llms-full.txt): this file plus every field
+- [README.md](README.md): the long explanation, for people
+- [tools/render.js](tools/render.js): run lines, render, measure
+- [sounds.js](sounds.js): sounds as text, by field name
+
+<!-- Generated by tools/build-llms.js from tools/llms-intro.md, memory-map.json and engine.js. Do not edit. -->

@@ -1,0 +1,15 @@
+div {
+  height: 96vh;
+  border: 1vh solid white;
+  background: #111;
+}
+p {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(24px, 2.5vw, 36px);
+  color: white;
+  font-family: serif;
+  line-height: 1.7;
+}

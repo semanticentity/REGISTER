@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 1: Memory and POKE | REGISTER</title>
+  <meta name="description" content="Lesson 1 of REGISTER: memory is numbered boxes, POKE writes one, and a sound chip reads them every step. Learn addresses, bytes and hex by making a drum beat.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 30px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code, kbd { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 14px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    button.on { border-color: #9bbc0f; color: #9bbc0f; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; }
+    th { color: #888; font-weight: normal; }
+    .next { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="tour.html">Tour</a> / Lesson 1 of 3</div>
+  <h1>Memory and POKE</h1>
+  <p class="sub">A computer's memory is a long row of numbered boxes. Each box holds one small number. A sound chip reads some of those boxes over and over, and plays what it finds.</p>
+
+  <h2>Boxes with numbers on them</h2>
+  <p>Every box has an <b>address</b>, its number in the row. Every box holds a <b>byte</b>: a whole number from 0 to 255. That is all memory is.</p>
+  <p>REGISTER is a sound chip that owns the boxes from <code>$1000</code> to <code>$1FFF</code>. The <code>$</code> means the number is written in <b>hex</b>, which counts in sixteens. <code>$1000</code> is 4096 in everyday numbers. Programmers use hex for addresses because the digits line up with how the hardware is wired; lesson 2 shows why.</p>
+
+  <h2>The kick drum is 16 boxes</h2>
+  <p>A beat here is 16 steps long. The chip gives the kick drum 16 boxes, one per step, from <code>$1000</code> to <code>$100F</code>. On each step the chip looks at that step's box. If it holds 1, the kick plays. If it holds 0, it stays quiet.</p>
+  <p>Press PLAY, then click some boxes. Each click writes a byte to memory, and you hear the change on the next loop.</p>
+  <p><button id="play">PLAY</button></p>
+  <div id="kick"></div>
+  <div id="goal1"></div>
+
+  <h2>POKE: write a box by its address</h2>
+  <p>Clicking is a shortcut. The real operation is <b>POKE</b>: put this value in the box at this address. BASIC on home computers had the same command in the 1980s, and people used it to make their machines play sound.</p>
+<pre>POKE $1000, 1    ; step 0: kick on
+POKE $1004, 1    ; step 4: kick on
+PEEK $1004       ; read it back</pre>
+  <p>Step 4 is <code>$1000 + 4 = $1004</code>. The address of a step is the start of the voice plus the step number. Try the lines below, then write your own.</p>
+  <div id="poke"></div>
+
+  <h2>A second voice, a second set of boxes</h2>
+  <p>The snare lives at <code>$1020</code> to <code>$102F</code>. Same rule: one box per step, 1 means hit.</p>
+  <div id="snare"></div>
+  <div id="goal2"></div>
+
+  <h2>What you just learned</h2>
+  <table>
+    <tr><th>Word</th><th>Meaning here</th></tr>
+    <tr><td>address</td><td>the number of a box, like <code>$1004</code></td></tr>
+    <tr><td>byte</td><td>what a box holds, 0 to 255</td></tr>
+    <tr><td>POKE</td><td>write a byte to an address</td></tr>
+    <tr><td>PEEK</td><td>read the byte at an address</td></tr>
+    <tr><td>memory-mapped</td><td>the chip reads ordinary memory, so writing memory is how you control it</td></tr>
+  </table>
+  <p>That last row is the big idea. There is no special sound command. The program writes memory, and the chip watches memory. Real game consoles worked this way, and so does the MTMC-16 this chip is built for.</p>
+
+  <div class="next"><a href="tour.html">Back to the tour</a><a href="lesson2.html">Lesson 2: bits and patterns</a></div>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script>
+    Kit.boot();
+    Kit.playButton(document.getElementById('play'));
+    Kit.grid(document.getElementById('kick'), { addr: 0x1000, label: 'KICK_GATE' });
+    Kit.grid(document.getElementById('snare'), { addr: 0x1020, label: 'SNARE_GATE' });
+    Kit.pokeBox(document.getElementById('poke'), { start: 'POKE $1000, 1\nPOKE $1004, 1\nPEEK $1004' });
+    const on = (addr, steps) => Array.from({ length: 16 }, (_, i) => !!MEM[addr + i] === steps.includes(i)).every(Boolean);
+    Kit.check(document.getElementById('goal1'), {
+      goal: 'make "four on the floor": the kick on steps 0, 4, 8 and 12, and nowhere else.',
+      hint: 'Click the first box of each group of four. The groups have brighter edges.',
+      ok: 'Four on the floor is the heartbeat of house and disco. Its addresses are $1000, $1004, $1008 and $100C.',
+      test: () => on(0x1000, [0, 4, 8, 12])
+    });
+    Kit.check(document.getElementById('goal2'), {
+      goal: 'add a backbeat: the snare on steps 4 and 12 only. Use POKE lines if you like.',
+      hint: 'POKE $1024, 1 and POKE $102C, 1. In hex, 12 is C.',
+      ok: 'Kick on every beat, snare on 2 and 4. That is most pop music, written as six bytes.',
+      test: () => on(0x1020, [4, 12])
+    });
+  </script>
+</body>
+</html>

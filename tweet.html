@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tweet Player | REGISTER</title>
+  <meta name="description" content="A whole song in 280 characters, played by the 1,291-byte REGISTER core in WebAssembly. Export it to MTMC-16, WASM, C, Rust or Intel HEX.">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      color: #ccc;
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      font-size: 14px;
+      padding: 24px;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #9bbc0f;
+      margin: 0 0 6px 0;
+      font-size: 28px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .sub { color: #888; font-size: 14px; margin-bottom: 24px; }
+
+    .editor-wrap {
+      display: flex;
+      gap: 0;
+    }
+    .labels {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 0;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+    }
+    .label {
+      height: 22px;
+      line-height: 22px;
+      padding: 0 12px;
+      font-size: 11px;
+      color: #666;
+      text-align: right;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    textarea {
+      flex: 1;
+      height: 154px;
+      background: #111;
+      color: #9bbc0f;
+      border: 1px solid #333;
+      padding: 10px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 22px;
+      resize: none;
+      overflow: auto;
+      border-radius: 0 4px 4px 0;
+    }
+    textarea:focus { outline: 2px solid #9bbc0f; outline-offset: -1px; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    button {
+      background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+      color: #9bbc0f;
+      border: 1px solid #444;
+      padding: 12px 20px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      flex: 1;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+    button:hover { background: #333; border-color: #555; }
+    button:active { background: #1a1a1a; }
+    button.play { border-color: #9bbc0f; }
+
+    .steps {
+      display: flex;
+      gap: 4px;
+      margin: 20px 0;
+    }
+    .step {
+      width: 28px;
+      height: 28px;
+      background: #111;
+      border: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      color: #444;
+      border-radius: 3px;
+    }
+    .step.current { background: #9bbc0f; color: #0f380f; font-weight: 600; }
+    .step.active { border-color: #9bbc0f; }
+
+    .status {
+      color: #888;
+      font-size: 13px;
+      min-height: 24px;
+    }
+    .status.error { color: #f66; }
+    .status.ok { color: #9bbc0f; }
+
+    .examples {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #222;
+    }
+    .examples h3 {
+      color: #666;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 12px 0;
+    }
+    .example {
+      background: #0f0f0f;
+      padding: 10px 14px;
+      margin: 6px 0;
+      font-size: 13px;
+      color: #888;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+    .example:hover { border-color: #333; color: #aaa; background: #141414; }
+    .example-name { color: #9bbc0f; font-weight: 600; }
+
+    .byte-count {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      font-size: 12px;
+      color: #555;
+      margin-top: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .key {
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 0.3px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .hint {
+      font-size: 12px;
+      color: #555;
+      margin-top: 10px;
+    }
+    .hint a { color: #777; text-decoration: none; }
+    .hint a:hover { color: #9bbc0f; }
+
+    .engine {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #555;
+      border: 1px solid #222;
+      border-radius: 3px;
+      padding: 2px 8px;
+      margin-bottom: 20px;
+    }
+    .engine.wasm { color: #9bbc0f; border-color: #2f3a12; }
+
+    .section {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #222;
+    }
+    .section h3 {
+      color: #666;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 12px 0;
+    }
+    .section p { color: #666; font-size: 12px; margin: 0 0 12px 0; }
+
+    .mem {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      line-height: 18px;
+      color: #444;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .mem .row { display: flex; gap: 3px; }
+    .mem .addr { color: #666; width: 40px; flex: none; }
+    .mem .b { width: 16px; text-align: center; flex: none; }
+    .mem .b.set { color: #9bbc0f; }
+    .mem .b.cur { background: #1c2408; }
+
+    .tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tabs button {
+      flex: none;
+      padding: 6px 10px;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #888;
+    }
+    .tabs button.on { color: #9bbc0f; border-color: #9bbc0f; }
+    #export-out {
+      width: 100%;
+      height: 220px;
+      background: #0d0d0d;
+      color: #9bbc0f;
+      border: 1px solid #222;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      line-height: 16px;
+      resize: vertical;
+      white-space: pre;
+      overflow: auto;
+    }
+    .export-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #555;
+    }
+    .export-bar button { flex: none; padding: 6px 12px; font-size: 11px; }
+    /* Even line lengths: no lonely last word */
+    h1, h2, h3, h4, blockquote, .sub, .tagline, .manifesto, figcaption { text-wrap: balance; }
+    p, li, .hint, .card, .primitive-desc, .example { text-wrap: pretty; }
+  </style>
+</head>
+<body>
+  <h1>REGISTER</h1>
+  <p class="sub">paste a song. hit play. 280 bytes max.</p>
+  <div class="engine" id="engine">engine: loading</div>
+
+  <div class="editor-wrap">
+    <div class="labels" id="labels"></div>
+    <textarea id="input" spellcheck="false" placeholder="BPM:122
+1000:x...x...x...x...
+1020:....x.......x...
+1100:39..3C..40..39..
+1200:21......21..24..
+1300:................"></textarea>
+  </div>
+  <div class="byte-count">
+    <span><span id="bytes">0</span><span id="bytes-limit">/280 bytes</span></span>
+    <span class="key">1000:kick 1020:snare 1100:lead 1200:bass 1300:noise</span>
+  </div>
+
+  <div class="controls">
+    <button class="play" id="btn-play">PLAY</button>
+    <button id="btn-stop">STOP</button>
+    <button id="btn-copy" title="Copy to clipboard">COPY</button>
+    <button id="btn-sounds" title="Sounds: design, save and share voice sounds by field name">SOUNDS</button>
+  </div>
+  <div class="hint">paste into <a href="sequencer.html" target="_blank">full sequencer</a> → LOAD</div>
+
+  <div class="steps" id="steps"></div>
+  <div class="status" id="status"></div>
+
+  <div class="examples">
+    <h3>examples (click to load)</h3>
+    <div class="example" data-song="BPM:122
+1000:x...x...x...x...
+1020:....x.......x...
+1100:39..3C..40..39..
+1200:21......21..24..">
+      <span class="example-name">house</span> - deep
+    </div>
+    <div class="example" data-song="BPM:100
+1000:x.....x.x.......
+1020:....x.......x...
+1100:40....43..45....
+1200:28..28....2B....
+1300:.x.x.x.x.x.x.x.x">
+      <span class="example-name">hiphop</span> - boom bap
+    </div>
+    <div class="example" data-song="BPM:140
+1000:x...x...x...x...
+1020:..x.x.......x..x
+1300:xxxx..xxx..xxxxx">
+      <span class="example-name">techno</span> - minimal
+    </div>
+    <div class="example" data-song="BPM:85
+1000:x.....x...x.....
+1020:....x.......x..x
+1100:3C....3C..3E....
+1200:18......1D......">
+      <span class="example-name">lofi</span> - chill
+    </div>
+    <div class="example" data-song="@title &quot;Arranged&quot;
+@tempo 118
+@pattern four &quot;x...x...x...x...&quot;
+@pattern back &quot;....x.......x...&quot;
+@pattern hats &quot;..x...x...x...x.&quot;
+@pattern line &quot;C2..C2..D#2.G2..C2.A#1G1.&quot;
+@scene intro
+  kick: four
+  noise: hats
+@scene full
+  kick: four
+  snare: back
+  noise: hats
+  bass: line
+
+@at 0
+@play intro
+@at 2b
+@play full
+@tempo 124
+@loop start
+&gt; 4b
+@loop end">
+      <span class="example-name">arranged</span> - a full song: intro, drop, loop
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>memory $1000-$13FF</h3>
+    <p>The song is just bytes. The core reads one column per step.</p>
+    <div class="mem" id="mem"></div>
+  </div>
+
+  <div class="section">
+    <h3>same song, five machines</h3>
+    <p>The compiler turns this song into code for each target.</p>
+    <div class="tabs" id="tabs">
+      <button data-target="mtmc16" data-ext="asm">MTMC-16</button>
+      <button data-target="wasm" data-ext="wat">WASM</button>
+      <button data-target="c" data-ext="c">C</button>
+      <button data-target="rust" data-ext="rs">RUST</button>
+      <button data-target="hex" data-ext="hex">HEX</button>
+    </div>
+    <textarea id="export-out" readonly spellcheck="false"></textarea>
+    <div class="export-bar">
+      <span id="export-info"></span>
+      <span>
+        <button id="btn-export-copy">COPY</button>
+        <button id="btn-export-save">DOWNLOAD</button>
+      </span>
+    </div>
+  </div>
+
+  <!-- WASM-CORE:BEGIN (generated by tools/build-wasm.js from runtime.wat; do not edit by hand) -->
+  <script id="wasm-core" type="application/octet-stream;base64">AGFzbQEAAAABFgVgAX8AYAJ/fwBgAX8Bf2AAAGAAAX8CZwUFYXVkaW8LdHJpZ2dlcktpY2sAAAVhdWRpbwx0cmlnZ2VyU25hcmUAAQVhdWRpbwt0cmlnZ2VyTGVhZAAABWF1ZGlvC3RyaWdnZXJCYXNzAAEFYXVkaW8MdHJpZ2dlck5vaXNlAAADDw4CAQMDAwMEBAAEAgMEAQUDAQABBpsBGn8AQYAgC38AQZAgC38AQaAgC38AQbAgC38AQcAgC38AQYAiC38AQZAiC38AQYAkC38AQZAkC38AQaAkC38AQYAmC38AQZAmC38AQaAmC38AQYAqC38AQYEqC38AQYIqC38AQYMqC38AQfArC38AQfQrC38AQeAuC38AQeIuC38AQeMuC38AQfAuC38AQYAwC38BQQALfwFBAAsHeA0GbWVtb3J5AgAEcmVhZAAFBXdyaXRlAAYEaW5pdAAHBXN0YXJ0AAgEc3RvcAAJBXJlc2V0AAoHZ2V0U3RlcAALCGdldFRlbXBvAAwIc2V0VGVtcG8ADQlpc1BsYXlpbmcADgR0aWNrABELbG9hZFBhdHRlcm4AEgrRBg4HACAALQAACwkAIAAgAToAAAsyAEEAJBhBACQZIw5B+AA6AAAjEEEAOgAAIw1BADoAACMRQYGAgIACNgIAIxJBAToAAAsNAEEBJBkjDUEDOgAACw0AQQAkGSMNQQA6AAALFABBACQYIw9BADoAACMTQQA7AQALBAAjGAsHACMOLQAACwkAIw4gADoAAAsEACMZCzAAIABBAUYEQCMCDwsgAEECRgRAIwUPCyAAQQNGBEAjBw8LIABBBEYEQCMKDwsjAAuTAgEJfyMULQAAQQFxRQRADwsjEy8BACEAIxUtAAAhASABQRhLBEBBGCEBCwNAQQAhAgJAA0AgAiABTw0BIxYgAkEGbGohAyADLwEAIABGBEAgA0ECai0AACEEIARBAUYEQCADQQNqLwEAIANBBWotAAA6AAALIARBAkYEQCMXIANBA2otAABBD3FBEGxqIQYgA0EEai0AABAPIQdBACEIAkADQCAIQRBPDQEgByAIaiAGIAhqLQAAOgAAIAhBAWohCAwACwsLIARBA0YgBUVxBEAgA0EDai8BACEAQQEhBSAAQQ9xJBgMBAsgBEEERgRAIw1BADoAAEEAJBkLCyACQQFqIQIMAAsLCyMTIABBAWo7AQALiwIBBH8jGUUEQEEADwsjDS0AAEEBcUUEQEEAJBlBAA8LEBAjGUUEQEEADwsjGCEAIw8gADoAACMAIABqLQAAIQEgAQRAIwEgAGotAAAhAiACRQRAQSQhAgsgAhAACyMCIABqLQAAIQEgAQRAIwMgAGotAAAhAiACRQRAQbQBIQILIwQgAGotAAAhAyADRQRAQeQAIQMLIAIgAxABCyMFIABqLQAAIQEgAQRAIAEQAgsjByAAai0AACEBIAEEQCMIIABqLQAAIQIgAkUEQEEoIQILIAEgAhADCyMKIABqLQAAIQEgAQRAIwsgAGotAAAhAiACRQRAQQghAgsgAhAECyAAQQFqQQ9xJBhBAQtqAQJ/IABBAEYEQCMAIQILIABBAUYEQCMCIQILIABBAkYEQCMFIQILIABBA0YEQCMHIQILIABBBEYEQCMKIQILQQAhAwJAA0AgA0EQTw0BIAIgA2ogASADai0AADoAACADQQFqIQMMAAsLCw==</script>
+  <!-- WASM-CORE:END -->
+  <script src="engine.js"></script>
+  <script src="compiler.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="sounds.js"></script>
+  <script>
+    // ============ CORE ============
+    // The sequencer core is runtime.wasm. It owns memory, the step
+    // counter and the gate logic. This page only does two things: write
+    // song bytes into that memory, and make sound when the core calls out.
+    // If WebAssembly is unavailable the same logic runs in JS (jsCore).
+
+    let core = null;      // { mem, tick(), setTempo(), start(), stop(), reset(), step() }
+    let isPlaying = false;
+    let timer = null;
+    let bpm = 120;
+    let MEM = null;       // the core's memory; engine.js reads it
+
+    const SEQ_STEP = 0x1502;
+    const GRID_VOICES = [
+      { addr: 0x1000, name: 'kick',  melodic: false },
+      { addr: 0x1020, name: 'snare', melodic: false },
+      { addr: 0x1100, name: 'lead',  melodic: true  },
+      { addr: 0x1200, name: 'bass',  melodic: true  },
+      { addr: 0x1300, name: 'noise', melodic: false }
+    ];
+
+    // The core decides which voices play on a step and calls out. The sound
+    // comes from engine.js, the same engine as the sequencer, reading the
+    // step's bytes from memory: the same bytes make the same sound everywhere.
+    const at = () => { initAudio(); if (audioCtx.state === 'suspended') audioCtx.resume(); return audioCtx.currentTime + 0.01; };
+    const stepNow = () => MEM[SEQ_STEP] & 15;
+    const audioImports = {
+      triggerKick: () => { const s = stepNow(); playKick(at(), MEM[0x1010 + s]); },
+      triggerSnare: () => { const s = stepNow(); playSnare(at(), MEM[0x1030 + s], MEM[0x1040 + s]); },
+      triggerLead: () => { const s = stepNow(); if (MEM[0x1100 + s]) playLead(at(), MEM[0x1100 + s], MEM[0x1110 + s]); },
+      triggerBass: () => { const s = stepNow(); if (MEM[0x1200 + s]) playBass(at(), MEM[0x1200 + s], MEM[0x1210 + s], MEM[0x1220 + s]); },
+      triggerNoise: () => { const s = stepNow(); playNoise(at(), MEM[0x1310 + s], MEM[0x1320 + s]); }
+    };
+
+    function decodeBase64(b64) {
+      const bin = atob(b64.trim());
+      const out = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      return out;
+    }
+
+    async function loadWasmCore() {
+      const b64 = document.getElementById('wasm-core').textContent;
+      const bytes = decodeBase64(b64);
+      const { instance } = await WebAssembly.instantiate(bytes, { audio: audioImports });
+      const e = instance.exports;
+      e.init();
+      return {
+        kind: 'wasm',
+        size: bytes.length,
+        mem: new Uint8Array(e.memory.buffer),
+        tick: () => e.tick(),
+        setTempo: (v) => e.setTempo(v),
+        start: () => e.start(),
+        stop: () => e.stop(),
+        reset: () => e.reset()
+      };
+    }
+
+    // Same behavior as runtime.wat, used only when WASM fails to load
+    function jsCore() {
+      const mem = new Uint8Array(65536);
+      let step = 0, playing = false;
+      mem[0x1501] = 120;
+      mem[0x15F0] = 0x01; mem[0x15F3] = 0x20;  // CAPS: CORE + XSONG, same as the WASM core
+      mem[0x15F4] = 1;                         // SPEC_VERSION
+      return {
+        kind: 'js',
+        mem,
+        tick() {
+          if (!playing) return 0;
+          if (!(mem[0x1500] & 1)) { playing = false; return 0; }
+          const jumpedTo = arrange(mem, false);
+          if (jumpedTo !== null) step = jumpedTo & 15;
+          if (!(mem[0x1500] & 1)) { playing = false; return 0; }
+          mem[SEQ_STEP] = step;
+          if (mem[0x1000 + step]) audioImports.triggerKick(mem[0x1010 + step] || 36);
+          if (mem[0x1020 + step]) audioImports.triggerSnare(mem[0x1030 + step] || 180, mem[0x1040 + step] || 100);
+          if (mem[0x1100 + step]) audioImports.triggerLead(mem[0x1100 + step]);
+          if (mem[0x1200 + step]) audioImports.triggerBass(mem[0x1200 + step], mem[0x1210 + step] || 40);
+          if (mem[0x1300 + step]) audioImports.triggerNoise(mem[0x1310 + step] || 8);
+          step = (step + 1) & 15;
+          return 1;
+        },
+        setTempo: (v) => { mem[0x1501] = v; },
+        start: () => { playing = true; mem[0x1500] = 3; },
+        stop: () => { playing = false; mem[0x1500] = 0; },
+        reset: () => { step = 0; mem[SEQ_STEP] = 0; mem[SONG.POS] = 0; mem[SONG.POS + 1] = 0; }
+      };
+    }
+
+    // ============ ARRANGER (XSONG) ============
+    // Same rules as runtime.wat. Events are 6 bytes: step lo, step hi, op, a, b, c.
+    // 1 POKE, 2 COPY bank slot a into voice b, 3 JUMP to (a | b<<8), 4 STOP.
+    const SONG = { POS: 0x1760, CTRL: 0x1762, COUNT: 0x1763, EVENTS: 0x1770, BANK: 0x1800 };
+    const VOICE_BASE = [0x1000, 0x1020, 0x1100, 0x1200, 0x1300];
+
+    function applyEvent(mem, e, allowFlow) {
+      const op = mem[e + 2], a = mem[e + 3], b = mem[e + 4], c = mem[e + 5];
+      if (op === 1) mem[a | (b << 8)] = c;
+      else if (op === 2) mem.copyWithin(VOICE_BASE[b] || VOICE_BASE[0], SONG.BANK + (a & 15) * 16, SONG.BANK + (a & 15) * 16 + 16);
+      else if (op === 3 && allowFlow) return a | (b << 8);
+      else if (op === 4 && allowFlow) mem[0x1500] = 0;
+      return null;
+    }
+
+    // Runs one step of the song. Returns the new position if a JUMP happened.
+    function arrange(mem) {
+      if (!(mem[SONG.CTRL] & 1)) return null;
+      const count = Math.min(mem[SONG.COUNT], 24);
+      let pos = mem[SONG.POS] | (mem[SONG.POS + 1] << 8);
+      let jumpedTo = null;
+      for (let pass = 0; pass < 2; pass++) {
+        let jump = null;
+        for (let i = 0; i < count; i++) {
+          const e = SONG.EVENTS + i * 6;
+          if ((mem[e] | (mem[e + 1] << 8)) !== pos) continue;
+          const j = applyEvent(mem, e, jumpedTo === null);
+          if (j !== null) { jump = j; break; }
+        }
+        if (jump === null) break;
+        pos = jumpedTo = jump;
+      }
+      pos = (pos + 1) & 0xFFFF;
+      mem[SONG.POS] = pos & 0xFF;
+      mem[SONG.POS + 1] = pos >> 8;
+      return jumpedTo;
+    }
+
+    // After reloading a song mid-play, replay the pattern and tempo changes
+    // up to the current position so the edit is heard in place.
+    function fastForward(mem, pos) {
+      const count = Math.min(mem[SONG.COUNT], 24);
+      const order = [];
+      for (let i = 0; i < count; i++) {
+        const e = SONG.EVENTS + i * 6;
+        const at = mem[e] | (mem[e + 1] << 8);
+        if (at < pos) order.push([at, e]);
+      }
+      order.sort((x, y) => x[0] - y[0]).forEach(([, e]) => applyEvent(mem, e, false));
+    }
+
+    function clearSongMemory(mem) {
+      const caps = mem.slice(0x15F0, 0x15F9);   // CAPS, SPEC_VERSION, CAPS_EXT
+      mem.fill(0, 0x1000, 0x2000);
+      mem.set(caps, 0x15F0);
+    }
+
+    // ============ TWEET FORMAT ============
+    // BPM:120
+    // 1000:x...x...x...x...   one char per step (x = hit, . = rest)
+    // 1100:3C..40..43..40..   hex pairs are notes, one pair per step
+    // Lines may be up to 32 chars so a melody can fill all 16 steps.
+    // Full REGISTER songs (any line starting with @ or >) go through the compiler
+    function isSongText(text) {
+      return /^\s*[@>]/m.test(text);
+    }
+
+    function parseSong(text) {
+      if (typeof Compiler1010 === 'undefined') throw new Error('compiler.js is needed next to this page for full songs');
+      const r = Compiler1010.compile(text, { target: 'hex' });
+      if (!r.success) {
+        const e = r.errors[0];
+        throw new Error(e ? `line ${e.line || '?'}: ${e.msg}` : 'compile failed');
+      }
+      const mem = core.mem;
+      const pos = mem[SONG.POS] | (mem[SONG.POS + 1] << 8);
+      clearSongMemory(mem);
+      for (const l of r.output.split('\n')) {
+        if (!l.startsWith(':') || l.slice(7, 9) !== '00') continue;
+        const n = parseInt(l.slice(1, 3), 16), a = parseInt(l.slice(3, 7), 16);
+        for (let k = 0; k < n; k++) mem[a + k] = parseInt(l.slice(9 + 2 * k, 11 + 2 * k), 16);
+      }
+      if (isPlaying) {
+        mem[SONG.POS] = pos & 0xFF;
+        mem[SONG.POS + 1] = pos >> 8;
+        fastForward(mem, pos);
+        mem[0x1500] |= 1;
+      }
+      bpm = mem[0x1501] || 120;
+      return true;
+    }
+
+    function parse(text) {
+      if (isSongText(text)) return parseSong(text);
+      const mem = core.mem;
+      clearSongMemory(mem);
+      bpm = 120;
+
+      for (const line of text.trim().split('\n')) {
+        const l = line.trim();
+        if (!l || l.startsWith('#') || l.startsWith(';')) continue;
+
+        if (l.toUpperCase().startsWith('BPM:')) {
+          bpm = parseInt(l.slice(4)) || 120;
+          bpm = Math.max(40, Math.min(200, bpm));
+          continue;
+        }
+
+        const match = l.match(/^([0-9A-Fa-f]{4}):(.+)$/);
+        if (match) parsePattern(parseInt(match[1], 16), match[2]);
+      }
+
+      core.setTempo(bpm);
+      return true;
+    }
+
+    function parsePattern(addr, data) {
+      const mem = core.mem;
+      data = data.replace(/\s/g, '');
+      for (let i = 0; i < 32 && i < data.length; i++) {
+        const ch = data[i];
+        if (ch === 'x' || ch === 'X') {
+          if (i < 16) mem[addr + i] = 1;
+        } else if (/[0-9A-Fa-f]/.test(ch) && /[0-9A-Fa-f]/.test(data[i + 1] || '')) {
+          const slot = Math.floor(i / 2);
+          if (slot < 16) mem[addr + slot] = parseInt(ch + data[i + 1], 16);
+          i++;
+        } else if (/[0-9A-Fa-f]/.test(ch)) {
+          if (i < 16) mem[addr + i] = parseInt(ch, 16);
+        }
+        // '.' is a rest; memory was already cleared
+      }
+    }
+
+    // ============ UI ============
+    const stepsEl = document.getElementById('steps');
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement('div');
+      s.className = 'step';
+      s.textContent = i.toString(16).toUpperCase();
+      s.id = `s${i}`;
+      stepsEl.appendChild(s);
+    }
+
+    const memEl = document.getElementById('mem');
+    const memCells = [];
+    GRID_VOICES.forEach(v => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      const a = document.createElement('span');
+      a.className = 'addr';
+      a.textContent = '$' + v.addr.toString(16).toUpperCase();
+      row.appendChild(a);
+      const cells = [];
+      for (let i = 0; i < 16; i++) {
+        const b = document.createElement('span');
+        b.className = 'b';
+        row.appendChild(b);
+        cells.push(b);
+      }
+      memCells.push(cells);
+      memEl.appendChild(row);
+    });
+
+    function render(cur) {
+      const mem = core.mem;
+      for (let i = 0; i < 16; i++) {
+        const el = document.getElementById(`s${i}`);
+        el.classList.toggle('current', i === cur);
+        const active = GRID_VOICES.some(v => mem[v.addr + i]);
+        el.classList.toggle('active', active);
+      }
+      GRID_VOICES.forEach((v, r) => {
+        for (let i = 0; i < 16; i++) {
+          const val = mem[v.addr + i];
+          const b = memCells[r][i];
+          b.textContent = val.toString(16).toUpperCase().padStart(2, '0');
+          b.classList.toggle('set', val > 0);
+          b.classList.toggle('cur', i === cur);
+        }
+      });
+    }
+
+    function tick() {
+      core.tick();
+      // The core writes the step it just played to SEQ_STEP ($1502)
+      render(core.mem[SEQ_STEP]);
+    }
+
+    function start() {
+      if (isPlaying || !core) return;
+      try {
+        parse(document.getElementById('input').value);
+      } catch (e) {
+        setStatus('Parse error: ' + e.message, 'error');
+        return;
+      }
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      setStatus(`Playing @ ${bpm} BPM (edits are live)`, 'ok');
+
+      isPlaying = true;
+      core.reset();
+      core.start();
+
+      const loop = () => {
+        if (!isPlaying) return;
+        tick();
+        if (!(core.mem[0x1500] & 1)) { stop(); setStatus('Song ended', ''); return; }
+        bpm = core.mem[0x1501] || bpm;  // tempo lives in chip memory
+        if (core.mem[SONG.CTRL] & 1) {
+          const pos = core.mem[SONG.POS] | (core.mem[SONG.POS + 1] << 8);
+          setStatus(`Playing @ ${bpm} BPM, bar ${Math.floor(Math.max(0, pos - 1) / 16) + 1} (edits are live)`, 'ok');
+        }
+        timer = setTimeout(loop, (60 / bpm / 4) * 1000);
+      };
+      loop();
+    }
+
+    function stop() {
+      isPlaying = false;
+      if (timer) clearTimeout(timer);
+      timer = null;
+      if (core) {
+        core.stop();
+        render(-1);
+      }
+      setStatus('Stopped', '');
+    }
+
+    function setStatus(msg, type) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + (type || '');
+    }
+
+    const ADDR_LABELS = { '1000': 'kick', '1020': 'snare', '1100': 'lead', '1200': 'bass', '1300': 'noise' };
+
+    function updateLabels() {
+      const labelsEl = document.getElementById('labels');
+      labelsEl.innerHTML = '';
+      document.getElementById('input').value.split('\n').forEach(line => {
+        const l = line.trim();
+        let label = '';
+        if (l.toUpperCase().startsWith('BPM:')) {
+          label = 'bpm';
+        } else {
+          const m = l.match(/^([0-9A-Fa-f]{4}):/);
+          if (m) label = ADDR_LABELS[m[1].toUpperCase()] || m[1];
+        }
+        const div = document.createElement('div');
+        div.className = 'label';
+        div.textContent = label;
+        labelsEl.appendChild(div);
+      });
+    }
+
+    // ============ EXPORT ============
+    // Read the song back out of core memory as REGISTER DSL, then compile it.
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+    function songToDSL() {
+      const mem = core.mem;
+      const str = (v) => {
+        let s = '';
+        for (let i = 0; i < 16; i++) {
+          const val = mem[v.addr + i];
+          if (!val) s += '.';
+          else if (v.melodic) s += NOTE_NAMES[val % 12] + (Math.floor(val / 12) - 1);
+          else s += 'x';
+        }
+        return s;
+      };
+      let dsl = `@title "REGISTER tweet song"\n@tempo ${bpm}\n\n`;
+      GRID_VOICES.forEach(v => { dsl += `@pattern p_${v.name} "${str(v)}"\n`; });
+      dsl += `\n@scene a\n`;
+      GRID_VOICES.forEach(v => { dsl += `  ${v.name}: p_${v.name}\n`; });
+      dsl += `\n@play a loop\n`;
+      return dsl;
+    }
+
+    let exportTarget = 'mtmc16';
+    let exportExt = 'asm';
+
+    function refreshExport() {
+      const out = document.getElementById('export-out');
+      const info = document.getElementById('export-info');
+      if (typeof Compiler1010 === 'undefined') {
+        out.value = '; compiler.js was not found next to this page.\n; Export needs it in the same folder.';
+        info.textContent = '';
+        return;
+      }
+      if (!core) return;
+      // Edits go straight into core memory. The core reads it every step,
+      // so a change is heard on the next tick, playing or not.
+      const text = document.getElementById('input').value;
+      try { parse(text); } catch (e) { setStatus(e.message, 'error'); }
+      const source = isSongText(text) ? text : songToDSL();
+      const r = Compiler1010.compile(source, { target: exportTarget });
+      if (!r.success) {
+        out.value = '; compile failed\n' + r.errors.map(e => `; ${e.phase}: ${e.msg}`).join('\n');
+        info.textContent = '';
+        return;
+      }
+      out.value = r.output;
+      info.textContent = `${new TextEncoder().encode(r.output).length} bytes`;
+      if (!isPlaying) render(-1);
+    }
+
+    document.querySelectorAll('#tabs button').forEach(btn => {
+      btn.onclick = () => {
+        exportTarget = btn.dataset.target;
+        exportExt = btn.dataset.ext;
+        document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b === btn));
+        refreshExport();
+      };
+    });
+
+    document.getElementById('btn-export-copy').onclick = () => {
+      navigator.clipboard.writeText(document.getElementById('export-out').value)
+        .then(() => setStatus('Copied ' + exportTarget + ' output', 'ok'))
+        .catch(() => setStatus('Copy failed. Select the text and copy it by hand.', 'error'));
+    };
+
+    document.getElementById('btn-export-save').onclick = () => {
+      const blob = new Blob([document.getElementById('export-out').value], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `song.${exportExt}`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+
+    // ============ WIRING ============
+    document.getElementById('input').addEventListener('input', (e) => {
+      const len = new TextEncoder().encode(e.target.value).length;
+      const song = isSongText(e.target.value);
+      document.getElementById('bytes').textContent = len;
+      document.getElementById('bytes-limit').textContent = song ? ' bytes, full song' : '/280 bytes';
+      document.getElementById('bytes').style.color = !song && len > 280 ? '#f44' : '#444';
+      // Grow the editor for longer songs
+      e.target.style.height = 'auto';
+      e.target.style.height = Math.max(154, e.target.scrollHeight + 2) + 'px';
+      updateLabels();
+      refreshExport();
+    });
+
+    document.getElementById('btn-play').onclick = start;
+    document.getElementById('btn-stop').onclick = stop;
+    document.getElementById('btn-copy').onclick = () => {
+      navigator.clipboard.writeText(document.getElementById('input').value)
+        .then(() => setStatus('Copied! Paste into sequencer.', 'ok'))
+        .catch(() => setStatus('Copy failed. Select the text and copy it by hand.', 'error'));
+    };
+
+    let currentExample = null;
+    document.querySelectorAll('.example').forEach(el => {
+      el.onclick = () => {
+        document.getElementById('input').value = el.dataset.song;
+        document.getElementById('input').dispatchEvent(new Event('input'));
+        if (currentExample === el && isPlaying) {
+          core.reset();
+        } else {
+          stop();
+          currentExample = el;
+          start();
+        }
+        document.querySelectorAll('.example').forEach(e => e.style.borderColor = 'transparent');
+        el.style.borderColor = '#9bbc0f';
+      };
+    });
+
+    (async () => {
+      const engineEl = document.getElementById('engine');
+      try {
+        core = await loadWasmCore();
+        engineEl.textContent = `engine: runtime.wasm (${core.size} bytes)`;
+        engineEl.classList.add('wasm');
+      } catch (e) {
+        core = jsCore();
+        engineEl.textContent = 'engine: JS fallback (WebAssembly unavailable)';
+      }
+      MEM = core.mem;
+      writeEngineCaps();   // the core does CORE and XSONG; the engine adds its packs
+
+      // Sounds: the same drawer as the sequencer, on the same engine
+      let drawer = null;
+      const openSounds = (voice, text) => {
+        if (!window.RegisterSounds || !window.REGISTER_MAP) return;
+        drawer = drawer || RegisterSounds.mountDrawer({
+          map: window.REGISTER_MAP, mem: () => core.mem,
+          engineOptions: v => SYNTH_IDS[v],
+          onApplied: (writes, v) => { render(core.mem[SEQ_STEP]); previewVoice(v); },
+          status: msg => setStatus(msg, 'ok')
+        });
+        drawer.open(voice || 'lead', text);
+      };
+      document.getElementById('btn-sounds').onclick = () => openSounds('lead');
+      const shared = window.RegisterSounds && RegisterSounds.sharedFromHash(location.hash);
+      if (shared) openSounds(null, shared);
+      if (window.REGISTER && REGISTER.attach) {
+        REGISTER.attach(core.mem, { maps: [window.REGISTER_MAP], onWrite: () => render(core.mem[SEQ_STEP]) });
+      }
+      // Load the first example without playing
+      const first = document.querySelector('.example');
+      document.getElementById('input').value = first.dataset.song;
+      document.getElementById('input').dispatchEvent(new Event('input'));
+      first.style.borderColor = '#9bbc0f';
+      currentExample = first;
+      document.querySelector('#tabs button').click();
+      updateLabels();
+    })();
+  </script>
+</body>
+</html>

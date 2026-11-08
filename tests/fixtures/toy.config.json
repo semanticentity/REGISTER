@@ -1,0 +1,15 @@
+{
+  "name": "TOY",
+  "jsName": "TOY_MAP",
+  "markupEnd": "<script>",
+  "space": [20480, 21247],
+  "caps": 20720,
+  "extraControls": [{ "id": "toySwing", "type": "range", "min": 0, "max": 0.75, "step": 0.01, "label": "SWING" }],
+  "groups": [
+    { "pack": "TOY_CORE", "at": 20480, "match": "^toy",
+      "selectors": [{ "name": "LENGTH", "selector": ".toy-length", "min": 1, "max": 32, "about": "Length in steps" }],
+      "checkboxes": { "name": "TRACKS", "bits": [{ "label": "a", "selector": ".toyTrack[value=\"a\"]" }, { "label": "b", "selector": ".toyTrack[value=\"b\"]" }] } },
+    { "caps": true, "pack": "TOY_CORE" },
+    { "pack": "TOY_PATTERN", "at": 20736, "sequences": [{ "name": "MAIN", "array": "toy.steps", "length": 32 }] }
+  ]
+}

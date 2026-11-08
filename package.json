@@ -1,0 +1,16 @@
+{
+  "name": "register",
+  "private": true,
+  "description": "REGISTER: a memory-mapped audio coprocessor for teaching low-level ideas through music",
+  "scripts": {
+    "test": "node tests/run.js",
+    "test:unit": "node tests/run.js unit",
+    "check": "node tools/check-map.js && node tools/build-wasm.js --check && node tools/build-llms.js --check",
+    "build": "node tools/build-wasm.js && node tools/check-map.js --write && node tools/build-llms.js",
+    "render": "node tools/render.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0",
+    "wabt": "1.0.36"
+  }
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 2: Bits and Patterns | REGISTER</title>
+  <meta name="description" content="Lesson 2 of REGISTER: a byte is eight bits, a hex digit is four, and a 16-step drum pattern fits in two bytes. Learn binary, hex and bitmasks by writing rhythms.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 30px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 14px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    button.on { border-color: #9bbc0f; color: #9bbc0f; }
+    select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 6px 8px; font: inherit; font-size: 13px; }
+    input[type=text] { background: #0b0b0b; color: #9bbc0f; border: 1px solid #333; border-radius: 4px; padding: 6px 8px; font: inherit; width: 9em; }
+    .bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin: 8px 0 4px; }
+    .bits.w16 { grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 2px; }
+    .bit { aspect-ratio: 1; padding: 0; min-width: 0; font: 14px ui-monospace, Menlo, monospace; background: #111; color: #555; }
+    .bit.one { background: #22300a; color: #c8e86a; border-color: #5a7a12; }
+    .bits.w16 .bit { font-size: 10px; }
+    .weights { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; color: #555; font-size: 11px; text-align: center; }
+    .readout { font-size: 14px; margin: 6px 0 4px; }
+    .readout b { color: #c8e86a; font-weight: normal; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .next { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; gap: 12px; }
+    label.voice { display: inline-flex; gap: 4px; align-items: center; margin-right: 10px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+    @media (max-width: 600px) { input[type=text], select { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson1.html">Lesson 1</a> / Lesson 2 of 3</div>
+  <h1>Bits and Patterns</h1>
+  <p class="sub">A byte is not one thing. It is eight switches, each on or off. A drum pattern is a row of switches too, so the two fit together.</p>
+
+  <h2>Eight switches make a byte</h2>
+  <p>Each switch is a <b>bit</b>: 0 or 1. Each position is worth twice the one to its right. Add up the positions that are on, and that is the byte's value. Click the switches.</p>
+  <div class="bits" id="byte"></div>
+  <div class="weights"><span>128</span><span>64</span><span>32</span><span>16</span><span>8</span><span>4</span><span>2</span><span>1</span></div>
+  <p class="readout" id="byte-out"></p>
+  <div id="goal-byte"></div>
+
+  <h2>Why hex</h2>
+  <p>Split the eight bits into two groups of four. Four bits count from 0 to 15, and hex has exactly 16 digits: <code>0</code> to <code>9</code>, then <code>A</code> to <code>F</code>. So every hex digit is exactly four bits, and a byte is always two hex digits. That is why addresses and bytes are written in hex: you can read the bits straight off it.</p>
+<pre>1000 0000  =  $80  = 128
+1111 1111  =  $FF  = 255
+0001 0000  =  $10  =  16</pre>
+
+  <h2>A pattern is 16 bits</h2>
+  <p>A bar of 16 steps is 16 switches: on for a hit, off for a rest. Sixteen bits is two bytes, which is four hex digits. Step 0 is the leftmost bit. Click steps, or type four hex digits and press LOAD.</p>
+  <div class="bits w16" id="word"></div>
+  <p class="readout" id="word-out"></p>
+  <div class="row">
+    <input type="text" id="hex-in" value="$8888" aria-label="Pattern as hex" spellcheck="false">
+    <select id="target" aria-label="Voice">
+      <option value="4096">kick ($1000)</option>
+      <option value="4128">snare ($1020)</option>
+      <option value="4864">noise ($1300)</option>
+    </select>
+    <button id="load">LOAD</button>
+    <button id="play">PLAY</button>
+  </div>
+  <div id="kick"></div>
+  <div id="snare"></div>
+  <div id="noise"></div>
+  <div id="goal-hats"></div>
+
+  <h2>Packed or one byte per step?</h2>
+  <p>LOAD <b>unpacks</b> the 16 bits into 16 bytes, one box per step, because that is how this chip stores a pattern. Packed, a bar would take 2 bytes instead of 16. Old chips often packed, because memory was precious. REGISTER spends the bytes so each step's box can also hold a note or a pitch, and so a beginner can POKE one step without doing bit math. Both are real designs. Choosing between them is a trade-off of space against simplicity.</p>
+
+  <h2>A byte as a list of choices</h2>
+  <p>Sometimes the bits of a byte are not a number at all. Each one is a yes or no. The filter envelope's FOLLOW byte at <code>$1084</code> has one bit per voice: which voices open the filter.</p>
+  <div class="row" id="follow"></div>
+  <p class="readout" id="follow-out"></p>
+  <p>To ask "is the lead on the list?", the chip uses <b>AND</b>: keep only the bits that are on in both numbers. The lead is bit 2, worth 4. If <code>FOLLOW AND 4</code> is not zero, the lead is on the list. <b>OR</b> does the opposite job: it switches a bit on and leaves the others alone.</p>
+  <div id="goal-follow"></div>
+
+  <div class="next"><a href="lesson1.html">Lesson 1: memory and POKE</a><a href="lesson3.html">Lesson 3: a sound is a struct</a></div>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script>
+    Kit.boot();
+    Kit.playButton(document.getElementById('play'));
+    const bin = (n, w) => n.toString(2).padStart(w, '0');
+
+    // One byte of switches, kept in a variable: not chip memory
+    let byte = 0;
+    const byteEl = document.getElementById('byte');
+    for (let i = 7; i >= 0; i--) {
+      const b = Object.assign(document.createElement('button'), { className: 'bit' });
+      b.setAttribute('aria-label', `bit ${i}, worth ${1 << i}`);
+      b.onclick = () => { byte ^= 1 << i; drawByte(); };
+      byteEl.append(b);
+    }
+    function drawByte() {
+      [...byteEl.children].forEach((b, k) => { const on = (byte >> (7 - k)) & 1; b.textContent = on; b.classList.toggle('one', !!on); });
+      document.getElementById('byte-out').innerHTML =
+        `binary <b>${bin(byte >> 4, 4)} ${bin(byte & 15, 4)}</b> &nbsp; hex <b>$${byte.toString(16).toUpperCase().padStart(2, '0')}</b> &nbsp; decimal <b>${byte}</b>`;
+    }
+    drawByte();
+    Kit.check(document.getElementById('goal-byte'), {
+      goal: 'make the byte 42.',
+      hint: '42 = 32 + 8 + 2. Turn on the switches worth those.',
+      ok: '42 is 0010 1010, or $2A. The hex digits 2 and A are the two groups of four bits.',
+      test: () => byte === 42
+    });
+
+    // A 16-bit pattern word
+    let word = 0x8888;
+    const wordEl = document.getElementById('word');
+    for (let s = 0; s < 16; s++) {
+      const b = Object.assign(document.createElement('button'), { className: 'bit' });
+      b.setAttribute('aria-label', `step ${s}`);
+      b.onclick = () => { word ^= 1 << (15 - s); drawWord(); };
+      wordEl.append(b);
+    }
+    function drawWord() {
+      [...wordEl.children].forEach((b, s) => { const on = (word >> (15 - s)) & 1; b.textContent = on; b.classList.toggle('one', !!on); });
+      const h = word.toString(16).toUpperCase().padStart(4, '0');
+      document.getElementById('word-out').innerHTML = `binary <b>${bin(word, 16).replace(/(.{4})/g, '$1 ').trim()}</b><br>hex <b>$${h}</b> &nbsp; bytes <b>$${h.slice(0, 2)} $${h.slice(2)}</b>`;
+      document.getElementById('hex-in').value = '$' + h;
+    }
+    drawWord();
+    document.getElementById('hex-in').onchange = e => {
+      const v = parseInt(e.target.value.replace(/^\$|^0x/i, ''), 16);
+      if (!isNaN(v) && v >= 0 && v <= 0xFFFF) { word = v; drawWord(); }
+    };
+    // Unpack: bit (15 - s) becomes the byte at base + s
+    document.getElementById('load').onclick = () => {
+      document.getElementById('hex-in').onchange({ target: document.getElementById('hex-in') });
+      const base = Number(document.getElementById('target').value);
+      for (let s = 0; s < 16; s++) MEM[base + s] = (word >> (15 - s)) & 1;
+    };
+    Kit.grid(document.getElementById('kick'), { addr: 0x1000, label: 'KICK_GATE' });
+    Kit.grid(document.getElementById('snare'), { addr: 0x1020, label: 'SNARE_GATE' });
+    Kit.grid(document.getElementById('noise'), { addr: 0x1300, label: 'NOISE_GATE' });
+    const asWord = base => Array.from({ length: 16 }, (_, s) => (MEM[base + s] ? 1 : 0) << (15 - s)).reduce((a, b) => a | b, 0);
+    Kit.check(document.getElementById('goal-hats'), {
+      goal: 'kick $8888, snare $0808, and hats on every other step on the noise voice.',
+      hint: 'Every other step is 1010 1010 1010 1010. Each 1010 is one hex digit: A. Then pick noise and LOAD.',
+      ok: 'Three voices, six bytes of pattern if packed. Hats on every other step is $AAAA.',
+      test: () => asWord(0x1000) === 0x8888 && asWord(0x1020) === 0x0808 && asWord(0x1300) === 0xAAAA
+    });
+
+    // FOLLOW bitmask at $1084, real chip memory
+    const voices = ['kick', 'snare', 'lead', 'bass', 'noise'];
+    const followEl = document.getElementById('follow');
+    voices.forEach((v, i) => {
+      const l = document.createElement('label'); l.className = 'voice';
+      const c = Object.assign(document.createElement('input'), { type: 'checkbox' });
+      c.onchange = () => { MEM[0x1084] = c.checked ? (MEM[0x1084] | (1 << i)) : (MEM[0x1084] & ~(1 << i)); drawFollow(); };
+      l.append(c, `${v} (bit ${i})`);
+      followEl.append(l);
+    });
+    function drawFollow() {
+      const f = MEM[0x1084];
+      [...followEl.querySelectorAll('input')].forEach((c, i) => { c.checked = !!(f & (1 << i)); });
+      document.getElementById('follow-out').innerHTML =
+        `FOLLOW = <b>%${bin(f, 8)}</b> = <b>${f}</b> &nbsp; FOLLOW AND 4 = <b>${f & 4}</b>, so the lead ${f & 4 ? 'is' : 'is not'} on the list`;
+    }
+    drawFollow();
+    setInterval(drawFollow, 400);
+    Kit.check(document.getElementById('goal-follow'), {
+      goal: 'make FOLLOW equal 5. Which voices is that?',
+      hint: '5 = 4 + 1: bit 2 and bit 0.',
+      ok: '5 is %00000101: the kick and the lead. In the console, POKE $1084, 5 does the same thing.',
+      test: () => MEM[0x1084] === 5
+    });
+  </script>
+</body>
+</html>

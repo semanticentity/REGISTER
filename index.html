@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REGISTER: learn low-level computing through music</title>
+  <meta name="description" content="Learn low-level computing by making music. Write bytes to memory, hear the song change. Runs in the browser and compiles to MTMC-16 assembly, WebAssembly, C, Rust and Intel HEX.">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      color: #ccc;
+      font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 32px 16px;
+    }
+    h1 { color: #9bbc0f; font-size: 32px; margin: 0 0 4px 0; letter-spacing: 1px; }
+    .sub { color: #888; margin: 0 0 28px 0; }
+    pre {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 4px;
+      padding: 12px 14px;
+      color: #9bbc0f;
+      margin: 0 0 28px 0;
+      overflow-x: auto;
+    }
+    pre .c { color: #555; }
+    a.card {
+      display: block;
+      text-decoration: none;
+      background: #0f0f0f;
+      border: 1px solid #222;
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin: 8px 0;
+      color: #888;
+    }
+    a.card:hover, a.card:focus { border-color: #9bbc0f; color: #aaa; outline: none; }
+    a.card b { color: #9bbc0f; font-weight: 600; }
+    a.card.main { border-color: #2f3a12; }
+    h2 {
+      color: #666;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 28px 0 8px 0;
+    }
+    .foot { margin-top: 32px; color: #555; font-size: 12px; }
+    .foot a { color: #777; }
+    /* Even line lengths: no lonely last word */
+    h1, h2, h3, h4, blockquote, .sub, .tagline, .manifesto, figcaption { text-wrap: balance; }
+    p, li, .hint, .card, .primitive-desc, .example { text-wrap: pretty; }
+  </style>
+</head>
+<body>
+  <h1>REGISTER</h1>
+  <p class="sub">A memory-mapped sound chip for the MTMC-16 teaching computer. Write bytes, hear sound.</p>
+
+<pre><span class="c">; a kick drum, in two writes</span>
+POKE $1000, 1   <span class="c">; gate ON at step 0</span>
+POKE $1500, 3   <span class="c">; play + loop</span></pre>
+
+  <a class="card main" href="tweet.html"><b>Tweet Player</b><br>A whole song in 280 characters. Runs on the 1,291-byte WASM core and exports to five machines.</a>
+
+  <h2>Play</h2>
+  <a class="card" href="pixel.html"><b>PIXEL</b><br>A picture chip on the same memory as the sound chip. Plasma, rings and raster bars that hit on the kick.</a>
+  <a class="card" href="sequencer.html"><b>Sequencer</b><br>The full instrument: five voices, scenes, packs, evolution.</a>
+  <a class="card" href="arcade.html"><b>Arcade</b><br>Tetris and Snake, with every sound written through chip memory.</a>
+
+  <a class="card" href="https://github.com/semanticentity/REGISTER#port-any-instrument"><b>Port an Instrument</b><br>Any HTML instrument can become a REGISTER machine: draft a memory map from its controls, and every setting becomes a byte you can POKE.</a>
+
+  <h2>Learn</h2>
+  <a class="card main" href="lesson1.html"><b>Lesson 1: Memory and POKE</b><br>Memory is numbered boxes. Write some, and hear a drum beat. Addresses, bytes and hex.</a>
+  <a class="card" href="lesson2.html"><b>Lesson 2: Bits and Patterns</b><br>A byte is eight switches. A bar of 16 steps fits in two bytes. Binary, hex and bitmasks.</a>
+  <a class="card" href="lesson3.html"><b>Lesson 3: A Sound Is a Struct</b><br>Fields, offsets, arrays and pointers, by designing a sound that fits any voice.</a>
+  <a class="card" href="tour.html"><b>Language Tour</b><br>The memory map, the song language, compile targets, and the teaching map.</a>
+  <a class="card" href="debugger.html"><b>Step Debugger</b><br>Step through a song one tick at a time and watch memory change.</a>
+  <a class="card" href="asm.html"><b>Assembly</b><br>Proposed audio instructions for MTMC-16, modeled on the SNES SPC-700.</a>
+
+  <p class="foot"><a href="https://github.com/semanticentity/REGISTER">Source on GitHub</a></p>
+</body>
+</html>

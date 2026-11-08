@@ -1,0 +1,7949 @@
+{
+  "spec": "WHITE DWARF memory map",
+  "name": "WHITE DWARF",
+  "version": 1,
+  "space": [
+    "0x4000",
+    "0x4FFF"
+  ],
+  "caps_addr": "0x40F0",
+  "js_name": "WHITE_DWARF_MAP",
+  "generated": "Drafted from WHITE DWARF (single-file groovebox) by tools/map-from-html.js; edit freely",
+  "check_files": [],
+  "rules": [
+    "Every setting is a byte bound to the instrument's own control. Writing the byte moves the control; moving the control rewrites the byte.",
+    "A byte has 256 steps: the control's range is spread across them, on a log curve for wide frequency ranges.",
+    "Capabilities are declared in CAPS like any REGISTER machine."
+  ],
+  "caps_bits": {
+    "0": "WD_CORE",
+    "1": "WD_MIX",
+    "2": "WD_DRUMS",
+    "3": "WD_BASS",
+    "4": "WD_LYRA",
+    "5": "WD_FX",
+    "6": "WD_EVO",
+    "7": "WD_PATTERNS",
+    "8": "WD_STEPMETA",
+    "9": "WD_LYRA_NOTES",
+    "10": "WD_PATCHES",
+    "11": "WD_STATE",
+    "12": "WD_FXRACK"
+  },
+  "regions": [
+    {
+      "start": "0x4000",
+      "end": "0x4000",
+      "pack": "WD_CORE",
+      "name": "KICK_LENGTH",
+      "about": "Kick track length in steps",
+      "fields": [
+        {
+          "name": "KICK_LENGTH",
+          "type": "u8",
+          "min": 1,
+          "max": 32,
+          "control": {
+            "selector": ".track-length[data-track=\"kick\"]",
+            "min": 1,
+            "max": 32,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4001",
+      "end": "0x4001",
+      "pack": "WD_CORE",
+      "name": "SNARE_LENGTH",
+      "about": "Snare track length in steps",
+      "fields": [
+        {
+          "name": "SNARE_LENGTH",
+          "type": "u8",
+          "min": 1,
+          "max": 32,
+          "control": {
+            "selector": ".track-length[data-track=\"snare\"]",
+            "min": 1,
+            "max": 32,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4002",
+      "end": "0x4002",
+      "pack": "WD_CORE",
+      "name": "HAT_LENGTH",
+      "about": "Hat track length in steps",
+      "fields": [
+        {
+          "name": "HAT_LENGTH",
+          "type": "u8",
+          "min": 1,
+          "max": 32,
+          "control": {
+            "selector": ".track-length[data-track=\"hat\"]",
+            "min": 1,
+            "max": 32,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4003",
+      "end": "0x4003",
+      "pack": "WD_CORE",
+      "name": "BASS_LENGTH",
+      "about": "Bass track length in steps",
+      "fields": [
+        {
+          "name": "BASS_LENGTH",
+          "type": "u8",
+          "min": 1,
+          "max": 32,
+          "control": {
+            "selector": ".track-length[data-track=\"bass\"]",
+            "min": 1,
+            "max": 32,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4004",
+      "end": "0x4004",
+      "pack": "WD_CORE",
+      "name": "LYRA_GATE_LENGTH",
+      "about": "Lyra gate length in steps",
+      "fields": [
+        {
+          "name": "LYRA_GATE_LENGTH",
+          "type": "u8",
+          "min": 1,
+          "max": 32,
+          "control": {
+            "selector": ".track-length[data-track=\"lyraGate\"]",
+            "min": 1,
+            "max": 32,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4005",
+      "end": "0x4005",
+      "pack": "WD_CORE",
+      "name": "MASTER_VOLUME",
+      "about": "VOLUME",
+      "fields": [
+        {
+          "name": "MASTER_VOLUME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "masterVolume",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4006",
+      "end": "0x4006",
+      "pack": "WD_CORE",
+      "name": "BPM",
+      "about": "BPM",
+      "fields": [
+        {
+          "name": "BPM",
+          "type": "u8",
+          "min": 60,
+          "max": 190,
+          "control": {
+            "id": "bpm",
+            "min": 60,
+            "max": 190,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4007",
+      "end": "0x4007",
+      "pack": "WD_CORE",
+      "name": "SEED_CHAOS",
+      "about": "CHAOS",
+      "fields": [
+        {
+          "name": "SEED_CHAOS",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "control": {
+            "id": "seedChaos",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4008",
+      "end": "0x4008",
+      "pack": "WD_CORE",
+      "name": "SWING",
+      "about": "SWING (made at startup)",
+      "fields": [
+        {
+          "name": "SWING",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "swing",
+            "min": 0,
+            "max": 0.75,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 0.75"
+        }
+      ]
+    },
+    {
+      "start": "0x4009",
+      "end": "0x400F",
+      "pack": "RESERVED",
+      "name": "RESERVED_4009",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4010",
+      "end": "0x4010",
+      "pack": "WD_MIX",
+      "name": "KICK_VOLUME",
+      "about": "Kick Volume",
+      "fields": [
+        {
+          "name": "KICK_VOLUME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "kickVolume",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4011",
+      "end": "0x4011",
+      "pack": "WD_MIX",
+      "name": "SNARE_VOLUME",
+      "about": "Snare Volume",
+      "fields": [
+        {
+          "name": "SNARE_VOLUME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "snareVolume",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4012",
+      "end": "0x4012",
+      "pack": "WD_MIX",
+      "name": "HAT_VOLUME",
+      "about": "Hat Volume",
+      "fields": [
+        {
+          "name": "HAT_VOLUME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "hatVolume",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4013",
+      "end": "0x4013",
+      "pack": "WD_MIX",
+      "name": "BASS_VOLUME",
+      "about": "Bass Volume",
+      "fields": [
+        {
+          "name": "BASS_VOLUME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassVolume",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4014",
+      "end": "0x4014",
+      "pack": "WD_MIX",
+      "name": "SYNTH_VOLUME",
+      "about": "Synth Volume",
+      "fields": [
+        {
+          "name": "SYNTH_VOLUME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "synthVolume",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4015",
+      "end": "0x4015",
+      "pack": "WD_MIX",
+      "name": "DJ_FILTER",
+      "about": "DJ FILTER (LP ← OFF → HP)",
+      "fields": [
+        {
+          "name": "DJ_FILTER",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "djFilter",
+            "min": -1,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0 = -1, 128 = 0, 255 = 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4016",
+      "end": "0x4016",
+      "pack": "WD_MIX",
+      "name": "STEREO_WIDTH",
+      "about": "STEREO WIDTH",
+      "fields": [
+        {
+          "name": "STEREO_WIDTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "stereoWidth",
+            "min": 0,
+            "max": 2,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 2"
+        }
+      ]
+    },
+    {
+      "start": "0x4017",
+      "end": "0x4017",
+      "pack": "WD_MIX",
+      "name": "SYNTH_PAN",
+      "about": "SYNTH PAN",
+      "fields": [
+        {
+          "name": "SYNTH_PAN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "synthPan",
+            "min": -1,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0 = -1, 128 = 0, 255 = 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4018",
+      "end": "0x4018",
+      "pack": "WD_MIX",
+      "name": "KICK_DUCK",
+      "about": "KICK DUCK (BASS + SYNTH)",
+      "fields": [
+        {
+          "name": "KICK_DUCK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "kickDuck",
+            "min": 0,
+            "max": 0.85,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 0.85"
+        }
+      ]
+    },
+    {
+      "start": "0x4019",
+      "end": "0x4019",
+      "pack": "WD_MIX",
+      "name": "MASTER_DIST",
+      "about": "DISTORT",
+      "fields": [
+        {
+          "name": "MASTER_DIST",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "masterDist",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x401A",
+      "end": "0x401A",
+      "pack": "WD_MIX",
+      "name": "MASTER_REVERB",
+      "about": "REVERB",
+      "fields": [
+        {
+          "name": "MASTER_REVERB",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "masterReverb",
+            "min": 0,
+            "max": 0.5,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 0.5"
+        }
+      ]
+    },
+    {
+      "start": "0x401B",
+      "end": "0x402F",
+      "pack": "RESERVED",
+      "name": "RESERVED_401B",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4030",
+      "end": "0x4030",
+      "pack": "WD_DRUMS",
+      "name": "KICK_PITCH",
+      "about": "PITCH",
+      "fields": [
+        {
+          "name": "KICK_PITCH",
+          "type": "u8",
+          "min": 20,
+          "max": 100,
+          "control": {
+            "id": "kickPitch",
+            "min": 20,
+            "max": 100,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4031",
+      "end": "0x4031",
+      "pack": "WD_DRUMS",
+      "name": "KICK_DECAY",
+      "about": "DECAY",
+      "fields": [
+        {
+          "name": "KICK_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "kickDecay",
+            "min": 0.05,
+            "max": 0.5,
+            "step": 0.01
+          },
+          "note": "0-255 = 0.05 to 0.5"
+        }
+      ]
+    },
+    {
+      "start": "0x4032",
+      "end": "0x4032",
+      "pack": "WD_DRUMS",
+      "name": "KICK_DRIVE",
+      "about": "DRIVE",
+      "fields": [
+        {
+          "name": "KICK_DRIVE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "kickDrive",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4033",
+      "end": "0x4033",
+      "pack": "WD_DRUMS",
+      "name": "SNARE_TONE",
+      "about": "TONE",
+      "fields": [
+        {
+          "name": "SNARE_TONE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "snareTone",
+            "min": 100,
+            "max": 500,
+            "step": 1
+          },
+          "note": "0-255 = 100 to 500"
+        }
+      ]
+    },
+    {
+      "start": "0x4034",
+      "end": "0x4034",
+      "pack": "WD_DRUMS",
+      "name": "SNARE_SNAPPY",
+      "about": "SNAPPY",
+      "fields": [
+        {
+          "name": "SNARE_SNAPPY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "snareSnappy",
+            "min": 1000,
+            "max": 9000,
+            "step": 1
+          },
+          "note": "0-255 = 1000 to 9000"
+        }
+      ]
+    },
+    {
+      "start": "0x4035",
+      "end": "0x4035",
+      "pack": "WD_DRUMS",
+      "name": "SNARE_DECAY",
+      "about": "DECAY",
+      "fields": [
+        {
+          "name": "SNARE_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "snareDecay",
+            "min": 0.05,
+            "max": 0.4,
+            "step": 0.01
+          },
+          "note": "0-255 = 0.05 to 0.4"
+        }
+      ]
+    },
+    {
+      "start": "0x4036",
+      "end": "0x4036",
+      "pack": "WD_DRUMS",
+      "name": "HAT_DECAY",
+      "about": "DECAY",
+      "fields": [
+        {
+          "name": "HAT_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "hatDecay",
+            "min": 0.01,
+            "max": 0.3,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.01 to 0.3 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4037",
+      "end": "0x4037",
+      "pack": "WD_DRUMS",
+      "name": "HAT_METAL",
+      "about": "METAL",
+      "fields": [
+        {
+          "name": "HAT_METAL",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "hatMetal",
+            "min": 50,
+            "max": 10000,
+            "step": 1,
+            "curve": "log"
+          },
+          "note": "0-255 = 50 to 10000 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4038",
+      "end": "0x404F",
+      "pack": "RESERVED",
+      "name": "RESERVED_4038",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4050",
+      "end": "0x4050",
+      "pack": "WD_BASS",
+      "name": "BASS_OCTAVE",
+      "about": "OCTAVE",
+      "fields": [
+        {
+          "name": "BASS_OCTAVE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassOctave",
+            "min": -2,
+            "max": 2,
+            "step": 0.1
+          },
+          "note": "0 = -2, 128 = 0, 255 = 2"
+        }
+      ]
+    },
+    {
+      "start": "0x4051",
+      "end": "0x4051",
+      "pack": "WD_BASS",
+      "name": "BASS_DETUNE",
+      "about": "DETUNE",
+      "fields": [
+        {
+          "name": "BASS_DETUNE",
+          "type": "u8",
+          "min": 0,
+          "max": 25,
+          "control": {
+            "id": "bassDetune",
+            "min": 0,
+            "max": 25,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4052",
+      "end": "0x4052",
+      "pack": "WD_BASS",
+      "name": "BASS_FILTER_CUTOFF",
+      "about": "FILTER",
+      "fields": [
+        {
+          "name": "BASS_FILTER_CUTOFF",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassFilterCutoff",
+            "min": 100,
+            "max": 8000,
+            "step": 1,
+            "curve": "log"
+          },
+          "note": "0-255 = 100 to 8000 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4053",
+      "end": "0x4053",
+      "pack": "WD_BASS",
+      "name": "BASS_FILTER_Q",
+      "about": "RESO",
+      "fields": [
+        {
+          "name": "BASS_FILTER_Q",
+          "type": "u8",
+          "min": 0,
+          "max": 20,
+          "control": {
+            "id": "bassFilterQ",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4054",
+      "end": "0x4054",
+      "pack": "WD_BASS",
+      "name": "BASS_PUNCH_MODE",
+      "about": "CHARACTER",
+      "fields": [
+        {
+          "name": "BASS_PUNCH_MODE",
+          "type": "enum",
+          "options": [
+            "off",
+            "punch",
+            "bite",
+            "heavy"
+          ],
+          "control": {
+            "id": "bassPunchMode"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4055",
+      "end": "0x4055",
+      "pack": "WD_BASS",
+      "name": "BASS_PUNCH_AMOUNT",
+      "about": "INTENSITY",
+      "fields": [
+        {
+          "name": "BASS_PUNCH_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassPunchAmount",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4056",
+      "end": "0x4056",
+      "pack": "WD_BASS",
+      "name": "BASS_PUNCH_TRIM",
+      "about": "TRIM (dB)",
+      "fields": [
+        {
+          "name": "BASS_PUNCH_TRIM",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassPunchTrim",
+            "min": -12,
+            "max": 6,
+            "step": 0.5
+          },
+          "note": "0 = -12, 128 = 0, 255 = 6"
+        }
+      ]
+    },
+    {
+      "start": "0x4057",
+      "end": "0x4057",
+      "pack": "WD_BASS",
+      "name": "BASS_ENGINE_MODE",
+      "about": "BASS_ENGINE_MODE",
+      "fields": [
+        {
+          "name": "BASS_ENGINE_MODE",
+          "type": "enum",
+          "options": [
+            "legacy",
+            "modern"
+          ],
+          "control": {
+            "id": "bassEngineMode"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4058",
+      "end": "0x4058",
+      "pack": "WD_BASS",
+      "name": "BASS_WAVE",
+      "about": "WAVE",
+      "fields": [
+        {
+          "name": "BASS_WAVE",
+          "type": "enum",
+          "options": [
+            "sine",
+            "triangle",
+            "sawtooth",
+            "square"
+          ],
+          "control": {
+            "id": "bassWave"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4059",
+      "end": "0x4059",
+      "pack": "WD_BASS",
+      "name": "BASS_SUB",
+      "about": "SUB LEVEL",
+      "fields": [
+        {
+          "name": "BASS_SUB",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassSub",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x405A",
+      "end": "0x405A",
+      "pack": "WD_BASS",
+      "name": "BASS_DRIVE_MODE",
+      "about": "DRIVE",
+      "fields": [
+        {
+          "name": "BASS_DRIVE_MODE",
+          "type": "enum",
+          "options": [
+            "warm",
+            "acid",
+            "dirty"
+          ],
+          "control": {
+            "id": "bassDriveMode"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x405B",
+      "end": "0x405B",
+      "pack": "WD_BASS",
+      "name": "BASS_DRIVE",
+      "about": "AMOUNT",
+      "fields": [
+        {
+          "name": "BASS_DRIVE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassDrive",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x405C",
+      "end": "0x405C",
+      "pack": "WD_BASS",
+      "name": "BASS_ENV_AMOUNT",
+      "about": "FILTER ENV",
+      "fields": [
+        {
+          "name": "BASS_ENV_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassEnvAmount",
+            "min": -5000,
+            "max": 5000,
+            "step": 10
+          },
+          "note": "0 = -5000, 128 = 0, 255 = 5000"
+        }
+      ]
+    },
+    {
+      "start": "0x405D",
+      "end": "0x405D",
+      "pack": "WD_BASS",
+      "name": "BASS_ENV_DECAY",
+      "about": "ENV DECAY",
+      "fields": [
+        {
+          "name": "BASS_ENV_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassEnvDecay",
+            "min": 0.02,
+            "max": 1.5,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.02 to 1.5 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x405E",
+      "end": "0x405E",
+      "pack": "WD_BASS",
+      "name": "BASS_AMP_DECAY",
+      "about": "AMP DECAY",
+      "fields": [
+        {
+          "name": "BASS_AMP_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassAmpDecay",
+            "min": 0.05,
+            "max": 2,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.05 to 2 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x405F",
+      "end": "0x405F",
+      "pack": "WD_BASS",
+      "name": "BASS_WOBBLE_RATE",
+      "about": "WOBBLE HZ",
+      "fields": [
+        {
+          "name": "BASS_WOBBLE_RATE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassWobbleRate",
+            "min": 0.2,
+            "max": 20,
+            "step": 0.1,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.2 to 20 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4060",
+      "end": "0x4060",
+      "pack": "WD_BASS",
+      "name": "BASS_WOBBLE_DEPTH",
+      "about": "WOBBLE",
+      "fields": [
+        {
+          "name": "BASS_WOBBLE_DEPTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "bassWobbleDepth",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4061",
+      "end": "0x406F",
+      "pack": "RESERVED",
+      "name": "RESERVED_4061",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4070",
+      "end": "0x4070",
+      "pack": "WD_LYRA",
+      "name": "LYRA_PORTAMENTO",
+      "about": "SLIDE (ms)",
+      "fields": [
+        {
+          "name": "LYRA_PORTAMENTO",
+          "type": "u8",
+          "min": 0,
+          "max": 200,
+          "control": {
+            "id": "lyraPortamento",
+            "min": 0,
+            "max": 200,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4071",
+      "end": "0x4071",
+      "pack": "WD_LYRA",
+      "name": "LYRA_OSC1_TYPE",
+      "about": "OSC1 Wave",
+      "fields": [
+        {
+          "name": "LYRA_OSC1_TYPE",
+          "type": "enum",
+          "options": [
+            "sawtooth",
+            "square",
+            "sine",
+            "triangle"
+          ],
+          "control": {
+            "id": "lyraOsc1Type"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4072",
+      "end": "0x4072",
+      "pack": "WD_LYRA",
+      "name": "LYRA_OSC1_OCT",
+      "about": "OSC1 Oct",
+      "fields": [
+        {
+          "name": "LYRA_OSC1_OCT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraOsc1Oct",
+            "min": -2,
+            "max": 2,
+            "step": 0.1
+          },
+          "note": "0 = -2, 128 = 0, 255 = 2"
+        }
+      ]
+    },
+    {
+      "start": "0x4073",
+      "end": "0x4073",
+      "pack": "WD_LYRA",
+      "name": "LYRA_OSC2_TYPE",
+      "about": "OSC2 Wave",
+      "fields": [
+        {
+          "name": "LYRA_OSC2_TYPE",
+          "type": "enum",
+          "options": [
+            "sawtooth",
+            "square",
+            "sine",
+            "triangle"
+          ],
+          "control": {
+            "id": "lyraOsc2Type"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4074",
+      "end": "0x4074",
+      "pack": "WD_LYRA",
+      "name": "LYRA_OSC2_OCT",
+      "about": "OSC2 Oct",
+      "fields": [
+        {
+          "name": "LYRA_OSC2_OCT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraOsc2Oct",
+            "min": -2,
+            "max": 2,
+            "step": 0.1
+          },
+          "note": "0 = -2, 128 = 0, 255 = 2"
+        }
+      ]
+    },
+    {
+      "start": "0x4075",
+      "end": "0x4075",
+      "pack": "WD_LYRA",
+      "name": "LYRA_DETUNE",
+      "about": "DETUNE",
+      "fields": [
+        {
+          "name": "LYRA_DETUNE",
+          "type": "u8",
+          "min": 0,
+          "max": 50,
+          "control": {
+            "id": "lyraDetune",
+            "min": 0,
+            "max": 50,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4076",
+      "end": "0x4076",
+      "pack": "WD_LYRA",
+      "name": "LYRA_FMAMT",
+      "about": "FM AMT",
+      "fields": [
+        {
+          "name": "LYRA_FMAMT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraFMAmt",
+            "min": 0,
+            "max": 2000,
+            "step": 1
+          },
+          "note": "0-255 = 0 to 2000"
+        }
+      ]
+    },
+    {
+      "start": "0x4077",
+      "end": "0x4077",
+      "pack": "WD_LYRA",
+      "name": "LYRA_WAVE_FOLD",
+      "about": "WAVE FOLD",
+      "fields": [
+        {
+          "name": "LYRA_WAVE_FOLD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraWaveFold",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4078",
+      "end": "0x4078",
+      "pack": "WD_LYRA",
+      "name": "LYRA_DRIVE_MODE",
+      "about": "DRIVE MODE",
+      "fields": [
+        {
+          "name": "LYRA_DRIVE_MODE",
+          "type": "enum",
+          "options": [
+            "soft clip",
+            "hard clip",
+            "exponential",
+            "wavefold"
+          ],
+          "control": {
+            "id": "lyraDriveMode"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4079",
+      "end": "0x4079",
+      "pack": "WD_LYRA",
+      "name": "LYRA_DRIVE",
+      "about": "DRIVE",
+      "fields": [
+        {
+          "name": "LYRA_DRIVE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraDrive",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x407A",
+      "end": "0x407A",
+      "pack": "WD_LYRA",
+      "name": "LYRA_FILTER_TYPE",
+      "about": "TYPE",
+      "fields": [
+        {
+          "name": "LYRA_FILTER_TYPE",
+          "type": "enum",
+          "options": [
+            "lowpass",
+            "highpass",
+            "bandpass",
+            "notch"
+          ],
+          "control": {
+            "id": "lyraFilterType"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x407B",
+      "end": "0x407B",
+      "pack": "WD_LYRA",
+      "name": "LYRA_FILTER_CUTOFF",
+      "about": "CUTOFF",
+      "fields": [
+        {
+          "name": "LYRA_FILTER_CUTOFF",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraFilterCutoff",
+            "min": 20,
+            "max": 20000,
+            "step": 1,
+            "curve": "log"
+          },
+          "note": "0-255 = 20 to 20000 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x407C",
+      "end": "0x407C",
+      "pack": "WD_LYRA",
+      "name": "LYRA_FILTER_Q",
+      "about": "RESO",
+      "fields": [
+        {
+          "name": "LYRA_FILTER_Q",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraFilterQ",
+            "min": 0,
+            "max": 18,
+            "step": 0.1
+          },
+          "note": "0-255 = 0 to 18"
+        }
+      ]
+    },
+    {
+      "start": "0x407D",
+      "end": "0x407D",
+      "pack": "WD_LYRA",
+      "name": "LYRA_FILTER_ENV",
+      "about": "ENV AMT",
+      "fields": [
+        {
+          "name": "LYRA_FILTER_ENV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraFilterEnv",
+            "min": -5000,
+            "max": 5000,
+            "step": 1
+          },
+          "note": "0 = -5000, 128 = 0, 255 = 5000"
+        }
+      ]
+    },
+    {
+      "start": "0x407E",
+      "end": "0x407E",
+      "pack": "WD_LYRA",
+      "name": "LYRA_LFO_RATE",
+      "about": "RATE",
+      "fields": [
+        {
+          "name": "LYRA_LFO_RATE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraLfoRate",
+            "min": 0.1,
+            "max": 20,
+            "step": 0.1,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.1 to 20 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x407F",
+      "end": "0x407F",
+      "pack": "WD_LYRA",
+      "name": "LYRA_LFO_SYNC_RATE",
+      "about": "RATE",
+      "fields": [
+        {
+          "name": "LYRA_LFO_SYNC_RATE",
+          "type": "enum",
+          "options": [
+            "16",
+            "8",
+            "4",
+            "2",
+            "1",
+            "0.5",
+            "0.25"
+          ],
+          "control": {
+            "id": "lyraLfoSyncRate"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4080",
+      "end": "0x4080",
+      "pack": "WD_LYRA",
+      "name": "LYRA_LFO_DEPTH",
+      "about": "DEPTH",
+      "fields": [
+        {
+          "name": "LYRA_LFO_DEPTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraLfoDepth",
+            "min": 0,
+            "max": 5000,
+            "step": 1
+          },
+          "note": "0-255 = 0 to 5000"
+        }
+      ]
+    },
+    {
+      "start": "0x4081",
+      "end": "0x4081",
+      "pack": "WD_LYRA",
+      "name": "LYRA_ATTACK",
+      "about": "ATTACK",
+      "fields": [
+        {
+          "name": "LYRA_ATTACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraAttack",
+            "min": 0.01,
+            "max": 2,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.01 to 2 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4082",
+      "end": "0x4082",
+      "pack": "WD_LYRA",
+      "name": "LYRA_DECAY",
+      "about": "DECAY",
+      "fields": [
+        {
+          "name": "LYRA_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraDecay",
+            "min": 0.01,
+            "max": 2,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.01 to 2 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4083",
+      "end": "0x4083",
+      "pack": "WD_LYRA",
+      "name": "LYRA_SUSTAIN",
+      "about": "SUSTAIN",
+      "fields": [
+        {
+          "name": "LYRA_SUSTAIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraSustain",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4084",
+      "end": "0x4084",
+      "pack": "WD_LYRA",
+      "name": "LYRA_RELEASE",
+      "about": "RELEASE",
+      "fields": [
+        {
+          "name": "LYRA_RELEASE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraRelease",
+            "min": 0.01,
+            "max": 5,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.01 to 5 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4085",
+      "end": "0x408F",
+      "pack": "RESERVED",
+      "name": "RESERVED_4085",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4090",
+      "end": "0x4090",
+      "pack": "WD_FX",
+      "name": "LYRA_FX_TYPE",
+      "about": "EDIT FX",
+      "fields": [
+        {
+          "name": "LYRA_FX_TYPE",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "id": "lyraFxType"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4091",
+      "end": "0x4091",
+      "pack": "WD_FX",
+      "name": "LYRA_DELAY_TIME",
+      "about": "TIME",
+      "fields": [
+        {
+          "name": "LYRA_DELAY_TIME",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraDelayTime",
+            "min": 0.01,
+            "max": 1,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.01 to 1 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4092",
+      "end": "0x4092",
+      "pack": "WD_FX",
+      "name": "LYRA_DELAY_FEEDBACK",
+      "about": "FEEDBACK",
+      "fields": [
+        {
+          "name": "LYRA_DELAY_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraDelayFeedback",
+            "min": 0,
+            "max": 0.95,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 0.95"
+        }
+      ]
+    },
+    {
+      "start": "0x4093",
+      "end": "0x4093",
+      "pack": "WD_FX",
+      "name": "LYRA_DELAY_MIX",
+      "about": "MIX",
+      "fields": [
+        {
+          "name": "LYRA_DELAY_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "lyraDelayMix",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4094",
+      "end": "0x4094",
+      "pack": "WD_FX",
+      "name": "PHASER_RATE",
+      "about": "RATE",
+      "fields": [
+        {
+          "name": "PHASER_RATE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "phaserRate",
+            "min": 0.1,
+            "max": 10,
+            "step": 0.1,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.1 to 10 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4095",
+      "end": "0x4095",
+      "pack": "WD_FX",
+      "name": "PHASER_DEPTH",
+      "about": "DEPTH",
+      "fields": [
+        {
+          "name": "PHASER_DEPTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "phaserDepth",
+            "min": 100,
+            "max": 5000,
+            "step": 10,
+            "curve": "log"
+          },
+          "note": "0-255 = 100 to 5000 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4096",
+      "end": "0x4096",
+      "pack": "WD_FX",
+      "name": "PHASER_FEEDBACK",
+      "about": "FEEDBACK",
+      "fields": [
+        {
+          "name": "PHASER_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "phaserFeedback",
+            "min": 0,
+            "max": 0.9,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 0.9"
+        }
+      ]
+    },
+    {
+      "start": "0x4097",
+      "end": "0x4097",
+      "pack": "WD_FX",
+      "name": "PHASER_MIX",
+      "about": "MIX",
+      "fields": [
+        {
+          "name": "PHASER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "phaserMix",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x4098",
+      "end": "0x4098",
+      "pack": "WD_FX",
+      "name": "FLANGER_RATE",
+      "about": "RATE",
+      "fields": [
+        {
+          "name": "FLANGER_RATE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "flangerRate",
+            "min": 0.05,
+            "max": 5,
+            "step": 0.01,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.05 to 5 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x4099",
+      "end": "0x4099",
+      "pack": "WD_FX",
+      "name": "FLANGER_DEPTH",
+      "about": "DEPTH",
+      "fields": [
+        {
+          "name": "FLANGER_DEPTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "flangerDepth",
+            "min": 0.001,
+            "max": 0.02,
+            "step": 0.001,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.001 to 0.02 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x409A",
+      "end": "0x409A",
+      "pack": "WD_FX",
+      "name": "FLANGER_FEEDBACK",
+      "about": "FEEDBACK",
+      "fields": [
+        {
+          "name": "FLANGER_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "flangerFeedback",
+            "min": 0,
+            "max": 0.95,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 0.95"
+        }
+      ]
+    },
+    {
+      "start": "0x409B",
+      "end": "0x409B",
+      "pack": "WD_FX",
+      "name": "FLANGER_MIX",
+      "about": "MIX",
+      "fields": [
+        {
+          "name": "FLANGER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "flangerMix",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x409C",
+      "end": "0x409C",
+      "pack": "WD_FX",
+      "name": "QUAZAR_RATE",
+      "about": "RATE",
+      "fields": [
+        {
+          "name": "QUAZAR_RATE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarRate",
+            "min": 0.1,
+            "max": 15,
+            "step": 0.1,
+            "curve": "log"
+          },
+          "note": "0-255 = 0.1 to 15 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x409D",
+      "end": "0x409D",
+      "pack": "WD_FX",
+      "name": "QUAZAR_RESO",
+      "about": "RESO (Q)",
+      "fields": [
+        {
+          "name": "QUAZAR_RESO",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarReso",
+            "min": 5,
+            "max": 50,
+            "step": 0.5
+          },
+          "note": "0-255 = 5 to 50"
+        }
+      ]
+    },
+    {
+      "start": "0x409E",
+      "end": "0x409E",
+      "pack": "WD_FX",
+      "name": "QUAZAR_FREQ",
+      "about": "CENTER HZ",
+      "fields": [
+        {
+          "name": "QUAZAR_FREQ",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarFreq",
+            "min": 200,
+            "max": 8000,
+            "step": 10,
+            "curve": "log"
+          },
+          "note": "0-255 = 200 to 8000 (log)"
+        }
+      ]
+    },
+    {
+      "start": "0x409F",
+      "end": "0x409F",
+      "pack": "WD_FX",
+      "name": "QUAZAR_DEPTH",
+      "about": "SWEEP DEPTH",
+      "fields": [
+        {
+          "name": "QUAZAR_DEPTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarDepth",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A0",
+      "end": "0x40A0",
+      "pack": "WD_FX",
+      "name": "QUAZAR_SQUELCH",
+      "about": "SQUELCH",
+      "fields": [
+        {
+          "name": "QUAZAR_SQUELCH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarSquelch",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A1",
+      "end": "0x40A1",
+      "pack": "WD_FX",
+      "name": "QUAZAR_SPIN",
+      "about": "SPIN",
+      "fields": [
+        {
+          "name": "QUAZAR_SPIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarSpin",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A2",
+      "end": "0x40A2",
+      "pack": "WD_FX",
+      "name": "QUAZAR_MIX",
+      "about": "MIX",
+      "fields": [
+        {
+          "name": "QUAZAR_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "quazarMix",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A3",
+      "end": "0x40A3",
+      "pack": "WD_FX",
+      "name": "CHOPPER_RATE",
+      "about": "RATE",
+      "fields": [
+        {
+          "name": "CHOPPER_RATE",
+          "type": "enum",
+          "options": [
+            "8",
+            "4",
+            "2",
+            "1",
+            "0.5"
+          ],
+          "control": {
+            "id": "chopperRate"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40A4",
+      "end": "0x40A4",
+      "pack": "WD_FX",
+      "name": "CHOPPER_MODE",
+      "about": "MODE",
+      "fields": [
+        {
+          "name": "CHOPPER_MODE",
+          "type": "enum",
+          "options": [
+            "classic",
+            "clean"
+          ],
+          "control": {
+            "id": "chopperMode"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40A5",
+      "end": "0x40A5",
+      "pack": "WD_FX",
+      "name": "CHOPPER_DEPTH",
+      "about": "DEPTH",
+      "fields": [
+        {
+          "name": "CHOPPER_DEPTH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "chopperDepth",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A6",
+      "end": "0x40A6",
+      "pack": "WD_FX",
+      "name": "CRUSHER_BIT_DEPTH",
+      "about": "BIT DEPTH",
+      "fields": [
+        {
+          "name": "CRUSHER_BIT_DEPTH",
+          "type": "u8",
+          "min": 1,
+          "max": 16,
+          "control": {
+            "id": "crusherBitDepth",
+            "min": 1,
+            "max": 16,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40A7",
+      "end": "0x40A7",
+      "pack": "WD_FX",
+      "name": "CRUSHER_FREQ",
+      "about": "DOWNSAMPLE",
+      "fields": [
+        {
+          "name": "CRUSHER_FREQ",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "crusherFreq",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A8",
+      "end": "0x40A8",
+      "pack": "WD_FX",
+      "name": "CRUSHER_MIX",
+      "about": "MIX",
+      "fields": [
+        {
+          "name": "CRUSHER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "id": "crusherMix",
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          },
+          "note": "0-255 = 0 to 1"
+        }
+      ]
+    },
+    {
+      "start": "0x40A9",
+      "end": "0x40BF",
+      "pack": "RESERVED",
+      "name": "RESERVED_40A9",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x40C0",
+      "end": "0x40C0",
+      "pack": "WD_EVO",
+      "name": "EVO_TRACKS",
+      "about": "Which tracks evolution may change, one bit each",
+      "fields": [
+        {
+          "name": "EVO_TRACKS",
+          "type": "bits",
+          "bits": [
+            "kick",
+            "snare",
+            "hat",
+            "bass",
+            "lyra gate"
+          ],
+          "control": {
+            "checkboxes": [
+              ".wdEvoTrack[value=\"kick\"]",
+              ".wdEvoTrack[value=\"snare\"]",
+              ".wdEvoTrack[value=\"hat\"]",
+              ".wdEvoTrack[value=\"bass\"]",
+              ".wdEvoTrack[value=\"lyraGate\"]"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40C1",
+      "end": "0x40C1",
+      "pack": "WD_EVO",
+      "name": "WD_EVO_DENSITY",
+      "about": "DENSITY 0 %",
+      "fields": [
+        {
+          "name": "WD_EVO_DENSITY",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "control": {
+            "id": "wdEvoDensity",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40C2",
+      "end": "0x40C2",
+      "pack": "WD_EVO",
+      "name": "WD_EVO_MUTATION",
+      "about": "MUTATION 0 %",
+      "fields": [
+        {
+          "name": "WD_EVO_MUTATION",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "control": {
+            "id": "wdEvoMutation",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40C3",
+      "end": "0x40C3",
+      "pack": "WD_EVO",
+      "name": "WD_EVO_TENSION",
+      "about": "TENSION 0 %",
+      "fields": [
+        {
+          "name": "WD_EVO_TENSION",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "control": {
+            "id": "wdEvoTension",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40C4",
+      "end": "0x40C4",
+      "pack": "WD_EVO",
+      "name": "WD_DECK_PULSES",
+      "about": "WD_DECK_PULSES",
+      "fields": [
+        {
+          "name": "WD_DECK_PULSES",
+          "type": "u8",
+          "min": 1,
+          "max": 32,
+          "control": {
+            "id": "wdDeckPulses",
+            "min": 1,
+            "max": 32,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40C5",
+      "end": "0x40C5",
+      "pack": "WD_EVO",
+      "name": "WD_DECK_MORPH",
+      "about": "WD_DECK_MORPH",
+      "fields": [
+        {
+          "name": "WD_DECK_MORPH",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "control": {
+            "id": "wdDeckMorph",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "raw": true
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x40C6",
+      "end": "0x40EF",
+      "pack": "RESERVED",
+      "name": "RESERVED_40C6",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x40F0",
+      "end": "0x40F3",
+      "pack": "WD_CORE",
+      "name": "CAPS",
+      "about": "Read-only, 32-bit little-endian bitmask of implemented packs",
+      "fields": [
+        {
+          "name": "CAPS",
+          "type": "readonly",
+          "size": 4
+        }
+      ]
+    },
+    {
+      "start": "0x40F4",
+      "end": "0x40F4",
+      "pack": "WD_CORE",
+      "name": "SPEC_VERSION",
+      "about": "Read-only, map version",
+      "fields": [
+        {
+          "name": "SPEC_VERSION",
+          "type": "readonly"
+        }
+      ]
+    },
+    {
+      "start": "0x40F5",
+      "end": "0x40FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_40F5",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4100",
+      "end": "0x410F",
+      "pack": "WD_PATTERNS",
+      "name": "KICK_STEPS_1_16",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "KICK_STEPS_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.kick",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4110",
+      "end": "0x411F",
+      "pack": "WD_PATTERNS",
+      "name": "KICK_STEPS_17_32",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "KICK_STEPS_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.kick",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4120",
+      "end": "0x412F",
+      "pack": "WD_PATTERNS",
+      "name": "SNARE_STEPS_1_16",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "SNARE_STEPS_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.snare",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4130",
+      "end": "0x413F",
+      "pack": "WD_PATTERNS",
+      "name": "SNARE_STEPS_17_32",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "SNARE_STEPS_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.snare",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4140",
+      "end": "0x414F",
+      "pack": "WD_PATTERNS",
+      "name": "HAT_STEPS_1_16",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "HAT_STEPS_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.hat",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4150",
+      "end": "0x415F",
+      "pack": "WD_PATTERNS",
+      "name": "HAT_STEPS_17_32",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "HAT_STEPS_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.hat",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4160",
+      "end": "0x416F",
+      "pack": "WD_PATTERNS",
+      "name": "BASS_STEPS_1_16",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "BASS_STEPS_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.bass",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4170",
+      "end": "0x417F",
+      "pack": "WD_PATTERNS",
+      "name": "BASS_STEPS_17_32",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "BASS_STEPS_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.bass",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4180",
+      "end": "0x418F",
+      "pack": "WD_PATTERNS",
+      "name": "LYRA_GATE_STEPS_1_16",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "LYRA_GATE_STEPS_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.lyraGate",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4190",
+      "end": "0x419F",
+      "pack": "WD_PATTERNS",
+      "name": "LYRA_GATE_STEPS_17_32",
+      "about": "32-step patterns, as two 16-step halves",
+      "fields": [
+        {
+          "name": "LYRA_GATE_STEPS_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "array": "app.audioSystem.sequences.lyraGate",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x41A0",
+      "end": "0x41FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_41A0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4200",
+      "end": "0x420F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_VEL_1_16",
+      "about": "kick velocity per step, steps 1-16",
+      "fields": [
+        {
+          "name": "KICK_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4210",
+      "end": "0x421F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_VEL_17_32",
+      "about": "kick velocity per step, steps 17-32",
+      "fields": [
+        {
+          "name": "KICK_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4220",
+      "end": "0x422F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_PROB_1_16",
+      "about": "kick prob per step, steps 1-16",
+      "fields": [
+        {
+          "name": "KICK_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4230",
+      "end": "0x423F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_PROB_17_32",
+      "about": "kick prob per step, steps 17-32",
+      "fields": [
+        {
+          "name": "KICK_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4240",
+      "end": "0x424F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_RATCHET_1_16",
+      "about": "kick ratchet per step, steps 1-16",
+      "fields": [
+        {
+          "name": "KICK_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4250",
+      "end": "0x425F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_RATCHET_17_32",
+      "about": "kick ratchet per step, steps 17-32",
+      "fields": [
+        {
+          "name": "KICK_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4260",
+      "end": "0x426F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_PASS_1_16",
+      "about": "kick triggerPass per step, steps 1-16",
+      "fields": [
+        {
+          "name": "KICK_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4270",
+      "end": "0x427F",
+      "pack": "WD_STEPMETA",
+      "name": "KICK_PASS_17_32",
+      "about": "kick triggerPass per step, steps 17-32",
+      "fields": [
+        {
+          "name": "KICK_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4280",
+      "end": "0x428F",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_VEL_1_16",
+      "about": "snare velocity per step, steps 1-16",
+      "fields": [
+        {
+          "name": "SNARE_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4290",
+      "end": "0x429F",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_VEL_17_32",
+      "about": "snare velocity per step, steps 17-32",
+      "fields": [
+        {
+          "name": "SNARE_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x42A0",
+      "end": "0x42AF",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_PROB_1_16",
+      "about": "snare prob per step, steps 1-16",
+      "fields": [
+        {
+          "name": "SNARE_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x42B0",
+      "end": "0x42BF",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_PROB_17_32",
+      "about": "snare prob per step, steps 17-32",
+      "fields": [
+        {
+          "name": "SNARE_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x42C0",
+      "end": "0x42CF",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_RATCHET_1_16",
+      "about": "snare ratchet per step, steps 1-16",
+      "fields": [
+        {
+          "name": "SNARE_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x42D0",
+      "end": "0x42DF",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_RATCHET_17_32",
+      "about": "snare ratchet per step, steps 17-32",
+      "fields": [
+        {
+          "name": "SNARE_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x42E0",
+      "end": "0x42EF",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_PASS_1_16",
+      "about": "snare triggerPass per step, steps 1-16",
+      "fields": [
+        {
+          "name": "SNARE_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x42F0",
+      "end": "0x42FF",
+      "pack": "WD_STEPMETA",
+      "name": "SNARE_PASS_17_32",
+      "about": "snare triggerPass per step, steps 17-32",
+      "fields": [
+        {
+          "name": "SNARE_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4300",
+      "end": "0x430F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_VEL_1_16",
+      "about": "hat velocity per step, steps 1-16",
+      "fields": [
+        {
+          "name": "HAT_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4310",
+      "end": "0x431F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_VEL_17_32",
+      "about": "hat velocity per step, steps 17-32",
+      "fields": [
+        {
+          "name": "HAT_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4320",
+      "end": "0x432F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_PROB_1_16",
+      "about": "hat prob per step, steps 1-16",
+      "fields": [
+        {
+          "name": "HAT_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4330",
+      "end": "0x433F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_PROB_17_32",
+      "about": "hat prob per step, steps 17-32",
+      "fields": [
+        {
+          "name": "HAT_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4340",
+      "end": "0x434F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_RATCHET_1_16",
+      "about": "hat ratchet per step, steps 1-16",
+      "fields": [
+        {
+          "name": "HAT_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4350",
+      "end": "0x435F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_RATCHET_17_32",
+      "about": "hat ratchet per step, steps 17-32",
+      "fields": [
+        {
+          "name": "HAT_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4360",
+      "end": "0x436F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_PASS_1_16",
+      "about": "hat triggerPass per step, steps 1-16",
+      "fields": [
+        {
+          "name": "HAT_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4370",
+      "end": "0x437F",
+      "pack": "WD_STEPMETA",
+      "name": "HAT_PASS_17_32",
+      "about": "hat triggerPass per step, steps 17-32",
+      "fields": [
+        {
+          "name": "HAT_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4380",
+      "end": "0x438F",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_VEL_1_16",
+      "about": "bass velocity per step, steps 1-16",
+      "fields": [
+        {
+          "name": "BASS_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4390",
+      "end": "0x439F",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_VEL_17_32",
+      "about": "bass velocity per step, steps 17-32",
+      "fields": [
+        {
+          "name": "BASS_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x43A0",
+      "end": "0x43AF",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_PROB_1_16",
+      "about": "bass prob per step, steps 1-16",
+      "fields": [
+        {
+          "name": "BASS_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x43B0",
+      "end": "0x43BF",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_PROB_17_32",
+      "about": "bass prob per step, steps 17-32",
+      "fields": [
+        {
+          "name": "BASS_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x43C0",
+      "end": "0x43CF",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_RATCHET_1_16",
+      "about": "bass ratchet per step, steps 1-16",
+      "fields": [
+        {
+          "name": "BASS_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x43D0",
+      "end": "0x43DF",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_RATCHET_17_32",
+      "about": "bass ratchet per step, steps 17-32",
+      "fields": [
+        {
+          "name": "BASS_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x43E0",
+      "end": "0x43EF",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_PASS_1_16",
+      "about": "bass triggerPass per step, steps 1-16",
+      "fields": [
+        {
+          "name": "BASS_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x43F0",
+      "end": "0x43FF",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_PASS_17_32",
+      "about": "bass triggerPass per step, steps 17-32",
+      "fields": [
+        {
+          "name": "BASS_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4400",
+      "end": "0x440F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_VEL_1_16",
+      "about": "lyra gate velocity per step, steps 1-16",
+      "fields": [
+        {
+          "name": "LYRA_GATE_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4410",
+      "end": "0x441F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_VEL_17_32",
+      "about": "lyra gate velocity per step, steps 17-32",
+      "fields": [
+        {
+          "name": "LYRA_GATE_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4420",
+      "end": "0x442F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_PROB_1_16",
+      "about": "lyra gate prob per step, steps 1-16",
+      "fields": [
+        {
+          "name": "LYRA_GATE_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4430",
+      "end": "0x443F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_PROB_17_32",
+      "about": "lyra gate prob per step, steps 17-32",
+      "fields": [
+        {
+          "name": "LYRA_GATE_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4440",
+      "end": "0x444F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_RATCHET_1_16",
+      "about": "lyra gate ratchet per step, steps 1-16",
+      "fields": [
+        {
+          "name": "LYRA_GATE_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4450",
+      "end": "0x445F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_RATCHET_17_32",
+      "about": "lyra gate ratchet per step, steps 17-32",
+      "fields": [
+        {
+          "name": "LYRA_GATE_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4460",
+      "end": "0x446F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_PASS_1_16",
+      "about": "lyra gate triggerPass per step, steps 1-16",
+      "fields": [
+        {
+          "name": "LYRA_GATE_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4470",
+      "end": "0x447F",
+      "pack": "WD_STEPMETA",
+      "name": "LYRA_GATE_PASS_17_32",
+      "about": "lyra gate triggerPass per step, steps 17-32",
+      "fields": [
+        {
+          "name": "LYRA_GATE_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4480",
+      "end": "0x448F",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_ACCENT_1_16",
+      "about": "bass accent per step, steps 1-16",
+      "fields": [
+        {
+          "name": "BASS_ACCENT_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "accent",
+            "codec": "flag",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4490",
+      "end": "0x449F",
+      "pack": "WD_STEPMETA",
+      "name": "BASS_ACCENT_17_32",
+      "about": "bass accent per step, steps 17-32",
+      "fields": [
+        {
+          "name": "BASS_ACCENT_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "accent",
+            "codec": "flag",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x44A0",
+      "end": "0x44FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_44A0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4500",
+      "end": "0x450F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_A_NOTES",
+      "about": "Lyra bank A: note per step",
+      "fields": [
+        {
+          "name": "LYRA_A_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "A",
+            "key": "note"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4510",
+      "end": "0x451F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_A_FLAGS",
+      "about": "Lyra bank A: active, slide, accent per step, as bits",
+      "fields": [
+        {
+          "name": "LYRA_A_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "A",
+            "key": "flags"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4520",
+      "end": "0x452F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_A_GATES",
+      "about": "Lyra bank A: gate length per step",
+      "fields": [
+        {
+          "name": "LYRA_A_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "A",
+            "key": "gate"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4530",
+      "end": "0x453F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_B_NOTES",
+      "about": "Lyra bank B: note per step",
+      "fields": [
+        {
+          "name": "LYRA_B_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "B",
+            "key": "note"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4540",
+      "end": "0x454F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_B_FLAGS",
+      "about": "Lyra bank B: active, slide, accent per step, as bits",
+      "fields": [
+        {
+          "name": "LYRA_B_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "B",
+            "key": "flags"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4550",
+      "end": "0x455F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_B_GATES",
+      "about": "Lyra bank B: gate length per step",
+      "fields": [
+        {
+          "name": "LYRA_B_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "B",
+            "key": "gate"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4560",
+      "end": "0x456F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_C_NOTES",
+      "about": "Lyra bank C: note per step",
+      "fields": [
+        {
+          "name": "LYRA_C_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "C",
+            "key": "note"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4570",
+      "end": "0x457F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_C_FLAGS",
+      "about": "Lyra bank C: active, slide, accent per step, as bits",
+      "fields": [
+        {
+          "name": "LYRA_C_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "C",
+            "key": "flags"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4580",
+      "end": "0x458F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_C_GATES",
+      "about": "Lyra bank C: gate length per step",
+      "fields": [
+        {
+          "name": "LYRA_C_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "C",
+            "key": "gate"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4590",
+      "end": "0x459F",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_D_NOTES",
+      "about": "Lyra bank D: note per step",
+      "fields": [
+        {
+          "name": "LYRA_D_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "D",
+            "key": "note"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x45A0",
+      "end": "0x45AF",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_D_FLAGS",
+      "about": "Lyra bank D: active, slide, accent per step, as bits",
+      "fields": [
+        {
+          "name": "LYRA_D_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "D",
+            "key": "flags"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x45B0",
+      "end": "0x45BF",
+      "pack": "WD_LYRA_NOTES",
+      "name": "LYRA_D_GATES",
+      "about": "Lyra bank D: gate length per step",
+      "fields": [
+        {
+          "name": "LYRA_D_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "D",
+            "key": "gate"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x45C0",
+      "end": "0x45FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_45C0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4600",
+      "end": "0x4600",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_SOURCE",
+      "about": "Patch 1: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_1_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4601",
+      "end": "0x4601",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_DEST",
+      "about": "Patch 1: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_1_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4602",
+      "end": "0x4602",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_AMOUNT",
+      "about": "Patch 1: amount",
+      "fields": [
+        {
+          "name": "PATCH_1_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4603",
+      "end": "0x4603",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_LOCK",
+      "about": "Patch 1: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_1_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4604",
+      "end": "0x4604",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_HELD",
+      "about": "Patch 1: held source value",
+      "fields": [
+        {
+          "name": "PATCH_1_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4605",
+      "end": "0x4605",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_MIN",
+      "about": "Patch 1: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_1_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4606",
+      "end": "0x4606",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_1_MAX",
+      "about": "Patch 1: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_1_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4607",
+      "end": "0x4607",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_SOURCE",
+      "about": "Patch 2: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_2_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4608",
+      "end": "0x4608",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_DEST",
+      "about": "Patch 2: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_2_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4609",
+      "end": "0x4609",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_AMOUNT",
+      "about": "Patch 2: amount",
+      "fields": [
+        {
+          "name": "PATCH_2_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x460A",
+      "end": "0x460A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_LOCK",
+      "about": "Patch 2: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_2_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x460B",
+      "end": "0x460B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_HELD",
+      "about": "Patch 2: held source value",
+      "fields": [
+        {
+          "name": "PATCH_2_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x460C",
+      "end": "0x460C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_MIN",
+      "about": "Patch 2: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_2_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x460D",
+      "end": "0x460D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_2_MAX",
+      "about": "Patch 2: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_2_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x460E",
+      "end": "0x460E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_SOURCE",
+      "about": "Patch 3: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_3_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x460F",
+      "end": "0x460F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_DEST",
+      "about": "Patch 3: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_3_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4610",
+      "end": "0x4610",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_AMOUNT",
+      "about": "Patch 3: amount",
+      "fields": [
+        {
+          "name": "PATCH_3_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4611",
+      "end": "0x4611",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_LOCK",
+      "about": "Patch 3: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_3_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4612",
+      "end": "0x4612",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_HELD",
+      "about": "Patch 3: held source value",
+      "fields": [
+        {
+          "name": "PATCH_3_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4613",
+      "end": "0x4613",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_MIN",
+      "about": "Patch 3: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_3_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4614",
+      "end": "0x4614",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_3_MAX",
+      "about": "Patch 3: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_3_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4615",
+      "end": "0x4615",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_SOURCE",
+      "about": "Patch 4: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_4_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4616",
+      "end": "0x4616",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_DEST",
+      "about": "Patch 4: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_4_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4617",
+      "end": "0x4617",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_AMOUNT",
+      "about": "Patch 4: amount",
+      "fields": [
+        {
+          "name": "PATCH_4_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4618",
+      "end": "0x4618",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_LOCK",
+      "about": "Patch 4: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_4_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4619",
+      "end": "0x4619",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_HELD",
+      "about": "Patch 4: held source value",
+      "fields": [
+        {
+          "name": "PATCH_4_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x461A",
+      "end": "0x461A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_MIN",
+      "about": "Patch 4: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_4_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x461B",
+      "end": "0x461B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_4_MAX",
+      "about": "Patch 4: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_4_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x461C",
+      "end": "0x461C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_SOURCE",
+      "about": "Patch 5: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_5_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x461D",
+      "end": "0x461D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_DEST",
+      "about": "Patch 5: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_5_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x461E",
+      "end": "0x461E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_AMOUNT",
+      "about": "Patch 5: amount",
+      "fields": [
+        {
+          "name": "PATCH_5_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x461F",
+      "end": "0x461F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_LOCK",
+      "about": "Patch 5: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_5_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4620",
+      "end": "0x4620",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_HELD",
+      "about": "Patch 5: held source value",
+      "fields": [
+        {
+          "name": "PATCH_5_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4621",
+      "end": "0x4621",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_MIN",
+      "about": "Patch 5: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_5_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4622",
+      "end": "0x4622",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_5_MAX",
+      "about": "Patch 5: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_5_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4623",
+      "end": "0x4623",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_SOURCE",
+      "about": "Patch 6: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_6_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4624",
+      "end": "0x4624",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_DEST",
+      "about": "Patch 6: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_6_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4625",
+      "end": "0x4625",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_AMOUNT",
+      "about": "Patch 6: amount",
+      "fields": [
+        {
+          "name": "PATCH_6_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4626",
+      "end": "0x4626",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_LOCK",
+      "about": "Patch 6: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_6_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4627",
+      "end": "0x4627",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_HELD",
+      "about": "Patch 6: held source value",
+      "fields": [
+        {
+          "name": "PATCH_6_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4628",
+      "end": "0x4628",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_MIN",
+      "about": "Patch 6: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_6_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4629",
+      "end": "0x4629",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_6_MAX",
+      "about": "Patch 6: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_6_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x462A",
+      "end": "0x462A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_SOURCE",
+      "about": "Patch 7: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_7_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x462B",
+      "end": "0x462B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_DEST",
+      "about": "Patch 7: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_7_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x462C",
+      "end": "0x462C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_AMOUNT",
+      "about": "Patch 7: amount",
+      "fields": [
+        {
+          "name": "PATCH_7_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x462D",
+      "end": "0x462D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_LOCK",
+      "about": "Patch 7: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_7_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x462E",
+      "end": "0x462E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_HELD",
+      "about": "Patch 7: held source value",
+      "fields": [
+        {
+          "name": "PATCH_7_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x462F",
+      "end": "0x462F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_MIN",
+      "about": "Patch 7: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_7_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4630",
+      "end": "0x4630",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_7_MAX",
+      "about": "Patch 7: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_7_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4631",
+      "end": "0x4631",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_SOURCE",
+      "about": "Patch 8: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_8_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4632",
+      "end": "0x4632",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_DEST",
+      "about": "Patch 8: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_8_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4633",
+      "end": "0x4633",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_AMOUNT",
+      "about": "Patch 8: amount",
+      "fields": [
+        {
+          "name": "PATCH_8_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4634",
+      "end": "0x4634",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_LOCK",
+      "about": "Patch 8: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_8_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4635",
+      "end": "0x4635",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_HELD",
+      "about": "Patch 8: held source value",
+      "fields": [
+        {
+          "name": "PATCH_8_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4636",
+      "end": "0x4636",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_MIN",
+      "about": "Patch 8: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_8_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4637",
+      "end": "0x4637",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_8_MAX",
+      "about": "Patch 8: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_8_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4638",
+      "end": "0x4638",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_SOURCE",
+      "about": "Patch 9: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_9_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4639",
+      "end": "0x4639",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_DEST",
+      "about": "Patch 9: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_9_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x463A",
+      "end": "0x463A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_AMOUNT",
+      "about": "Patch 9: amount",
+      "fields": [
+        {
+          "name": "PATCH_9_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x463B",
+      "end": "0x463B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_LOCK",
+      "about": "Patch 9: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_9_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x463C",
+      "end": "0x463C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_HELD",
+      "about": "Patch 9: held source value",
+      "fields": [
+        {
+          "name": "PATCH_9_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x463D",
+      "end": "0x463D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_MIN",
+      "about": "Patch 9: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_9_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x463E",
+      "end": "0x463E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_9_MAX",
+      "about": "Patch 9: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_9_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x463F",
+      "end": "0x463F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_SOURCE",
+      "about": "Patch 10: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_10_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4640",
+      "end": "0x4640",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_DEST",
+      "about": "Patch 10: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_10_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4641",
+      "end": "0x4641",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_AMOUNT",
+      "about": "Patch 10: amount",
+      "fields": [
+        {
+          "name": "PATCH_10_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4642",
+      "end": "0x4642",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_LOCK",
+      "about": "Patch 10: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_10_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4643",
+      "end": "0x4643",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_HELD",
+      "about": "Patch 10: held source value",
+      "fields": [
+        {
+          "name": "PATCH_10_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4644",
+      "end": "0x4644",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_MIN",
+      "about": "Patch 10: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_10_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4645",
+      "end": "0x4645",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_10_MAX",
+      "about": "Patch 10: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_10_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4646",
+      "end": "0x4646",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_SOURCE",
+      "about": "Patch 11: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_11_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4647",
+      "end": "0x4647",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_DEST",
+      "about": "Patch 11: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_11_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4648",
+      "end": "0x4648",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_AMOUNT",
+      "about": "Patch 11: amount",
+      "fields": [
+        {
+          "name": "PATCH_11_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4649",
+      "end": "0x4649",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_LOCK",
+      "about": "Patch 11: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_11_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x464A",
+      "end": "0x464A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_HELD",
+      "about": "Patch 11: held source value",
+      "fields": [
+        {
+          "name": "PATCH_11_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x464B",
+      "end": "0x464B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_MIN",
+      "about": "Patch 11: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_11_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x464C",
+      "end": "0x464C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_11_MAX",
+      "about": "Patch 11: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_11_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x464D",
+      "end": "0x464D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_SOURCE",
+      "about": "Patch 12: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_12_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x464E",
+      "end": "0x464E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_DEST",
+      "about": "Patch 12: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_12_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x464F",
+      "end": "0x464F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_AMOUNT",
+      "about": "Patch 12: amount",
+      "fields": [
+        {
+          "name": "PATCH_12_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4650",
+      "end": "0x4650",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_LOCK",
+      "about": "Patch 12: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_12_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4651",
+      "end": "0x4651",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_HELD",
+      "about": "Patch 12: held source value",
+      "fields": [
+        {
+          "name": "PATCH_12_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4652",
+      "end": "0x4652",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_MIN",
+      "about": "Patch 12: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_12_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4653",
+      "end": "0x4653",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_12_MAX",
+      "about": "Patch 12: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_12_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4654",
+      "end": "0x4654",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_SOURCE",
+      "about": "Patch 13: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_13_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4655",
+      "end": "0x4655",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_DEST",
+      "about": "Patch 13: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_13_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4656",
+      "end": "0x4656",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_AMOUNT",
+      "about": "Patch 13: amount",
+      "fields": [
+        {
+          "name": "PATCH_13_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4657",
+      "end": "0x4657",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_LOCK",
+      "about": "Patch 13: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_13_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4658",
+      "end": "0x4658",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_HELD",
+      "about": "Patch 13: held source value",
+      "fields": [
+        {
+          "name": "PATCH_13_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4659",
+      "end": "0x4659",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_MIN",
+      "about": "Patch 13: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_13_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x465A",
+      "end": "0x465A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_13_MAX",
+      "about": "Patch 13: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_13_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x465B",
+      "end": "0x465B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_SOURCE",
+      "about": "Patch 14: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_14_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x465C",
+      "end": "0x465C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_DEST",
+      "about": "Patch 14: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_14_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x465D",
+      "end": "0x465D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_AMOUNT",
+      "about": "Patch 14: amount",
+      "fields": [
+        {
+          "name": "PATCH_14_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x465E",
+      "end": "0x465E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_LOCK",
+      "about": "Patch 14: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_14_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x465F",
+      "end": "0x465F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_HELD",
+      "about": "Patch 14: held source value",
+      "fields": [
+        {
+          "name": "PATCH_14_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4660",
+      "end": "0x4660",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_MIN",
+      "about": "Patch 14: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_14_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4661",
+      "end": "0x4661",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_14_MAX",
+      "about": "Patch 14: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_14_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4662",
+      "end": "0x4662",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_SOURCE",
+      "about": "Patch 15: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_15_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4663",
+      "end": "0x4663",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_DEST",
+      "about": "Patch 15: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_15_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4664",
+      "end": "0x4664",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_AMOUNT",
+      "about": "Patch 15: amount",
+      "fields": [
+        {
+          "name": "PATCH_15_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4665",
+      "end": "0x4665",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_LOCK",
+      "about": "Patch 15: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_15_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4666",
+      "end": "0x4666",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_HELD",
+      "about": "Patch 15: held source value",
+      "fields": [
+        {
+          "name": "PATCH_15_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4667",
+      "end": "0x4667",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_MIN",
+      "about": "Patch 15: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_15_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4668",
+      "end": "0x4668",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_15_MAX",
+      "about": "Patch 15: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_15_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4669",
+      "end": "0x4669",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_SOURCE",
+      "about": "Patch 16: modulation source (none = empty slot)",
+      "fields": [
+        {
+          "name": "PATCH_16_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "source"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x466A",
+      "end": "0x466A",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_DEST",
+      "about": "Patch 16: what it modulates",
+      "fields": [
+        {
+          "name": "PATCH_16_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "dest"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x466B",
+      "end": "0x466B",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_AMOUNT",
+      "about": "Patch 16: amount",
+      "fields": [
+        {
+          "name": "PATCH_16_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "amount"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x466C",
+      "end": "0x466C",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_LOCK",
+      "about": "Patch 16: locked to a held value",
+      "fields": [
+        {
+          "name": "PATCH_16_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "lock"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x466D",
+      "end": "0x466D",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_HELD",
+      "about": "Patch 16: held source value",
+      "fields": [
+        {
+          "name": "PATCH_16_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "held"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x466E",
+      "end": "0x466E",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_MIN",
+      "about": "Patch 16: lowest modulation",
+      "fields": [
+        {
+          "name": "PATCH_16_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "min"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x466F",
+      "end": "0x466F",
+      "pack": "WD_PATCHES",
+      "name": "PATCH_16_MAX",
+      "about": "Patch 16: highest modulation",
+      "fields": [
+        {
+          "name": "PATCH_16_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "max"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4670",
+      "end": "0x46FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_4670",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4700",
+      "end": "0x4700",
+      "pack": "WD_STATE",
+      "name": "BUTTONS",
+      "about": "Toggle buttons: Lyra sequencer on, LFO sync, modulation safety",
+      "fields": [
+        {
+          "name": "BUTTONS",
+          "type": "bits",
+          "bits": [
+            "lyra seq on",
+            "lfo sync",
+            "modulation safety"
+          ],
+          "control": {
+            "buttons": [
+              "#lyraSeqToggle",
+              "#lyraLfoSyncToggle",
+              "#safetyToggle"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4701",
+      "end": "0x4701",
+      "pack": "WD_STATE",
+      "name": "MUTE",
+      "about": "Muted tracks, one bit each",
+      "fields": [
+        {
+          "name": "MUTE",
+          "type": "bits",
+          "bits": [
+            "kick",
+            "snare",
+            "hat",
+            "bass",
+            "synth"
+          ],
+          "control": {
+            "buttons": [
+              ".mute-btn[data-track=\"kick\"]",
+              ".mute-btn[data-track=\"snare\"]",
+              ".mute-btn[data-track=\"hat\"]",
+              ".mute-btn[data-track=\"bass\"]",
+              ".mute-btn[data-track=\"synth\"]"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4702",
+      "end": "0x4702",
+      "pack": "WD_STATE",
+      "name": "SOLO",
+      "about": "Soloed tracks, one bit each",
+      "fields": [
+        {
+          "name": "SOLO",
+          "type": "bits",
+          "bits": [
+            "kick",
+            "snare",
+            "hat",
+            "bass",
+            "synth"
+          ],
+          "control": {
+            "buttons": [
+              ".solo-btn[data-track=\"kick\"]",
+              ".solo-btn[data-track=\"snare\"]",
+              ".solo-btn[data-track=\"hat\"]",
+              ".solo-btn[data-track=\"bass\"]",
+              ".solo-btn[data-track=\"synth\"]"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4703",
+      "end": "0x4703",
+      "pack": "WD_STATE",
+      "name": "LYRA_EDIT_BANK",
+      "about": "Lyra bank shown in the editor",
+      "fields": [
+        {
+          "name": "LYRA_EDIT_BANK",
+          "type": "enum",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "control": {
+            "custom": "lyrabank",
+            "part": "edit"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4704",
+      "end": "0x4713",
+      "pack": "WD_STATE",
+      "name": "LYRA_CHAIN_1_16",
+      "about": "Lyra bank chain, positions 1-16",
+      "fields": [
+        {
+          "name": "LYRA_CHAIN_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "1-4 = banks A-D, 0 = end of chain",
+          "control": {
+            "custom": "lyrabank",
+            "part": "chain",
+            "offset": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4714",
+      "end": "0x4723",
+      "pack": "WD_STATE",
+      "name": "LYRA_CHAIN_17_32",
+      "about": "Lyra bank chain, positions 17-32",
+      "fields": [
+        {
+          "name": "LYRA_CHAIN_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "1-4 = banks A-D, 0 = end of chain",
+          "control": {
+            "custom": "lyrabank",
+            "part": "chain",
+            "offset": 16
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4724",
+      "end": "0x473F",
+      "pack": "RESERVED",
+      "name": "RESERVED_4724",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x4740",
+      "end": "0x4740",
+      "pack": "WD_FXRACK",
+      "name": "FX_SLOT_1",
+      "about": "Effect in rack position 1",
+      "fields": [
+        {
+          "name": "FX_SLOT_1",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 0
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4741",
+      "end": "0x4741",
+      "pack": "WD_FXRACK",
+      "name": "FX_SLOT_2",
+      "about": "Effect in rack position 2",
+      "fields": [
+        {
+          "name": "FX_SLOT_2",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 1
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4742",
+      "end": "0x4742",
+      "pack": "WD_FXRACK",
+      "name": "FX_SLOT_3",
+      "about": "Effect in rack position 3",
+      "fields": [
+        {
+          "name": "FX_SLOT_3",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 2
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4743",
+      "end": "0x4743",
+      "pack": "WD_FXRACK",
+      "name": "FX_SLOT_4",
+      "about": "Effect in rack position 4",
+      "fields": [
+        {
+          "name": "FX_SLOT_4",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 3
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4744",
+      "end": "0x4744",
+      "pack": "WD_FXRACK",
+      "name": "FX_SLOT_5",
+      "about": "Effect in rack position 5",
+      "fields": [
+        {
+          "name": "FX_SLOT_5",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 4
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4745",
+      "end": "0x4745",
+      "pack": "WD_FXRACK",
+      "name": "FX_SLOT_6",
+      "about": "Effect in rack position 6",
+      "fields": [
+        {
+          "name": "FX_SLOT_6",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 5
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4746",
+      "end": "0x4746",
+      "pack": "WD_FXRACK",
+      "name": "FX_ON",
+      "about": "Which effects are on, one bit each",
+      "fields": [
+        {
+          "name": "FX_ON",
+          "type": "bits",
+          "bits": [
+            "delay",
+            "phaser",
+            "flanger",
+            "quazar",
+            "chopper",
+            "bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "on"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4747",
+      "end": "0x4747",
+      "pack": "WD_FXRACK",
+      "name": "FX_DELAY_MIX",
+      "about": "Delay wet mix in the rack",
+      "fields": [
+        {
+          "name": "FX_DELAY_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Delay"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4748",
+      "end": "0x4748",
+      "pack": "WD_FXRACK",
+      "name": "FX_PHASER_MIX",
+      "about": "Phaser wet mix in the rack",
+      "fields": [
+        {
+          "name": "FX_PHASER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Phaser"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x4749",
+      "end": "0x4749",
+      "pack": "WD_FXRACK",
+      "name": "FX_FLANGER_MIX",
+      "about": "Flanger wet mix in the rack",
+      "fields": [
+        {
+          "name": "FX_FLANGER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Flanger"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x474A",
+      "end": "0x474A",
+      "pack": "WD_FXRACK",
+      "name": "FX_QUAZAR_MIX",
+      "about": "Quazar wet mix in the rack",
+      "fields": [
+        {
+          "name": "FX_QUAZAR_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Quazar"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x474B",
+      "end": "0x474B",
+      "pack": "WD_FXRACK",
+      "name": "FX_CHOPPER_MIX",
+      "about": "Chopper wet mix in the rack",
+      "fields": [
+        {
+          "name": "FX_CHOPPER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Chopper"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x474C",
+      "end": "0x474C",
+      "pack": "WD_FXRACK",
+      "name": "FX_BITCRUSHER_MIX",
+      "about": "Bitcrusher wet mix in the rack",
+      "fields": [
+        {
+          "name": "FX_BITCRUSHER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Bitcrusher"
+          }
+        }
+      ]
+    },
+    {
+      "start": "0x474D",
+      "end": "0x4FFF",
+      "pack": "RESERVED",
+      "name": "RESERVED_474D",
+      "about": "Unassigned"
+    }
+  ]
+}

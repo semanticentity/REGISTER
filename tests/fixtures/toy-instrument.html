@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Toy instrument</title></head>
+<body>
+  <!-- A stand-in for any HTML instrument: its settings are its controls -->
+  <div id="controls">
+    <label for="toyCutoff">CUTOFF:</label><input type="range" id="toyCutoff" min="20" max="20000" value="1000">
+    <label for="toyLevel">LEVEL:</label><input type="range" id="toyLevel" min="0" max="1" step="0.01" value="0.5">
+    <label for="toyPan">PAN:</label><input type="range" id="toyPan" min="-1" max="1" step="0.01" value="0">
+    <label for="toyWave">WAVE:</label><select id="toyWave"><option>sine</option><option>square</option><option value="saw">Saw</option></select>
+    <input type="number" class="toy-length" min="1" max="32" value="16">
+    <label><input type="checkbox" class="toyTrack" value="a" checked> A</label>
+    <label><input type="checkbox" class="toyTrack" value="b"> B</label>
+  </div>
+  <script>
+    // The instrument's own state, updated only by its own input handlers
+    window.toy = { state: {}, steps: Array(32).fill(false), redraws: 0 };
+    const slider = document.createElement('input');       // made at startup, like White Dwarf's swing
+    Object.assign(slider, { type: 'range', id: 'toySwing', min: 0, max: 0.75, step: 0.01, value: 0 });
+    document.getElementById('controls').append(slider);
+    document.getElementById('controls').addEventListener('input', e => {
+      if (e.target.id) toy.state[e.target.id] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      if (e.target.classList.contains('toyTrack')) toy.state['track_' + e.target.value] = e.target.checked;
+    });
+  </script>
+</body>
+</html>

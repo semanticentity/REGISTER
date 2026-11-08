@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 3: A Sound Is a Struct | REGISTER</title>
+  <meta name="description" content="Lesson 3 of REGISTER: a group of bytes in a fixed order is a struct, a voice is a base address, and field names compile to base plus offset. Learn structs, arrays and pointers by designing sounds.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 30px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button, select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .field { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) 3em; gap: 8px; align-items: center; margin: 4px 0; }
+    .field input { width: 100%; accent-color: #9bbc0f; }
+    .field .v { text-align: right; color: #c8e86a; }
+    .calc { font-size: 13px; color: #888; margin: 0 0 2px 3em; }
+    .calc b { color: #c8e86a; font-weight: normal; }
+    .map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 8px 0; font-size: 11px; text-align: center; }
+    .map div { border: 1px solid #222; border-radius: 3px; padding: 4px 0; color: #666; }
+    .map div.sel { border-color: #9bbc0f; color: #c8e86a; background: #12180a; }
+    textarea { width: 100%; height: 130px; background: #0b0b0b; color: #9bbc0f; border: 1px solid #222; border-radius: 4px; padding: 8px;
+      font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
+    .out { background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; padding: 8px; color: #8a9a7a; white-space: pre-wrap; font-size: 12px; min-height: 2.4em; }
+    .next { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; gap: 12px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+    @media (max-width: 600px) { textarea, select { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson2.html">Lesson 2</a> / Lesson 3 of 3</div>
+  <h1>A Sound Is a Struct</h1>
+  <p class="sub">A pattern is one byte per step. A sound is different: a handful of settings that belong together. Keeping them together, in a fixed order, is the idea behind structs, arrays and pointers.</p>
+
+  <h2>Four bytes in a fixed order</h2>
+  <p>An <b>envelope</b> shapes a note over time: how fast it rises (attack), how far it falls (decay), the level it holds (sustain), and how long it fades after (release). REGISTER stores those as four bytes in a row, always in the order A, D, S, R. A group of bytes with a fixed layout is a <b>struct</b>. Each part is a <b>field</b>, found by its <b>offset</b> from the start: A is +0, D is +1, S is +2, R is +3.</p>
+
+  <h2>Five structs in a row is an array</h2>
+  <p>Every voice has an envelope, and the five sit back to back starting at <code>$1060</code>. That is an <b>array of structs</b>. To find any field: start of the array, plus the voice number times the size of one struct, plus the field's offset.</p>
+  <div class="map" id="map"></div>
+  <div class="row">
+    <label>voice <select id="voice"></select></label>
+    <button id="hear">HEAR IT</button>
+  </div>
+  <div id="fields"></div>
+  <p>Pick a voice and move a slider. The address it writes is worked out in front of you. Changing the voice changes only the <b>base</b>, the start of that voice's struct. The offsets never change. A variable that holds a base address like that is a <b>pointer</b>.</p>
+  <div id="goal-bass"></div>
+
+  <h2>One voice, many arrays</h2>
+  <p>The envelope is not the whole sound. Volume is an array at <code>$10B0</code>, one byte per voice. Pan is an array at <code>$10B5</code>. Fine tune is an array at <code>$10A3</code>. Each array has a different size of element, but the voice number is the same index into all of them. A voice is one index that lands in many tables.</p>
+<pre>lead volume     $10B0 + 2       = $10B2
+lead pan        $10B5 + 2       = $10B7
+lead attack     $1060 + 2 × 4 + 0 = $1068</pre>
+
+  <h2>Names instead of addresses</h2>
+  <p>Working out addresses by hand is slow and easy to get wrong. So REGISTER lets you write a sound with field names, and the voice you load it on supplies the base. This is exactly what a compiler does with a struct in C: you write <code>voice.attack</code>, and it emits "base plus offset".</p>
+  <textarea id="sound" spellcheck="false" aria-label="Sound text">SOUND Soft Pad
+A = 120
+D = 80
+S = 200
+R = 160
+VOL = 100</textarea>
+  <div class="row">
+    <label>load on <select id="target"></select></label>
+    <button id="apply">APPLY</button>
+    <button id="pokes">SHOW AS POKES</button>
+  </div>
+  <div class="out" id="sound-out" aria-live="polite"></div>
+  <p>Press SHOW AS POKES with the lead, then with the bass. Same names, different addresses. The compiler did the base-plus-offset sums.</p>
+  <div id="goal-both"></div>
+
+  <h2>What you just learned</h2>
+  <p><b>Struct:</b> related bytes in a fixed layout. <b>Offset:</b> where a field sits inside it. <b>Array:</b> the same struct repeated back to back. <b>Pointer:</b> a base address that picks one of them. <b>Compiling:</b> turning names into addresses. The sequencer's SND button uses this same format, and its sounds move between voices for the same reason.</p>
+
+  <div class="next"><a href="lesson2.html">Lesson 2: bits and patterns</a><a href="sequencer.html">Try it in the sequencer</a></div>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="sounds.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script>
+    Kit.boot();
+    const VOICE_NAMES = ['kick', 'snare', 'lead', 'bass', 'noise'];
+    const FIELDS = ['A', 'D', 'S', 'R'];
+    const LONG = { A: 'attack', D: 'decay', S: 'sustain', R: 'release' };
+    const hex = Kit.hex;
+    const voiceSel = document.getElementById('voice'), targetSel = document.getElementById('target');
+    VOICE_NAMES.forEach((v, i) => { voiceSel.add(new Option(`${i}: ${v}`, i)); targetSel.add(new Option(v, v)); });
+    voiceSel.value = 2; targetSel.value = 'lead';
+
+    const mapEl = document.getElementById('map');
+    VOICE_NAMES.forEach((v, i) => { const d = document.createElement('div'); d.innerHTML = `${v}<br>${hex(0x1060 + 4 * i)}`; mapEl.append(d); });
+
+    const fieldsEl = document.getElementById('fields');
+    function drawFields() {
+      const vi = Number(voiceSel.value), base = 0x1060 + 4 * vi;
+      [...mapEl.children].forEach((d, i) => d.classList.toggle('sel', i === vi));
+      fieldsEl.innerHTML = '';
+      FIELDS.forEach((f, off) => {
+        const addr = base + off;
+        const row = document.createElement('div');
+        row.innerHTML = `<div class="field"><span>${f}</span><input type="range" min="0" max="255" value="${MEM[addr]}" aria-label="${LONG[f]}"><span class="v">${MEM[addr]}</span></div>
+          <div class="calc">${LONG[f]}: $1060 + ${vi} × 4 + ${off} = <b>${hex(addr)}</b></div>`;
+        const input = row.querySelector('input'), val = row.querySelector('.v');
+        input.oninput = () => { MEM[addr] = Number(input.value); val.textContent = input.value; };
+        fieldsEl.append(row);
+      });
+    }
+    voiceSel.onchange = drawFields;
+    drawFields();
+    document.getElementById('hear').onclick = () => previewVoice(VOICE_NAMES[Number(voiceSel.value)]);
+
+    Kit.check(document.getElementById('goal-bass'), {
+      goal: 'set the bass attack to exactly 100. Use the sliders, or open the console with the ` key and POKE it.',
+      hint: 'The bass is voice 3. Its attack is $1060 + 3 × 4 + 0 = $106C. In the console: POKE $106C, 100',
+      ok: 'The bass attack lives at $106C, because the bass struct starts 12 bytes into the array.',
+      test: () => MEM[0x106C] === 100
+    });
+
+    const index = RegisterSounds.buildIndex(window.REGISTER_MAP);
+    const out = document.getElementById('sound-out');
+    const engineOptions = v => SYNTH_IDS[v];
+    document.getElementById('apply').onclick = () => {
+      const v = targetSel.value;
+      const r = RegisterSounds.apply(index, MEM, document.getElementById('sound').value, v, { engineOptions });
+      out.textContent = RegisterSounds.summary(r, v);
+      if (Number(voiceSel.value) === VOICE_NAMES.indexOf(v)) drawFields();
+      previewVoice(v);
+    };
+    document.getElementById('pokes').onclick = () => {
+      out.textContent = RegisterSounds.toPokes(index, document.getElementById('sound').value, targetSel.value, { engineOptions, mem: MEM });
+    };
+    const env = b => [0, 1, 2, 3].map(k => MEM[b + k]).join(',');
+    Kit.check(document.getElementById('goal-both'), {
+      goal: 'give the lead and the bass the same envelope by applying one sound to both.',
+      hint: 'APPLY with "load on" set to lead, then switch it to bass and APPLY again.',
+      ok: 'One description, two places in memory. That is the whole idea behind portable sounds.',
+      test: () => env(0x1068) === env(0x106C) && MEM[0x1068] === 120 && MEM[0x106C] === 120
+    });
+  </script>
+</body>
+</html>

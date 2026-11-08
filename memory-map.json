@@ -1,0 +1,2452 @@
+{
+  "spec": "REGISTER memory map",
+  "name": "REGISTER",
+  "version": 1,
+  "space": [
+    "0x1000",
+    "0x1FFF"
+  ],
+  "caps_addr": "0x15F0",
+  "caps_ext_addr": "0x15F5",
+  "js_name": "REGISTER_MAP",
+  "check_files": [
+    "runtime.wat",
+    "compiler.js",
+    "wasm-host.js",
+    "packs.js",
+    "tweet.html",
+    "sequencer.html",
+    "debugger.html",
+    "arcade.html",
+    "tour.html",
+    "asm.html",
+    "README.md",
+    "sounds.js",
+    "pixel.html",
+    "engine.js",
+    "lesson-kit.js",
+    "lesson1.html",
+    "lesson2.html",
+    "lesson3.html",
+    "llms.txt",
+    "llms-full.txt",
+    "tools/llms-intro.md"
+  ],
+  "rules": [
+    "One map, no overlaps: every address belongs to exactly one region in this file.",
+    "Unknown regions are ignored, not errors: a machine that does not implement a pack still plays the song without it.",
+    "Capabilities are declared: each machine writes which packs it implements to CAPS ($15F0-$15F3, bits 0-31) and CAPS_EXT ($15F5-$15F8, bits 32-63)."
+  ],
+  "caps_bits": {
+    "0": "CORE",
+    "1": "XVOICE",
+    "2": "XENV",
+    "3": "XFX",
+    "4": "XTUNING",
+    "5": "XMIXER",
+    "6": "XVEL",
+    "7": "XSTEP",
+    "8": "XFM",
+    "9": "XSID",
+    "10": "XSTEPS",
+    "11": "XTEMPO",
+    "12": "XTHEORY",
+    "13": "XCHORD",
+    "14": "XEUCLIDEAN",
+    "15": "XLFO",
+    "16": "XMARKOV",
+    "17": "XFOLLOW",
+    "18": "XMACRO",
+    "19": "XSNAPSHOT",
+    "20": "XPATCH",
+    "21": "XARP",
+    "22": "XSEQ",
+    "23": "XCLOCK",
+    "24": "XMATH",
+    "25": "XCOMPARE",
+    "26": "XRECORD",
+    "27": "XGRAIN",
+    "28": "XSCENE",
+    "29": "XSONG",
+    "30": "XLPC",
+    "31": "XWAVE",
+    "32": "XBUS",
+    "33": "XPOKEY",
+    "34": "XFAULT"
+  },
+  "pack_about": {
+    "CORE": "The beat: five voices, 16 steps each, plus tempo, swing and the CAPS words",
+    "XVOICE": "Voice character: drum shape, engine select, unison for lead and bass",
+    "XENV": "Attack, decay, sustain and release for each voice",
+    "XFX": "Master effects: filter with an envelope, delay, bitcrush",
+    "XTUNING": "Temperament, A4 reference and fine tune per voice",
+    "XMIXER": "Master and per-voice volume and pan",
+    "XVEL": "Velocity per voice",
+    "XSTEP": "Per-step probability and ratchets for each voice",
+    "XFM": "4-operator FM wired like the Yamaha YM2151 and YM2612",
+    "XSID": "C64 SID style: 3 oscillators, ring mod, sync, filter",
+    "XSEQ": "Parameter locks: one byte changes on one step, then goes back",
+    "XSCENE": "Which of four pattern scenes is active",
+    "XSONG": "Song arranger: timed POKE, COPY, JUMP and STOP events",
+    "XLPC": "Speak & Spell speech: phonemes through formant filters",
+    "XWAVE": "Wavetable: 32 signed samples, SCC 8-bit or WSG 4-bit",
+    "XBUS": "Bus budget: so many automation writes per step, and what happens to the rest",
+    "XPOKEY": "Atari POKEY: clock dividers and polynomial counters, a channel per voice",
+    "XFAULT": "Fault register: what the chip skipped, and halt on fault"
+  },
+  "engine_banks": {
+    "_about": "Engines whose settings live in a shared bank: one patch for the whole chip",
+    "fm": "XFM",
+    "sid": "XSID",
+    "lpc": "XLPC",
+    "wave": "XWAVE",
+    "pokey": "XPOKEY"
+  },
+  "regions": [
+    {
+      "start": "0x1000",
+      "end": "0x100F",
+      "pack": "CORE",
+      "name": "KICK_GATE",
+      "about": "1 = hit on that step",
+      "fields": [
+        {
+          "name": "KICK_GATE",
+          "type": "steps",
+          "of": "gate"
+        }
+      ]
+    },
+    {
+      "start": "0x1010",
+      "end": "0x101F",
+      "pack": "CORE",
+      "name": "KICK_PITCH",
+      "about": "MIDI note per step, 0 = default 36",
+      "fields": [
+        {
+          "name": "KICK_PITCH",
+          "type": "steps",
+          "of": "note"
+        }
+      ]
+    },
+    {
+      "start": "0x1020",
+      "end": "0x102F",
+      "pack": "CORE",
+      "name": "SNARE_GATE",
+      "about": "1 = hit on that step",
+      "fields": [
+        {
+          "name": "SNARE_GATE",
+          "type": "steps",
+          "of": "gate"
+        }
+      ]
+    },
+    {
+      "start": "0x1030",
+      "end": "0x103F",
+      "pack": "CORE",
+      "name": "SNARE_TONE",
+      "about": "Body tone per step",
+      "fields": [
+        {
+          "name": "SNARE_TONE",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1040",
+      "end": "0x104F",
+      "pack": "CORE",
+      "name": "SNARE_SNAP",
+      "about": "Snap amount per step",
+      "fields": [
+        {
+          "name": "SNARE_SNAP",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1050",
+      "end": "0x1053",
+      "pack": "XVOICE",
+      "name": "KICK_CHARACTER",
+      "about": "Decay, sweep, click, sub",
+      "fields": [
+        {
+          "name": "KICK_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "KICK_SWEEP",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "KICK_CLICK",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "KICK_SUB",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        }
+      ]
+    },
+    {
+      "start": "0x1054",
+      "end": "0x1057",
+      "pack": "XVOICE",
+      "name": "SNARE_CHARACTER",
+      "about": "Body decay, noise level, body tune, noise brightness",
+      "fields": [
+        {
+          "name": "SNARE_BODY_DECAY",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_NOISE_LEVEL",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_BODY_TUNE",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_NOISE_BRIGHT",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        }
+      ]
+    },
+    {
+      "start": "0x1058",
+      "end": "0x1059",
+      "pack": "XVOICE",
+      "name": "DRUM_ENGINE",
+      "about": "Synth engine select for kick, snare",
+      "fields": [
+        {
+          "name": "KICK_ENGINE",
+          "type": "engine",
+          "voice": "kick"
+        },
+        {
+          "name": "SNARE_ENGINE",
+          "type": "engine",
+          "voice": "snare"
+        }
+      ]
+    },
+    {
+      "start": "0x105A",
+      "end": "0x105B",
+      "pack": "RESERVED",
+      "name": "RESERVED_105A",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x105C",
+      "end": "0x105D",
+      "pack": "XVOICE",
+      "name": "LEAD_UNISON",
+      "about": "Lead unison: spread (total width in cents, 0-100), count (0 = auto: 2 copies when spread is set, 1 = off, 2-7 copies)",
+      "fields": [
+        {
+          "name": "LEAD_UNISON_SPREAD",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "unit": "cents"
+        },
+        {
+          "name": "LEAD_UNISON_COUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 7,
+          "note": "0 = auto, 1 = off"
+        }
+      ]
+    },
+    {
+      "start": "0x105E",
+      "end": "0x105F",
+      "pack": "XVOICE",
+      "name": "BASS_UNISON",
+      "about": "Bass unison: spread (cents), count (0 = auto, 1 = off, 2-7)",
+      "fields": [
+        {
+          "name": "BASS_UNISON_SPREAD",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "unit": "cents"
+        },
+        {
+          "name": "BASS_UNISON_COUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 7,
+          "note": "0 = auto, 1 = off"
+        }
+      ]
+    },
+    {
+      "start": "0x1060",
+      "end": "0x1073",
+      "pack": "XENV",
+      "name": "ADSR",
+      "about": "Attack, decay, sustain, release for kick, snare, lead, bass, noise (4 bytes each). A and D 0-255 = 0-500 ms, S 0-255 = level, R 0-255 = 0-1000 ms. All four 0 = not set (the engine's own shape). Drum, noise and speech engines follow it on top of their own shape; for them A 0, S 255, R 255 is neutral and R 255 lets the sound ring out.",
+      "fields": [
+        {
+          "name": "KICK_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "KICK_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "KICK_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "KICK_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SNARE_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "LEAD_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "LEAD_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "LEAD_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "LEAD_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "BASS_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "BASS_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "BASS_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "BASS_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "NOISE_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "NOISE_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "NOISE_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "NOISE_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        }
+      ]
+    },
+    {
+      "start": "0x1074",
+      "end": "0x107F",
+      "pack": "RESERVED",
+      "name": "RESERVED_1074",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1080",
+      "end": "0x1083",
+      "pack": "XFX",
+      "name": "FX_FILTER",
+      "about": "Type, cutoff, resonance, envelope amount (how far the filter opens on a hit)",
+      "fields": [
+        {
+          "name": "FILTER_TYPE",
+          "type": "enum",
+          "options": [
+            "off",
+            "LP",
+            "HP",
+            "BP",
+            "notch"
+          ]
+        },
+        {
+          "name": "FILTER_CUTOFF",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "FILTER_RESO",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "FILTER_ENV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = off; which hits open it is $1084"
+        }
+      ]
+    },
+    {
+      "start": "0x1084",
+      "end": "0x1085",
+      "pack": "XFX",
+      "name": "FX_FILTER_ENV",
+      "about": "What opens the filter and how fast it closes. Follow: one bit per voice, 0 = every voice. Close: 0 = one step, else 0-1000 ms",
+      "fields": [
+        {
+          "name": "FILTER_ENV_FOLLOW",
+          "type": "bits",
+          "bits": [
+            "kick",
+            "snare",
+            "lead",
+            "bass",
+            "noise"
+          ],
+          "note": "none ticked = every voice"
+        },
+        {
+          "name": "FILTER_ENV_CLOSE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = one step"
+        }
+      ]
+    },
+    {
+      "start": "0x1086",
+      "end": "0x108F",
+      "pack": "XFX",
+      "name": "FX_RESERVED_A",
+      "about": "Reserved for more filter settings"
+    },
+    {
+      "start": "0x1090",
+      "end": "0x1093",
+      "pack": "XFX",
+      "name": "FX_DELAY",
+      "about": "Time (16-bit, ms), feedback, wet level",
+      "fields": [
+        {
+          "name": "DELAY_TIME",
+          "type": "u16",
+          "min": 0,
+          "max": 2000,
+          "unit": "ms"
+        },
+        {
+          "name": "DELAY_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "how much of each echo comes back, 0-255 = 0-90%"
+        },
+        {
+          "name": "DELAY_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "how loud the echoes are, 0-255 = 0-100%"
+        }
+      ]
+    },
+    {
+      "start": "0x1094",
+      "end": "0x1095",
+      "pack": "XFX",
+      "name": "FX_BITCRUSH",
+      "about": "Bits, sample rate reduction",
+      "fields": [
+        {
+          "name": "BITCRUSH_BITS",
+          "type": "u8",
+          "min": 0,
+          "max": 8,
+          "note": "0 or 8 = clean, 4 = crunchy, 2 = gameboy"
+        },
+        {
+          "name": "BITCRUSH_RATE",
+          "type": "u8",
+          "min": 0,
+          "max": 3,
+          "note": "0 = every sample, 1-3 = hold each sample for 2, 4 or 8"
+        }
+      ]
+    },
+    {
+      "start": "0x1096",
+      "end": "0x109F",
+      "pack": "XFX",
+      "name": "FX_RESERVED_B",
+      "about": "Reserved for more effects"
+    },
+    {
+      "start": "0x10A0",
+      "end": "0x10A0",
+      "pack": "XTUNING",
+      "name": "TUNING_MODE",
+      "about": "0 = 12-TET, 1 = just, 2 = Pythagorean, 3 = Colundi",
+      "fields": [
+        {
+          "name": "TUNING_MODE",
+          "type": "enum",
+          "options": [
+            "12-TET",
+            "Just",
+            "Pythagorean",
+            "Colundi"
+          ]
+        }
+      ]
+    },
+    {
+      "start": "0x10A1",
+      "end": "0x10A2",
+      "pack": "XTUNING",
+      "name": "A4_REF",
+      "about": "A4 in Hz, 16-bit little-endian",
+      "fields": [
+        {
+          "name": "A4_REF",
+          "type": "u16",
+          "min": 400,
+          "max": 480,
+          "unit": "Hz",
+          "zero": "440"
+        }
+      ]
+    },
+    {
+      "start": "0x10A3",
+      "end": "0x10A7",
+      "pack": "XTUNING",
+      "name": "FINE_TUNE",
+      "about": "Per-voice fine tune in cents, stored +128 (0 = no change)",
+      "fields": [
+        {
+          "name": "KICK_FINE_TUNE",
+          "type": "cents128",
+          "min": -100,
+          "max": 100
+        },
+        {
+          "name": "SNARE_FINE_TUNE",
+          "type": "cents128",
+          "min": -100,
+          "max": 100
+        },
+        {
+          "name": "LEAD_FINE_TUNE",
+          "type": "cents128",
+          "min": -100,
+          "max": 100
+        },
+        {
+          "name": "BASS_FINE_TUNE",
+          "type": "cents128",
+          "min": -100,
+          "max": 100
+        },
+        {
+          "name": "NOISE_FINE_TUNE",
+          "type": "cents128",
+          "min": -100,
+          "max": 100
+        }
+      ]
+    },
+    {
+      "start": "0x10A8",
+      "end": "0x10A8",
+      "pack": "XMIXER",
+      "name": "MASTER_VOL",
+      "about": "0-255",
+      "fields": [
+        {
+          "name": "MASTER_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        }
+      ]
+    },
+    {
+      "start": "0x10A9",
+      "end": "0x10A9",
+      "pack": "XMIXER",
+      "name": "MASTER_PAN",
+      "about": "Signed, -64 to +63",
+      "fields": [
+        {
+          "name": "MASTER_PAN",
+          "type": "s8",
+          "min": -64,
+          "max": 63
+        }
+      ]
+    },
+    {
+      "start": "0x10AA",
+      "end": "0x10AF",
+      "pack": "RESERVED",
+      "name": "RESERVED_10AA",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x10B0",
+      "end": "0x10B4",
+      "pack": "XMIXER",
+      "name": "VOICE_VOL",
+      "about": "Kick, snare, lead, bass, noise volume: 0 = not set (full), 1-127 = level",
+      "fields": [
+        {
+          "name": "KICK_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        },
+        {
+          "name": "SNARE_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        },
+        {
+          "name": "LEAD_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        },
+        {
+          "name": "BASS_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        },
+        {
+          "name": "NOISE_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        }
+      ]
+    },
+    {
+      "start": "0x10B5",
+      "end": "0x10B9",
+      "pack": "XMIXER",
+      "name": "VOICE_PAN",
+      "about": "Kick, snare, lead, bass, noise pan, signed -64 to +63",
+      "fields": [
+        {
+          "name": "KICK_PAN",
+          "type": "s8",
+          "min": -64,
+          "max": 63
+        },
+        {
+          "name": "SNARE_PAN",
+          "type": "s8",
+          "min": -64,
+          "max": 63
+        },
+        {
+          "name": "LEAD_PAN",
+          "type": "s8",
+          "min": -64,
+          "max": 63
+        },
+        {
+          "name": "BASS_PAN",
+          "type": "s8",
+          "min": -64,
+          "max": 63
+        },
+        {
+          "name": "NOISE_PAN",
+          "type": "s8",
+          "min": -64,
+          "max": 63
+        }
+      ]
+    },
+    {
+      "start": "0x10BA",
+      "end": "0x10BF",
+      "pack": "RESERVED",
+      "name": "RESERVED_10BA",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x10C0",
+      "end": "0x10C0",
+      "pack": "XVEL",
+      "name": "KICK_VEL",
+      "about": "Kick velocity: 0 = not set (full), 1-127",
+      "fields": [
+        {
+          "name": "KICK_VEL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        }
+      ]
+    },
+    {
+      "start": "0x10C1",
+      "end": "0x10C1",
+      "pack": "XVEL",
+      "name": "SNARE_VEL",
+      "about": "Snare velocity: 0 = not set (full), 1-127",
+      "fields": [
+        {
+          "name": "SNARE_VEL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        }
+      ]
+    },
+    {
+      "start": "0x10C2",
+      "end": "0x10FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_10C2",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1100",
+      "end": "0x110F",
+      "pack": "CORE",
+      "name": "LEAD_GATE",
+      "about": "MIDI note per step, 0 = rest",
+      "fields": [
+        {
+          "name": "LEAD_GATE",
+          "type": "steps",
+          "of": "note"
+        }
+      ]
+    },
+    {
+      "start": "0x1110",
+      "end": "0x111F",
+      "pack": "CORE",
+      "name": "LEAD_ARP",
+      "about": "Arpeggio offset per step",
+      "fields": [
+        {
+          "name": "LEAD_ARP",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1120",
+      "end": "0x1120",
+      "pack": "XVEL",
+      "name": "LEAD_VEL",
+      "about": "Lead velocity: 0 = not set (full), 1-127",
+      "fields": [
+        {
+          "name": "LEAD_VEL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        }
+      ]
+    },
+    {
+      "start": "0x1121",
+      "end": "0x1159",
+      "pack": "RESERVED",
+      "name": "RESERVED_1121",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x115A",
+      "end": "0x115A",
+      "pack": "XVOICE",
+      "name": "LEAD_ENGINE",
+      "about": "Synth engine select for lead",
+      "fields": [
+        {
+          "name": "LEAD_ENGINE",
+          "type": "engine",
+          "voice": "lead"
+        }
+      ]
+    },
+    {
+      "start": "0x115B",
+      "end": "0x11FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_115B",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1200",
+      "end": "0x120F",
+      "pack": "CORE",
+      "name": "BASS_GATE",
+      "about": "MIDI note per step, 0 = rest",
+      "fields": [
+        {
+          "name": "BASS_GATE",
+          "type": "steps",
+          "of": "note"
+        }
+      ]
+    },
+    {
+      "start": "0x1210",
+      "end": "0x121F",
+      "pack": "CORE",
+      "name": "BASS_FM",
+      "about": "FM amount per step",
+      "fields": [
+        {
+          "name": "BASS_FM",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1220",
+      "end": "0x122F",
+      "pack": "CORE",
+      "name": "BASS_FILT",
+      "about": "Filter amount per step",
+      "fields": [
+        {
+          "name": "BASS_FILT",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1230",
+      "end": "0x1230",
+      "pack": "XVEL",
+      "name": "BASS_VEL",
+      "about": "Bass velocity: 0 = not set (full), 1-127",
+      "fields": [
+        {
+          "name": "BASS_VEL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        }
+      ]
+    },
+    {
+      "start": "0x1231",
+      "end": "0x1259",
+      "pack": "RESERVED",
+      "name": "RESERVED_1231",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x125A",
+      "end": "0x125A",
+      "pack": "XVOICE",
+      "name": "BASS_ENGINE",
+      "about": "Synth engine select for bass",
+      "fields": [
+        {
+          "name": "BASS_ENGINE",
+          "type": "engine",
+          "voice": "bass"
+        }
+      ]
+    },
+    {
+      "start": "0x125B",
+      "end": "0x12FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_125B",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1300",
+      "end": "0x130F",
+      "pack": "CORE",
+      "name": "NOISE_GATE",
+      "about": "1 = hit on that step",
+      "fields": [
+        {
+          "name": "NOISE_GATE",
+          "type": "steps",
+          "of": "gate"
+        }
+      ]
+    },
+    {
+      "start": "0x1310",
+      "end": "0x131F",
+      "pack": "CORE",
+      "name": "NOISE_DECAY",
+      "about": "Decay per step",
+      "fields": [
+        {
+          "name": "NOISE_DECAY",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1320",
+      "end": "0x132F",
+      "pack": "CORE",
+      "name": "NOISE_TYPE",
+      "about": "Noise type per step",
+      "fields": [
+        {
+          "name": "NOISE_TYPE",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1330",
+      "end": "0x1330",
+      "pack": "XVEL",
+      "name": "NOISE_VEL",
+      "about": "Noise velocity: 0 = not set (full), 1-127",
+      "fields": [
+        {
+          "name": "NOISE_VEL",
+          "type": "u8",
+          "min": 0,
+          "max": 127,
+          "note": "0 = not set (full)"
+        }
+      ]
+    },
+    {
+      "start": "0x1331",
+      "end": "0x1359",
+      "pack": "RESERVED",
+      "name": "RESERVED_1331",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x135A",
+      "end": "0x135A",
+      "pack": "XVOICE",
+      "name": "NOISE_ENGINE",
+      "about": "Synth engine select for noise",
+      "fields": [
+        {
+          "name": "NOISE_ENGINE",
+          "type": "engine",
+          "voice": "noise"
+        }
+      ]
+    },
+    {
+      "start": "0x135B",
+      "end": "0x13FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_135B",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1400",
+      "end": "0x144F",
+      "pack": "XSTEP",
+      "name": "STEP_PROB",
+      "about": "Per-step probability for each voice, 16 bytes each, 0 = always",
+      "fields": [
+        {
+          "name": "KICK_PROB",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "SNARE_PROB",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "LEAD_PROB",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "BASS_PROB",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "NOISE_PROB",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x1450",
+      "end": "0x149F",
+      "pack": "XSTEP",
+      "name": "STEP_RATCHET",
+      "about": "Per-step repeats for each voice, 16 bytes each, 0 or 1 = single hit",
+      "fields": [
+        {
+          "name": "KICK_RATCHET",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "SNARE_RATCHET",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "LEAD_RATCHET",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "BASS_RATCHET",
+          "type": "steps",
+          "of": "u8"
+        },
+        {
+          "name": "NOISE_RATCHET",
+          "type": "steps",
+          "of": "u8"
+        }
+      ]
+    },
+    {
+      "start": "0x14A0",
+      "end": "0x14DF",
+      "pack": "RESERVED",
+      "name": "RESERVED_14A0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x14E0",
+      "end": "0x14E6",
+      "pack": "XLPC",
+      "name": "LPC",
+      "about": "Speak & Spell speech (TMS5220-style LPC): a buzz or noise source shaped by three formant filters. As a lead or bass engine, the note picks the phoneme: C4 = EE, C#4 = IH, and so on through 30.",
+      "fields": [
+        {
+          "name": "LPC_PHONEME",
+          "type": "enum",
+          "options": [
+            "from note",
+            "EE",
+            "IH",
+            "EH",
+            "AE",
+            "AH",
+            "AW",
+            "UH",
+            "OO",
+            "OH",
+            "ER",
+            "L",
+            "R",
+            "W",
+            "Y",
+            "M",
+            "N",
+            "S",
+            "SH",
+            "F",
+            "TH",
+            "HH",
+            "P",
+            "T",
+            "K",
+            "B",
+            "D",
+            "G",
+            "ZZ",
+            "XX",
+            "--"
+          ],
+          "note": "from note, or force one phoneme"
+        },
+        {
+          "name": "LPC_PITCH",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = no change, plus or minus one octave"
+        },
+        {
+          "name": "LPC_ENERGY",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = default (200)"
+        },
+        {
+          "name": "LPC_VOICING",
+          "type": "enum",
+          "options": [
+            "auto",
+            "always buzz",
+            "always noise"
+          ]
+        },
+        {
+          "name": "LPC_RESONANCE",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "formant sharpness, 0 = default (180)"
+        },
+        {
+          "name": "LPC_FORMANT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = none; shifts the mouth up or down"
+        },
+        {
+          "name": "LPC_BUZZ",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "buzz pulse width, 0 = default (64)"
+        }
+      ]
+    },
+    {
+      "start": "0x14E7",
+      "end": "0x14EF",
+      "pack": "XLPC",
+      "name": "LPC_RESERVED",
+      "about": "Reserved for speech",
+      "fields": [
+        {
+          "name": "LPC_RESERVED",
+          "type": "table",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "start": "0x14F0",
+      "end": "0x14FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_14F0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1500",
+      "end": "0x1500",
+      "pack": "CORE",
+      "name": "SEQ_CTRL",
+      "about": "Bit 0 = play, bit 1 = loop",
+      "fields": [
+        {
+          "name": "SEQ_CTRL",
+          "type": "bits",
+          "bits": [
+            "play",
+            "loop"
+          ]
+        }
+      ]
+    },
+    {
+      "start": "0x1501",
+      "end": "0x1501",
+      "pack": "CORE",
+      "name": "SEQ_TEMPO",
+      "about": "BPM, 40-200",
+      "fields": [
+        {
+          "name": "SEQ_TEMPO",
+          "type": "u8",
+          "min": 40,
+          "max": 200,
+          "unit": "BPM"
+        }
+      ]
+    },
+    {
+      "start": "0x1502",
+      "end": "0x1502",
+      "pack": "CORE",
+      "name": "SEQ_STEP",
+      "about": "Current step, 0-15, written by the chip",
+      "fields": [
+        {
+          "name": "SEQ_STEP",
+          "type": "readonly"
+        }
+      ]
+    },
+    {
+      "start": "0x1503",
+      "end": "0x1503",
+      "pack": "CORE",
+      "name": "SEQ_SWING",
+      "about": "Swing, 0-100",
+      "fields": [
+        {
+          "name": "SEQ_SWING",
+          "type": "u8",
+          "min": 0,
+          "max": 100,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "start": "0x1504",
+      "end": "0x1504",
+      "pack": "XSCENE",
+      "name": "SEQ_SCENE",
+      "about": "Active scene, 0-3",
+      "fields": [
+        {
+          "name": "SEQ_SCENE",
+          "type": "u8",
+          "min": 0,
+          "max": 3
+        }
+      ]
+    },
+    {
+      "start": "0x1505",
+      "end": "0x1507",
+      "pack": "RESERVED",
+      "name": "RESERVED_1505",
+      "about": "Reserved for the system"
+    },
+    {
+      "start": "0x1508",
+      "end": "0x150C",
+      "pack": "XBUS",
+      "name": "BUS",
+      "about": "Memory bus budget. Old chips could only take so many register writes per frame. With the bus on, automation (locks, LFO, evolve) gets SPEED writes per step; what does not fit fails the way MODE says. Your own edits are never budgeted",
+      "fields": [
+        {
+          "name": "BUS_CTRL",
+          "type": "bits",
+          "bits": [
+            "on"
+          ]
+        },
+        {
+          "name": "BUS_SPEED",
+          "type": "u8",
+          "min": 0,
+          "max": 64,
+          "note": "writes per step, 0 = not set (8)"
+        },
+        {
+          "name": "BUS_MODE",
+          "type": "enum",
+          "options": [
+            "drop",
+            "corrupt",
+            "late",
+            "alias"
+          ],
+          "note": "drop: the write is lost. corrupt: it lands with wrong bits. late: it lands next step. alias: it lands at a nearby address"
+        },
+        {
+          "name": "BUS_OVERFLOWS",
+          "type": "readonly",
+          "size": 1,
+          "note": "writes that did not fit, counting up and wrapping at 255"
+        },
+        {
+          "name": "BUS_LOAD",
+          "type": "readonly",
+          "size": 1,
+          "note": "automation writes on the last step"
+        }
+      ]
+    },
+    {
+      "start": "0x150D",
+      "end": "0x150F",
+      "pack": "XBUS",
+      "name": "BUS_RESERVED",
+      "about": "Reserved for XBUS"
+    },
+    {
+      "start": "0x1510",
+      "end": "0x1513",
+      "pack": "XFAULT",
+      "name": "FAULT",
+      "about": "Fault register. Rule 2 says a machine ignores what it cannot do; this is where it says so. The engine writes a code and the address involved when it had to skip something: 1 = a lock aimed outside the sound settings, 2 = the bus queue overflowed and a late write was lost, 3 = an engine byte names no engine (the voice played its first engine). With halt on, the sequencer stops and shows a panic screen instead, the way a real machine reports a fault",
+      "fields": [
+        {
+          "name": "FAULT_CTRL",
+          "type": "bits",
+          "bits": [
+            "halt on fault"
+          ]
+        },
+        {
+          "name": "FAULT_CODE",
+          "type": "u8",
+          "min": 0,
+          "max": 3,
+          "note": "0 = no fault since the last reset"
+        },
+        {
+          "name": "FAULT_ADDR",
+          "type": "u16",
+          "min": 0,
+          "max": 65535,
+          "note": "the address involved"
+        }
+      ]
+    },
+    {
+      "start": "0x1514",
+      "end": "0x15EF",
+      "pack": "RESERVED",
+      "name": "RESERVED_1514",
+      "about": "Reserved for the system"
+    },
+    {
+      "start": "0x15F0",
+      "end": "0x15F3",
+      "pack": "CORE",
+      "name": "CAPS",
+      "about": "Read-only, 32-bit little-endian bitmask of implemented packs (see caps_bits)",
+      "fields": [
+        {
+          "name": "CAPS",
+          "type": "readonly",
+          "size": 4
+        }
+      ]
+    },
+    {
+      "start": "0x15F4",
+      "end": "0x15F4",
+      "pack": "CORE",
+      "name": "SPEC_VERSION",
+      "about": "Read-only, memory map version this machine implements",
+      "fields": [
+        {
+          "name": "SPEC_VERSION",
+          "type": "readonly"
+        }
+      ]
+    },
+    {
+      "start": "0x15F5",
+      "end": "0x15F8",
+      "pack": "CORE",
+      "name": "CAPS_EXT",
+      "about": "Read-only, the second CAPS word: bits 32-63 of caps_bits, little-endian. 0 on machines that predate it, which is correct: they have none of these packs",
+      "fields": [
+        {
+          "name": "CAPS_EXT",
+          "type": "readonly",
+          "size": 4
+        }
+      ]
+    },
+    {
+      "start": "0x15F9",
+      "end": "0x15FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_15F9",
+      "about": "Reserved for the system"
+    },
+    {
+      "start": "0x1600",
+      "end": "0x16FF",
+      "pack": "XSTEPS",
+      "name": "XSTEPS",
+      "about": "1-128 steps, polyrhythms. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1700",
+      "end": "0x170F",
+      "pack": "XTEMPO",
+      "name": "XTEMPO",
+      "about": "16-bit tempo and timing. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1710",
+      "end": "0x171F",
+      "pack": "RESERVED",
+      "name": "RESERVED_1710",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1720",
+      "end": "0x173F",
+      "pack": "XTHEORY",
+      "name": "XTHEORY",
+      "about": "Scales, modes, time signatures. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1740",
+      "end": "0x175F",
+      "pack": "XCHORD",
+      "name": "XCHORD",
+      "about": "Harmony, inversions, voicings. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1760",
+      "end": "0x1761",
+      "pack": "XSONG",
+      "name": "SONG_POS",
+      "about": "Song position in steps, 16-bit little-endian; the chip adds 1 each step, a JUMP rewrites it",
+      "fields": [
+        {
+          "name": "SONG_POS",
+          "type": "readonly",
+          "size": 2
+        }
+      ]
+    },
+    {
+      "start": "0x1762",
+      "end": "0x1762",
+      "pack": "XSONG",
+      "name": "SONG_CTRL",
+      "about": "Bit 0 = arranger on",
+      "fields": [
+        {
+          "name": "SONG_CTRL",
+          "type": "bits",
+          "bits": [
+            "on"
+          ]
+        }
+      ]
+    },
+    {
+      "start": "0x1763",
+      "end": "0x1763",
+      "pack": "XSONG",
+      "name": "SONG_COUNT",
+      "about": "Number of events in the table, 0-24",
+      "fields": [
+        {
+          "name": "SONG_COUNT",
+          "type": "readonly"
+        }
+      ]
+    },
+    {
+      "start": "0x1764",
+      "end": "0x176F",
+      "pack": "XSONG",
+      "name": "SONG_RESERVED",
+      "about": "Reserved for the arranger"
+    },
+    {
+      "start": "0x1770",
+      "end": "0x17FF",
+      "pack": "XSONG",
+      "name": "SONG_EVENTS",
+      "about": "24 events, 6 bytes each: step lo, step hi, op, a, b, c. Ops: 1 POKE (a,b = address, c = value), 2 COPY (a = bank slot, b = voice 0-4), 3 JUMP (a,b = song position), 4 STOP",
+      "fields": [
+        {
+          "name": "SONG_EVENTS",
+          "type": "table",
+          "size": 144
+        }
+      ]
+    },
+    {
+      "start": "0x1800",
+      "end": "0x18FF",
+      "pack": "XSONG",
+      "name": "SONG_BANK",
+      "about": "16 stored patterns, 16 bytes each; slot 0 is silence",
+      "fields": [
+        {
+          "name": "SONG_BANK",
+          "type": "table",
+          "size": 256
+        }
+      ]
+    },
+    {
+      "start": "0x1900",
+      "end": "0x190F",
+      "pack": "XFM",
+      "name": "FM_OPERATORS",
+      "about": "4 operators: ratio, level, feedback, wave. OP1 is the one you hear in every algorithm; OP4 is the top of the stack",
+      "fields": [
+        {
+          "name": "OP1_RATIO",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = 0.5x, otherwise byte / 16: 16 = 1x, 32 = 2x, 48 = 3x ... 240 = 15x"
+        },
+        {
+          "name": "OP1_LEVEL",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "a carrier's loudness, or a modulator's depth (255 = index 8)"
+        },
+        {
+          "name": "OP1_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the operator feeds its own output back into its phase: 0 = pure, higher bends a sine toward a saw, as on the Yamaha chips"
+        },
+        {
+          "name": "OP1_WAVE",
+          "type": "enum",
+          "options": [
+            "sine",
+            "saw",
+            "square",
+            "triangle"
+          ]
+        },
+        {
+          "name": "OP2_RATIO",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = 0.5x, otherwise byte / 16: 16 = 1x, 32 = 2x, 48 = 3x ... 240 = 15x"
+        },
+        {
+          "name": "OP2_LEVEL",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "a carrier's loudness, or a modulator's depth (255 = index 8)"
+        },
+        {
+          "name": "OP2_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the operator feeds its own output back into its phase: 0 = pure, higher bends a sine toward a saw, as on the Yamaha chips"
+        },
+        {
+          "name": "OP2_WAVE",
+          "type": "enum",
+          "options": [
+            "sine",
+            "saw",
+            "square",
+            "triangle"
+          ]
+        },
+        {
+          "name": "OP3_RATIO",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = 0.5x, otherwise byte / 16: 16 = 1x, 32 = 2x, 48 = 3x ... 240 = 15x"
+        },
+        {
+          "name": "OP3_LEVEL",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "a carrier's loudness, or a modulator's depth (255 = index 8)"
+        },
+        {
+          "name": "OP3_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the operator feeds its own output back into its phase: 0 = pure, higher bends a sine toward a saw, as on the Yamaha chips"
+        },
+        {
+          "name": "OP3_WAVE",
+          "type": "enum",
+          "options": [
+            "sine",
+            "saw",
+            "square",
+            "triangle"
+          ]
+        },
+        {
+          "name": "OP4_RATIO",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = 0.5x, otherwise byte / 16: 16 = 1x, 32 = 2x, 48 = 3x ... 240 = 15x"
+        },
+        {
+          "name": "OP4_LEVEL",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "a carrier's loudness, or a modulator's depth (255 = index 8)"
+        },
+        {
+          "name": "OP4_FEEDBACK",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the operator feeds its own output back into its phase: 0 = pure, higher bends a sine toward a saw, as on the Yamaha chips"
+        },
+        {
+          "name": "OP4_WAVE",
+          "type": "enum",
+          "options": [
+            "sine",
+            "saw",
+            "square",
+            "triangle"
+          ]
+        }
+      ]
+    },
+    {
+      "start": "0x1910",
+      "end": "0x1911",
+      "pack": "XFM",
+      "name": "FM_ALGORITHM",
+      "about": "Algorithm, global feedback. The 8 algorithms of the Yamaha YM2151 and YM2612 (Genesis), counting the chain from OP4 down: 0 = 4>3>2>1, 1 = (4+3)>2>1, 2 = (4+(3>2))>1, 3 = ((4>3)+2)>1, 4 = (4>3)+(2>1), 5 = 4>(3,2,1), 6 = (4>3)+2+1, 7 = 4+3+2+1",
+      "fields": [
+        {
+          "name": "FM_ALGORITHM",
+          "type": "u8",
+          "min": 0,
+          "max": 7,
+          "note": "YM2151 / YM2612 algorithm number"
+        },
+        {
+          "name": "FM_GLOBAL_FB",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "added to OP4's feedback; on the Yamaha chips only that operator feeds back"
+        }
+      ]
+    },
+    {
+      "start": "0x1912",
+      "end": "0x1915",
+      "pack": "XFM",
+      "name": "FM_DETUNE",
+      "about": "DT1 detune per operator, as on the YM2151: a few cents up or down, so stacked operators beat against each other. 4 (-0) is no detune, as on the chip",
+      "fields": [
+        {
+          "name": "OP1_DT1",
+          "type": "enum",
+          "options": [
+            "0",
+            "+1",
+            "+2",
+            "+3",
+            "-0",
+            "-1",
+            "-2",
+            "-3"
+          ]
+        },
+        {
+          "name": "OP2_DT1",
+          "type": "enum",
+          "options": [
+            "0",
+            "+1",
+            "+2",
+            "+3",
+            "-0",
+            "-1",
+            "-2",
+            "-3"
+          ]
+        },
+        {
+          "name": "OP3_DT1",
+          "type": "enum",
+          "options": [
+            "0",
+            "+1",
+            "+2",
+            "+3",
+            "-0",
+            "-1",
+            "-2",
+            "-3"
+          ]
+        },
+        {
+          "name": "OP4_DT1",
+          "type": "enum",
+          "options": [
+            "0",
+            "+1",
+            "+2",
+            "+3",
+            "-0",
+            "-1",
+            "-2",
+            "-3"
+          ]
+        }
+      ]
+    },
+    {
+      "start": "0x1916",
+      "end": "0x191F",
+      "pack": "XFM",
+      "name": "FM_RESERVED",
+      "about": "Reserved for FM"
+    },
+    {
+      "start": "0x1920",
+      "end": "0x192F",
+      "pack": "XFM",
+      "name": "FM_ADSR",
+      "about": "Attack, decay, sustain, release for each operator",
+      "fields": [
+        {
+          "name": "OP1_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP1_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP1_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP1_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP2_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP2_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP2_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP2_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP3_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP3_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP3_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP3_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP4_A",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP4_D",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP4_S",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OP4_R",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        }
+      ]
+    },
+    {
+      "start": "0x1930",
+      "end": "0x19FF",
+      "pack": "RESERVED",
+      "name": "RESERVED_1930",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1A00",
+      "end": "0x1A0F",
+      "pack": "XSID",
+      "name": "SID",
+      "about": "3 oscillators, ring mod, sync, filter",
+      "fields": [
+        {
+          "name": "OSC1_WAVE",
+          "type": "enum",
+          "options": [
+            "triangle",
+            "saw",
+            "pulse",
+            "noise"
+          ]
+        },
+        {
+          "name": "OSC1_DUTY",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OSC1_SYNC",
+          "type": "bits",
+          "bits": [
+            "sync to osc 2"
+          ]
+        },
+        {
+          "name": "OSC1_RING",
+          "type": "bits",
+          "bits": [
+            "ring mod with osc 2"
+          ]
+        },
+        {
+          "name": "OSC2_WAVE",
+          "type": "enum",
+          "options": [
+            "triangle",
+            "saw",
+            "pulse",
+            "noise"
+          ]
+        },
+        {
+          "name": "OSC2_DUTY",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OSC2_DETUNE",
+          "type": "cents128",
+          "min": -128,
+          "max": 127
+        },
+        {
+          "name": "OSC2_OCTAVE",
+          "type": "enum",
+          "options": [
+            "-2",
+            "-1",
+            "0",
+            "+1",
+            "+2"
+          ]
+        },
+        {
+          "name": "OSC3_WAVE",
+          "type": "enum",
+          "options": [
+            "triangle",
+            "saw",
+            "pulse",
+            "noise"
+          ]
+        },
+        {
+          "name": "OSC3_DUTY",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "OSC3_DETUNE",
+          "type": "cents128",
+          "min": -128,
+          "max": 127
+        },
+        {
+          "name": "OSC3_OCTAVE",
+          "type": "enum",
+          "options": [
+            "-2",
+            "-1",
+            "0",
+            "+1",
+            "+2"
+          ]
+        },
+        {
+          "name": "SID_FILTER_ROUTE",
+          "type": "bits",
+          "bits": [
+            "osc 1",
+            "osc 2",
+            "osc 3"
+          ]
+        },
+        {
+          "name": "SID_FILTER_TYPE",
+          "type": "enum",
+          "options": [
+            "LP",
+            "HP",
+            "BP",
+            "notch"
+          ]
+        },
+        {
+          "name": "SID_FILTER_CUTOFF",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        },
+        {
+          "name": "SID_FILTER_RESO",
+          "type": "u8",
+          "min": 0,
+          "max": 255
+        }
+      ]
+    },
+    {
+      "start": "0x1A10",
+      "end": "0x1A1F",
+      "pack": "RESERVED",
+      "name": "RESERVED_1A10",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1A20",
+      "end": "0x1A3F",
+      "pack": "XWAVE",
+      "name": "WAVE_TABLE",
+      "about": "Wavetable voice (like the Namco WSG and Konami SCC): one cycle of a waveform as 32 signed samples, -128 to 127. Pick the wave engine on any voice: lead and bass play the shape at the note's pitch; kick, snare and noise play it fast and bent, the way those chips made drums. Shared by every voice on wave",
+      "fields": [
+        {
+          "name": "WAVE_TABLE",
+          "type": "table",
+          "size": 32,
+          "note": "32 signed samples, one cycle"
+        }
+      ]
+    },
+    {
+      "start": "0x1A40",
+      "end": "0x1A40",
+      "pack": "XWAVE",
+      "name": "WAVE_MODE",
+      "about": "How the wave engine reads the table: SCC 8-bit plays every byte; WSG 4-bit keeps 16 levels, like the Namco WSG, and sounds grittier",
+      "fields": [
+        {
+          "name": "WAVE_MODE",
+          "type": "enum",
+          "options": [
+            "SCC 8-bit",
+            "WSG 4-bit"
+          ]
+        }
+      ]
+    },
+    {
+      "start": "0x1A41",
+      "end": "0x1A4F",
+      "pack": "XWAVE",
+      "name": "WAVE_RESERVED",
+      "about": "Reserved for XWAVE"
+    },
+    {
+      "start": "0x1A50",
+      "end": "0x1A5F",
+      "pack": "XPOKEY",
+      "name": "POKEY",
+      "about": "Atari POKEY: square waves and polynomial counters (shift registers that make buzz and noise) divided down from one clock. Pick the pokey engine on any voice. Each voice has its own channel settings; the volume moves in the chip's 16 steps, 60 times a second",
+      "fields": [
+        {
+          "name": "KICK_POKEY_POLY",
+          "type": "enum",
+          "options": [
+            "not set",
+            "pure",
+            "4-bit",
+            "5-bit",
+            "9-bit",
+            "17-bit"
+          ],
+          "note": "pure = square wave; 4-bit and 5-bit = buzzy tones; 9-bit and 17-bit = noise. not set = the voice's default"
+        },
+        {
+          "name": "KICK_POKEY_DIV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the divider: a higher number is a lower pitch. Drums and noise only; lead and bass take the note. 0 = not set"
+        },
+        {
+          "name": "KICK_POKEY_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 15,
+          "note": "1-15, the chip's 16 volume steps. 0 = not set (15)"
+        },
+        {
+          "name": "SNARE_POKEY_POLY",
+          "type": "enum",
+          "options": [
+            "not set",
+            "pure",
+            "4-bit",
+            "5-bit",
+            "9-bit",
+            "17-bit"
+          ],
+          "note": "pure = square wave; 4-bit and 5-bit = buzzy tones; 9-bit and 17-bit = noise. not set = the voice's default"
+        },
+        {
+          "name": "SNARE_POKEY_DIV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the divider: a higher number is a lower pitch. Drums and noise only; lead and bass take the note. 0 = not set"
+        },
+        {
+          "name": "SNARE_POKEY_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 15,
+          "note": "1-15, the chip's 16 volume steps. 0 = not set (15)"
+        },
+        {
+          "name": "LEAD_POKEY_POLY",
+          "type": "enum",
+          "options": [
+            "not set",
+            "pure",
+            "4-bit",
+            "5-bit",
+            "9-bit",
+            "17-bit"
+          ],
+          "note": "pure = square wave; 4-bit and 5-bit = buzzy tones; 9-bit and 17-bit = noise. not set = the voice's default"
+        },
+        {
+          "name": "LEAD_POKEY_DIV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the divider: a higher number is a lower pitch. Drums and noise only; lead and bass take the note. 0 = not set"
+        },
+        {
+          "name": "LEAD_POKEY_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 15,
+          "note": "1-15, the chip's 16 volume steps. 0 = not set (15)"
+        },
+        {
+          "name": "BASS_POKEY_POLY",
+          "type": "enum",
+          "options": [
+            "not set",
+            "pure",
+            "4-bit",
+            "5-bit",
+            "9-bit",
+            "17-bit"
+          ],
+          "note": "pure = square wave; 4-bit and 5-bit = buzzy tones; 9-bit and 17-bit = noise. not set = the voice's default"
+        },
+        {
+          "name": "BASS_POKEY_DIV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the divider: a higher number is a lower pitch. Drums and noise only; lead and bass take the note. 0 = not set"
+        },
+        {
+          "name": "BASS_POKEY_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 15,
+          "note": "1-15, the chip's 16 volume steps. 0 = not set (15)"
+        },
+        {
+          "name": "NOISE_POKEY_POLY",
+          "type": "enum",
+          "options": [
+            "not set",
+            "pure",
+            "4-bit",
+            "5-bit",
+            "9-bit",
+            "17-bit"
+          ],
+          "note": "pure = square wave; 4-bit and 5-bit = buzzy tones; 9-bit and 17-bit = noise. not set = the voice's default"
+        },
+        {
+          "name": "NOISE_POKEY_DIV",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the divider: a higher number is a lower pitch. Drums and noise only; lead and bass take the note. 0 = not set"
+        },
+        {
+          "name": "NOISE_POKEY_VOL",
+          "type": "u8",
+          "min": 0,
+          "max": 15,
+          "note": "1-15, the chip's 16 volume steps. 0 = not set (15)"
+        },
+        {
+          "name": "POKEY_CLOCK",
+          "type": "enum",
+          "options": [
+            "64 kHz",
+            "15 kHz",
+            "1.79 MHz"
+          ],
+          "note": "the clock the dividers count. 64 kHz and 15 kHz use 8-bit dividers, so high notes land out of tune, as on the Atari; 1.79 MHz joins two channels into a 16-bit divider, as Atari music did, and is in tune"
+        }
+      ]
+    },
+    {
+      "start": "0x1A60",
+      "end": "0x1AFF",
+      "pack": "RESERVED",
+      "name": "RESERVED_1A60",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1B00",
+      "end": "0x1B3F",
+      "pack": "XEUCLIDEAN",
+      "name": "XEUCLIDEAN",
+      "about": "Euclidean rhythms. Planned: the sequencer has this as a UI tool, not yet as memory",
+      "status": "planned"
+    },
+    {
+      "start": "0x1B40",
+      "end": "0x1B7F",
+      "pack": "XLFO",
+      "name": "XLFO",
+      "about": "LFOs. Planned: the sequencer has this as a UI tool, not yet as memory",
+      "status": "planned"
+    },
+    {
+      "start": "0x1B80",
+      "end": "0x1BFF",
+      "pack": "XMARKOV",
+      "name": "XMARKOV",
+      "about": "Markov chains. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1C00",
+      "end": "0x1C3F",
+      "pack": "XFOLLOW",
+      "name": "XFOLLOW",
+      "about": "Follow actions. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1C40",
+      "end": "0x1C8F",
+      "pack": "XMACRO",
+      "name": "XMACRO",
+      "about": "Macros, response curves. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1C90",
+      "end": "0x1CAF",
+      "pack": "XSNAPSHOT",
+      "name": "XSNAPSHOT",
+      "about": "Snapshots, morphing. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1CB0",
+      "end": "0x1CFF",
+      "pack": "RESERVED",
+      "name": "RESERVED_1CB0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1D00",
+      "end": "0x1D7F",
+      "pack": "XPATCH",
+      "name": "XPATCH",
+      "about": "Patch cables: source address, destination address, gain. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1D80",
+      "end": "0x1D9F",
+      "pack": "XARP",
+      "name": "XARP",
+      "about": "Arpeggiator. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1DA0",
+      "end": "0x1DFF",
+      "pack": "RESERVED",
+      "name": "RESERVED_1DA0",
+      "about": "Unassigned"
+    },
+    {
+      "start": "0x1E00",
+      "end": "0x1E00",
+      "pack": "XSEQ",
+      "name": "LOCK_COUNT",
+      "about": "Parameter locks in use, 0-16. A lock changes one byte for one step only, then puts it back",
+      "fields": [
+        {
+          "name": "LOCK_COUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 16
+        }
+      ]
+    },
+    {
+      "start": "0x1E01",
+      "end": "0x1E40",
+      "pack": "XSEQ",
+      "name": "LOCKS",
+      "about": "16 locks, 4 bytes each: step (0-15), address low byte, address high byte, value. On that step the chip writes the value, plays, and restores the old byte",
+      "fields": [
+        {
+          "name": "LOCKS",
+          "type": "table",
+          "size": 64
+        }
+      ]
+    },
+    {
+      "start": "0x1E41",
+      "end": "0x1E5F",
+      "pack": "XSEQ",
+      "name": "XSEQ_RESERVED",
+      "about": "Reserved for step conditions"
+    },
+    {
+      "start": "0x1E60",
+      "end": "0x1E7F",
+      "pack": "XCLOCK",
+      "name": "XCLOCK",
+      "about": "Clock divide and multiply. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1E80",
+      "end": "0x1EBF",
+      "pack": "XMATH",
+      "name": "XMATH",
+      "about": "ALU operations. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1EC0",
+      "end": "0x1EFF",
+      "pack": "XCOMPARE",
+      "name": "XCOMPARE",
+      "about": "Logic gates, comparators. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1F00",
+      "end": "0x1F0F",
+      "pack": "XRECORD",
+      "name": "XRECORD",
+      "about": "Live recording, circular buffers. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1F10",
+      "end": "0x1F2F",
+      "pack": "XGRAIN",
+      "name": "XGRAIN",
+      "about": "Granular synthesis. Planned: space is set aside, no bytes are defined yet",
+      "status": "planned"
+    },
+    {
+      "start": "0x1F30",
+      "end": "0x1FFF",
+      "pack": "USER",
+      "name": "USER_PACKS",
+      "about": "Free for your own packs"
+    }
+  ],
+  "types": {
+    "u8": "unsigned byte, min-max",
+    "s8": "signed byte (two's complement)",
+    "u16": "16-bit little-endian, 2 bytes",
+    "cents128": "cents stored +128; 0 means \"not set\"",
+    "enum": "one of options, stored as its index",
+    "bits": "flags, bit 0 first",
+    "steps": "16 bytes, one per step; of = gate, note or u8",
+    "engine": "synth engine index for a voice",
+    "readonly": "set by the machine",
+    "table": "raw bytes"
+  }
+}

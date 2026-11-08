@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PIXEL | REGISTER</title>
+  <meta name="description" content="A memory-mapped picture chip sharing one address space with the REGISTER sound chip. Plasma, rings, raster bars and xor in integer math, synced to the beat.">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --fg: #ccc;
+      --dim: #666;
+      --line: #222;
+      --accent: #9bbc0f;
+      --gb-0: #9bbc0f;
+      --gb-1: #8bac0f;
+      --gb-2: #306230;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      font-size: 14px;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h1 { color: var(--accent); font-size: 28px; margin: 0 0 4px; letter-spacing: 1px; }
+    .sub { color: var(--dim); margin: 0 0 20px; font-size: 13px; }
+    .screen {
+      display: block;
+      width: min(100%, 384px);
+      aspect-ratio: 1;
+      image-rendering: pixelated;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #000;
+      margin-bottom: 12px;
+    }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    button {
+      background: #111;
+      color: var(--fg);
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    button:hover, button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+    button.on { border-color: var(--accent); color: var(--accent); }
+    .label { color: var(--dim); font-size: 12px; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+    textarea.song {
+      width: 100%;
+      height: 110px;
+      background: #0d0d0d;
+      color: var(--accent);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px;
+      font: 12px/1.6 inherit;
+      font-family: inherit;
+      resize: vertical;
+    }
+    .status { color: var(--dim); font-size: 12px; min-height: 18px; }
+    .hint { color: #555; font-size: 12px; margin-top: 28px; }
+    .hint a { color: #777; }
+    /* Mini view: follows you down the page while you tweak settings */
+    .mini {
+      position: fixed;
+      left: 12px;
+      bottom: 12px;
+      width: 168px;
+      z-index: 50;
+      background: #000;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity .15s, transform .15s;
+    }
+    .mini.show { opacity: 1; transform: none; pointer-events: auto; }
+    .mini canvas { display: block; width: 100%; aspect-ratio: 1; image-rendering: pixelated; cursor: pointer; }
+    .mini .mini-bar { display: flex; gap: 4px; padding: 4px; background: #0d0d0d; }
+    .mini .mini-bar button { flex: 1; padding: 4px 0; font-size: 11px; }
+    @media (max-width: 600px) { .mini { width: 128px; left: 8px; bottom: 8px; } }
+    @media (prefers-reduced-motion: reduce) { .mini { transition: none; } }
+    /* Even line lengths: no lonely last word */
+    h1, h2, h3, h4, blockquote, .sub, .tagline, .manifesto, figcaption { text-wrap: balance; }
+    p, li, .hint, .card, .primitive-desc, .example { text-wrap: pretty; }
+  </style>
+</head>
+<body>
+  <h1>PIXEL</h1>
+  <p class="sub">A picture chip on the same memory as the sound chip. Every setting is a byte. Each voice of the song has a visual meaning, so you can see the music: kick is brightness, snare is warmth, lead is pattern detail, bass is zoom, noise is sparkle.</p>
+
+  <canvas id="screen" class="screen" width="64" height="64" aria-label="PIXEL framebuffer, 64 by 64"></canvas>
+  <div class="mini" id="mini" aria-hidden="true">
+    <canvas id="mini-screen" width="256" height="256" aria-label="PIXEL mini view. Tap to scroll back to the big picture." title="Back to the big picture"></canvas>
+    <div class="mini-bar">
+      <button id="mini-play" title="Play or stop">PLAY</button>
+      <button id="mini-pop" title="Pop out into a floating window that stays over other apps" hidden>POP</button>
+      <button id="mini-close" title="Hide the mini view">&times;</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="btn-play">PLAY</button>
+    <button id="btn-stop">STOP</button>
+    <button id="btn-sounds" title="Sounds: design, save and share voice sounds by field name">SOUNDS</button>
+  </div>
+  <p class="status" style="margin-top:-4px">SAFE is on in every preset: at most 3 flashes a second, softer flashes (WCAG 2.3.1). It is bit 1 of $2000.</p>
+  <div class="row" id="presets"></div>
+  <div class="status" id="status">Pick a preset, then PLAY to hear the song and see the beat.</div>
+
+  <div class="label">Song (tweet format)</div>
+  <textarea class="song" id="song" spellcheck="false">BPM:124
+1000:x...x...x...x...
+1020:....x.......x...
+1300:..x...x...x...x.
+1200:24..24..27..24..</textarea>
+
+  <div class="label">Picture chip, $2000</div>
+  <div id="pixel-panel"></div>
+
+  <div class="label">Sound chip, $1000</div>
+  <div id="sound-panel"></div>
+
+  <p class="hint">Both panels are built by the same code from two memory maps: <a href="pixel-map.json">pixel-map.json</a> and <a href="memory-map.json">memory-map.json</a>. COPY gives you a chip's bytes as text; paste text into LOAD to set them. Presets here are just POKE lines. <a href="index.html">More REGISTER</a></p>
+
+  <!-- WASM cores: generated by tools/build-wasm.js; do not edit by hand -->
+  <script id="wasm-core" type="application/octet-stream;base64">AGFzbQEAAAABFgVgAX8AYAJ/fwBgAX8Bf2AAAGAAAX8CZwUFYXVkaW8LdHJpZ2dlcktpY2sAAAVhdWRpbwx0cmlnZ2VyU25hcmUAAQVhdWRpbwt0cmlnZ2VyTGVhZAAABWF1ZGlvC3RyaWdnZXJCYXNzAAEFYXVkaW8MdHJpZ2dlck5vaXNlAAADDw4CAQMDAwMEBAAEAgMEAQUDAQABBpsBGn8AQYAgC38AQZAgC38AQaAgC38AQbAgC38AQcAgC38AQYAiC38AQZAiC38AQYAkC38AQZAkC38AQaAkC38AQYAmC38AQZAmC38AQaAmC38AQYAqC38AQYEqC38AQYIqC38AQYMqC38AQfArC38AQfQrC38AQeAuC38AQeIuC38AQeMuC38AQfAuC38AQYAwC38BQQALfwFBAAsHeA0GbWVtb3J5AgAEcmVhZAAFBXdyaXRlAAYEaW5pdAAHBXN0YXJ0AAgEc3RvcAAJBXJlc2V0AAoHZ2V0U3RlcAALCGdldFRlbXBvAAwIc2V0VGVtcG8ADQlpc1BsYXlpbmcADgR0aWNrABELbG9hZFBhdHRlcm4AEgrRBg4HACAALQAACwkAIAAgAToAAAsyAEEAJBhBACQZIw5B+AA6AAAjEEEAOgAAIw1BADoAACMRQYGAgIACNgIAIxJBAToAAAsNAEEBJBkjDUEDOgAACw0AQQAkGSMNQQA6AAALFABBACQYIw9BADoAACMTQQA7AQALBAAjGAsHACMOLQAACwkAIw4gADoAAAsEACMZCzAAIABBAUYEQCMCDwsgAEECRgRAIwUPCyAAQQNGBEAjBw8LIABBBEYEQCMKDwsjAAuTAgEJfyMULQAAQQFxRQRADwsjEy8BACEAIxUtAAAhASABQRhLBEBBGCEBCwNAQQAhAgJAA0AgAiABTw0BIxYgAkEGbGohAyADLwEAIABGBEAgA0ECai0AACEEIARBAUYEQCADQQNqLwEAIANBBWotAAA6AAALIARBAkYEQCMXIANBA2otAABBD3FBEGxqIQYgA0EEai0AABAPIQdBACEIAkADQCAIQRBPDQEgByAIaiAGIAhqLQAAOgAAIAhBAWohCAwACwsLIARBA0YgBUVxBEAgA0EDai8BACEAQQEhBSAAQQ9xJBgMBAsgBEEERgRAIw1BADoAAEEAJBkLCyACQQFqIQIMAAsLCyMTIABBAWo7AQALiwIBBH8jGUUEQEEADwsjDS0AAEEBcUUEQEEAJBlBAA8LEBAjGUUEQEEADwsjGCEAIw8gADoAACMAIABqLQAAIQEgAQRAIwEgAGotAAAhAiACRQRAQSQhAgsgAhAACyMCIABqLQAAIQEgAQRAIwMgAGotAAAhAiACRQRAQbQBIQILIwQgAGotAAAhAyADRQRAQeQAIQMLIAIgAxABCyMFIABqLQAAIQEgAQRAIAEQAgsjByAAai0AACEBIAEEQCMIIABqLQAAIQIgAkUEQEEoIQILIAEgAhADCyMKIABqLQAAIQEgAQRAIwsgAGotAAAhAiACRQRAQQghAgsgAhAECyAAQQFqQQ9xJBhBAQtqAQJ/IABBAEYEQCMAIQILIABBAUYEQCMCIQILIABBAkYEQCMFIQILIABBA0YEQCMHIQILIABBBEYEQCMKIQILQQAhAwJAA0AgA0EQTw0BIAIgA2ogASADai0AADoAACADQQFqIQMMAAsLCw==</script>
+  <script id="pixel-core" type="application/octet-stream;base64">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</script>
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="pixel-map.js"></script>
+  <script src="map-panel.js"></script>
+  <script src="register-console.js"></script>
+  <script src="sounds.js"></script>
+  <script>
+    // ============ PRESETS ============
+    // A preset is just bytes. These are the same POKE lines COPY produces.
+    const PRESETS = {
+      'Game Boy plasma': `POKE $2000, 3    ; VID_CTRL on + SAFE
+POKE $2001, 0    ; VID_MODE plasma
+POKE $2002, 40   ; VID_SPEED
+POKE $2003, 28   ; VID_FREQ_X
+POKE $2004, 20   ; VID_FREQ_Y
+POKE $2005, 24   ; VID_ZOOM
+POKE $2006, 60   ; VID_WARP
+POKE $2007, 0    ; VID_CYCLE
+POKE $2010, 2    ; SYNC_CTRL kick
+POKE $2011, 96   ; SYNC_PULSE
+POKE $2100, 15
+POKE $2101, 56
+POKE $2102, 15
+POKE $2103, 48
+POKE $2104, 98
+POKE $2105, 48
+POKE $2106, 139
+POKE $2107, 172
+POKE $2108, 15
+POKE $2109, 155
+POKE $210A, 188
+POKE $210B, 15`,
+      'Neon rings': `POKE $2000, 3    ; on + SAFE
+POKE $2001, 1    ; rings
+POKE $2002, 60
+POKE $2003, 3
+POKE $2004, 0
+POKE $2005, 40
+POKE $2006, 40
+POKE $2007, 4    ; palette cycling
+POKE $2010, 2    ; flash on kick
+POKE $2011, 128
+POKE $2100, 10
+POKE $2101, 0
+POKE $2102, 30
+POKE $2103, 120
+POKE $2104, 0
+POKE $2105, 180
+POKE $2106, 255
+POKE $2107, 0
+POKE $2108, 140
+POKE $2109, 0
+POKE $210A, 255
+POKE $210B, 220`,
+      'CGA bars': `POKE $2000, 3    ; on + SAFE
+POKE $2001, 2    ; raster bars
+POKE $2002, 50
+POKE $2003, 10
+POKE $2004, 3
+POKE $2005, 0
+POKE $2006, 120
+POKE $2007, 0
+POKE $2010, 1    ; flash on SYNC_STEPS
+POKE $2011, 64
+POKE $2020, 1
+POKE $2024, 1
+POKE $2028, 1
+POKE $202C, 1
+POKE $2100, 0
+POKE $2101, 0
+POKE $2102, 0
+POKE $2103, 85
+POKE $2104, 255
+POKE $2105, 255
+POKE $2106, 255
+POKE $2107, 85
+POKE $2108, 255
+POKE $2109, 255
+POKE $210A, 255
+POKE $210B, 255`,
+      'Visual music': `POKE $2000, 3    ; on + SAFE
+POKE $2001, 0    ; plasma
+POKE $2002, 24   ; slow, so the voices lead
+POKE $2003, 16
+POKE $2004, 12
+POKE $2005, 16
+POKE $2006, 40
+POKE $2007, 0
+POKE $2010, 0    ; no extra beat flash: the voices carry it
+POKE $2040, 31   ; every voice drives the picture
+POKE $2041, 20   ; fade speed
+POKE $2042, 200  ; kick: brightness
+POKE $2043, 220  ; snare: warmth
+POKE $2044, 180  ; lead: pattern frequency
+POKE $2045, 200  ; bass: zoom
+POKE $2046, 160  ; noise: sparkle
+POKE $2050, 0
+POKE $2100, 12
+POKE $2101, 10
+POKE $2102, 40
+POKE $2103, 40
+POKE $2104, 40
+POKE $2105, 110
+POKE $2106, 90
+POKE $2107, 110
+POKE $2108, 190
+POKE $2109, 200
+POKE $210A, 210
+POKE $210B, 240`,
+      'EarthBound': `POKE $2000, 3    ; on + SAFE
+POKE $2001, 3    ; xor tiles
+POKE $2002, 20
+POKE $2003, 1    ; big diamond tiles
+POKE $2004, 1
+POKE $2005, 0
+POKE $2006, 0
+POKE $2007, 6    ; palette cycling
+POKE $2010, 2
+POKE $2011, 40
+POKE $2040, 1    ; kick brightens
+POKE $2042, 140
+POKE $2050, 7    ; per-row offsets: on, auto wave, interleave
+POKE $2051, 5    ; amplitude in pixels
+POKE $2052, 16   ; frequency down the screen
+POKE $2053, 18   ; speed
+POKE $2100, 24
+POKE $2101, 8
+POKE $2102, 48
+POKE $2103, 88
+POKE $2104, 32
+POKE $2105, 120
+POKE $2106, 200
+POKE $2107, 80
+POKE $2108, 160
+POKE $2109, 250
+POKE $210A, 190
+POKE $210B, 120`,
+      'Mono xor': `POKE $2000, 3    ; on + SAFE
+POKE $2001, 3    ; xor
+POKE $2002, 30
+POKE $2003, 7
+POKE $2004, 5
+POKE $2005, 0
+POKE $2006, 0
+POKE $2007, 8
+POKE $2010, 2
+POKE $2011, 64
+POKE $2100, 0
+POKE $2101, 0
+POKE $2102, 0
+POKE $2103, 60
+POKE $2104, 60
+POKE $2105, 60
+POKE $2106, 150
+POKE $2107, 150
+POKE $2108, 150
+POKE $2109, 240
+POKE $210A, 240
+POKE $210B, 240`
+    };
+
+    // ============ CHIPS ============
+    let mem = null, audio = null, pixel = null;
+    let playing = false, timer = null;
+    let MEM = null;   // the sound chip's memory; engine.js reads it
+    let pixelPanel = null, soundPanel = null;
+
+    const decode = id => {
+      const bin = atob(document.getElementById(id).textContent.trim());
+      const out = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      return out;
+    };
+
+    function ctx() {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    // The core decides which voices play; engine.js (shared with the
+    // sequencer and the tweet player) makes the sound from the step's bytes.
+    const at = () => ctx().currentTime + 0.01;
+    const stepNow = () => MEM[0x1502] & 15;
+    const voices = {
+      triggerKick: () => { const s = stepNow(); playKick(at(), MEM[0x1010 + s]); },
+      triggerSnare: () => { const s = stepNow(); playSnare(at(), MEM[0x1030 + s], MEM[0x1040 + s]); },
+      triggerLead: () => { const s = stepNow(); if (MEM[0x1100 + s]) playLead(at(), MEM[0x1100 + s], MEM[0x1110 + s]); },
+      triggerBass: () => { const s = stepNow(); if (MEM[0x1200 + s]) playBass(at(), MEM[0x1200 + s], MEM[0x1210 + s], MEM[0x1220 + s]); },
+      triggerNoise: () => { const s = stepNow(); playNoise(at(), MEM[0x1310 + s], MEM[0x1320 + s]); }
+    };
+
+    // Tweet format: x per step for drums, hex note pairs for melody
+    function loadSong(text) {
+      mem.fill(0, 0x1000, 0x1400);
+      let bpm = 120;
+      for (const raw of text.split('\n')) {
+        const line = raw.trim();
+        if (/^bpm:/i.test(line)) { bpm = Math.max(40, Math.min(200, parseInt(line.slice(4), 10) || 120)); continue; }
+        const m = line.match(/^([0-9A-Fa-f]{4}):(.+)$/);
+        if (!m) continue;
+        const addr = parseInt(m[1], 16), data = m[2].replace(/\s/g, '');
+        if (addr < 0x1000 || addr >= 0x1400) continue;   // pattern memory only
+        for (let i = 0; i < 32 && i < data.length; i++) {
+          const ch = data[i];
+          if (ch === 'x' || ch === 'X') { if (i < 16) mem[addr + i] = 1; }
+          else if (/[0-9A-Fa-f]/.test(ch) && /[0-9A-Fa-f]/.test(data[i + 1] || '')) {
+            if ((i >> 1) < 16) mem[addr + (i >> 1)] = parseInt(ch + data[i + 1], 16);
+            i++;
+          }
+        }
+      }
+      audio.setTempo(bpm);
+    }
+
+    function play() {
+      if (playing) return;
+      ctx();
+      loadSong(document.getElementById('song').value);
+      audio.reset();
+      audio.start();
+      playing = true;
+      document.getElementById('btn-play').classList.add('on');
+      document.getElementById('mini-play').textContent = 'STOP';
+      setStatus(`Playing at ${mem[0x1501]} BPM. The picture reads $1502 (step) and $1000 (kick).`);
+      const step = () => {
+        if (!playing) return;
+        audio.tick();
+        timer = setTimeout(step, 60000 / (mem[0x1501] || 120) / 4);
+      };
+      step();
+    }
+
+    function stop() {
+      playing = false;
+      clearTimeout(timer);
+      if (audio) audio.stop();
+      document.getElementById('btn-play').classList.remove('on');
+      document.getElementById('mini-play').textContent = 'PLAY';
+      setStatus('Stopped. The picture keeps running; it just stops getting beats.');
+    }
+
+    function setStatus(msg) { document.getElementById('status').textContent = msg; }
+
+    // ============ DRAW ============
+    const canvas = document.getElementById('screen');
+    const g2d = canvas.getContext('2d');
+    const image = g2d.createImageData(64, 64);
+
+    // The chip counts frames (SAFE allows a flash every 20), so it must run at
+    // exactly 60 frames a second, even on 120 Hz screens.
+    let lastFrame = 0;
+    function draw(now) {
+      requestAnimationFrame(draw);
+      if (now - lastFrame < 1000 / 60 - 1) return;
+      lastFrame = now;
+      pixel.render();
+      const pal = mem.subarray(0x2110, 0x211C);  // OUT_PALETTE: after voice effects
+      const px = image.data;
+      for (let i = 0; i < 4096; i++) {
+        const c = (mem[0x3000 + i] & 3) * 3;
+        px[i * 4] = pal[c];
+        px[i * 4 + 1] = pal[c + 1];
+        px[i * 4 + 2] = pal[c + 2];
+        px[i * 4 + 3] = 255;
+      }
+      g2d.putImageData(image, 0, 0);
+      if (miniOn || popVideo) mctx.drawImage(canvas, 0, 0, 256, 256);
+    }
+
+    // ============ MINI VIEW ============
+    // When the big picture scrolls off screen, a small copy floats in the corner
+    // so you can watch it while you move sliders further down the page.
+    const mini = document.getElementById('mini');
+    const mctx = document.getElementById('mini-screen').getContext('2d');
+    mctx.imageSmoothingEnabled = false;
+    let miniOn = false, miniClosed = false, popVideo = null;
+    function setMini(on) {
+      miniOn = on && !miniClosed;
+      mini.classList.toggle('show', miniOn);
+      mini.setAttribute('aria-hidden', String(!miniOn));
+    }
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) miniClosed = false;   // closing lasts until you scroll back up
+      setMini(!e.isIntersecting);
+    }, { threshold: 0.15 }).observe(canvas);
+    document.getElementById('mini-screen').onclick = () =>
+      canvas.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'center' });
+    document.getElementById('mini-close').onclick = () => { miniClosed = true; setMini(false); };
+    document.getElementById('mini-play').onclick = () => (playing ? stop() : play());
+
+    // POP: the browser's own picture in picture, which floats over other apps.
+    // It plays a video stream of the mini canvas. Not every browser has it.
+    const popBtn = document.getElementById('mini-pop');
+    const canPop = document.pictureInPictureEnabled && HTMLCanvasElement.prototype.captureStream;
+    if (canPop) popBtn.hidden = false;
+    popBtn.onclick = async () => {
+      try {
+        if (document.pictureInPictureElement) { await document.exitPictureInPicture(); return; }
+        popVideo = popVideo || Object.assign(document.createElement('video'), { muted: true, playsInline: true });
+        popVideo.srcObject = document.getElementById('mini-screen').captureStream(60);
+        await popVideo.play();
+        await popVideo.requestPictureInPicture();
+        popVideo.addEventListener('leavepictureinpicture', () => { popVideo.srcObject = null; popVideo = null; }, { once: true });
+      } catch (err) {
+        popVideo = null;
+        setStatus('Pop out did not work here: ' + err.message);
+      }
+    };
+
+    function applyPreset(name) {
+      // Presets go through the panel's own PASTE, so you see exactly what loads
+      const box = document.querySelector('#pixel-panel .map-paste textarea');
+      box.value = PRESETS[name];
+      mem.fill(0, 0x2000, 0x20F0);  // clear the old preset's registers (keeps CAPS)
+      pixelPanel.paste(PRESETS[name]);
+      if (reducedMotion) {
+        mem[0x2000] |= 2;                  // SAFE stays on
+        mem[0x2002] = mem[0x2002] >> 1;    // half speed
+        mem[0x2051] = mem[0x2051] >> 1;    // gentler row waves
+      }
+      document.querySelectorAll('#presets button').forEach(b => b.classList.toggle('on', b.textContent === name));
+    }
+
+    // Respect the system "reduce motion" setting
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ============ BOOT ============
+    (async () => {
+      const a = await WebAssembly.instantiate(decode('wasm-core'), { audio: voices });
+      audio = a.instance.exports;
+      audio.init();
+      mem = new Uint8Array(audio.memory.buffer);
+      MEM = mem;
+      writeEngineCaps();   // the core does CORE and XSONG; the engine adds its packs
+      // One address space: the picture chip imports the sound chip's memory
+      const p = await WebAssembly.instantiate(decode('pixel-core'), { env: { memory: audio.memory } });
+      pixel = p.instance.exports;
+      pixel.init();
+
+      REGISTER.attach(mem, { maps: [window.REGISTER_MAP, window.PIXEL_MAP] });
+
+      pixelPanel = MapPanel.mount(document.getElementById('pixel-panel'), {
+        map: window.PIXEL_MAP, mem, title: 'PIXEL', openPacks: 2, status: setStatus
+      });
+      soundPanel = MapPanel.mount(document.getElementById('sound-panel'), {
+        map: window.REGISTER_MAP, mem, title: 'REGISTER', openPacks: 1, status: setStatus
+      });
+
+      const presetsEl = document.getElementById('presets');
+      Object.keys(PRESETS).forEach(name => {
+        const b = Object.assign(document.createElement('button'), { textContent: name });
+        b.onclick = () => applyPreset(name);
+        presetsEl.append(b);
+      });
+      applyPreset('Visual music');
+      if (reducedMotion) setStatus('Reduced motion is on: presets run at half speed, with SAFE flashing.');
+      document.getElementById('btn-play').onclick = play;
+      document.getElementById('btn-stop').onclick = stop;
+      // Sounds: the same drawer as the sequencer, on the same engine
+      let drawer = null;
+      document.getElementById('btn-sounds').onclick = () => {
+        drawer = drawer || RegisterSounds.mountDrawer({
+          map: window.REGISTER_MAP, mem,
+          engineOptions: v => SYNTH_IDS[v],
+          onApplied: (writes, v) => { soundPanel.render(); previewVoice(v); },
+          status: setStatus
+        });
+        drawer.open('lead');
+      };
+      requestAnimationFrame(draw);
+    })().catch(err => setStatus('Could not start: ' + err.message));
+  </script>
+</body>
+</html>

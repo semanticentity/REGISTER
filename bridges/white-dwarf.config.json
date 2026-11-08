@@ -1,0 +1,4165 @@
+{
+  "name": "WHITE DWARF",
+  "jsName": "WHITE_DWARF_MAP",
+  "source": "WHITE DWARF (single-file groovebox)",
+  "markupEnd": "<script type=\"module\">",
+  "space": [
+    16384,
+    20479
+  ],
+  "caps": 16624,
+  "exclude": "^(preset|patch|synthStep|import|wdDeckTrack|wdDeckPattern|seedInput|wdEvoSeed|lyraBankChain)",
+  "groups": [
+    {
+      "pack": "WD_CORE",
+      "at": 16384,
+      "size": 16,
+      "about": "Transport",
+      "match": "^(masterVolume|bpm|swing|seedChaos)$",
+      "selectors": [
+        {
+          "name": "KICK_LENGTH",
+          "selector": ".track-length[data-track=\"kick\"]",
+          "min": 1,
+          "max": 32,
+          "about": "Kick track length in steps"
+        },
+        {
+          "name": "SNARE_LENGTH",
+          "selector": ".track-length[data-track=\"snare\"]",
+          "min": 1,
+          "max": 32,
+          "about": "Snare track length in steps"
+        },
+        {
+          "name": "HAT_LENGTH",
+          "selector": ".track-length[data-track=\"hat\"]",
+          "min": 1,
+          "max": 32,
+          "about": "Hat track length in steps"
+        },
+        {
+          "name": "BASS_LENGTH",
+          "selector": ".track-length[data-track=\"bass\"]",
+          "min": 1,
+          "max": 32,
+          "about": "Bass track length in steps"
+        },
+        {
+          "name": "LYRA_GATE_LENGTH",
+          "selector": ".track-length[data-track=\"lyraGate\"]",
+          "min": 1,
+          "max": 32,
+          "about": "Lyra gate length in steps"
+        }
+      ]
+    },
+    {
+      "pack": "WD_MIX",
+      "at": 16400,
+      "match": "^(kickVolume|snareVolume|hatVolume|bassVolume|synthVolume|djFilter|stereoWidth|synthPan|kickDuck|masterDist|masterReverb)$"
+    },
+    {
+      "pack": "WD_DRUMS",
+      "at": 16432,
+      "match": "^(kick|snare|hat)(Pitch|Decay|Drive|Tone|Snappy|Metal)$"
+    },
+    {
+      "pack": "WD_BASS",
+      "at": 16464,
+      "match": "^bass"
+    },
+    {
+      "pack": "WD_LYRA",
+      "at": 16496,
+      "match": "^lyra(?!Fx|Delay)"
+    },
+    {
+      "pack": "WD_FX",
+      "at": 16528,
+      "match": "^(lyraFx|lyraDelay|phaser|flanger|quazar|chopper|crusher)"
+    },
+    {
+      "pack": "WD_EVO",
+      "at": 16576,
+      "match": "^(wdEvo|wdDeck)",
+      "checkboxes": {
+        "name": "EVO_TRACKS",
+        "about": "Which tracks evolution may change, one bit each",
+        "bits": [
+          {
+            "label": "kick",
+            "selector": ".wdEvoTrack[value=\"kick\"]"
+          },
+          {
+            "label": "snare",
+            "selector": ".wdEvoTrack[value=\"snare\"]"
+          },
+          {
+            "label": "hat",
+            "selector": ".wdEvoTrack[value=\"hat\"]"
+          },
+          {
+            "label": "bass",
+            "selector": ".wdEvoTrack[value=\"bass\"]"
+          },
+          {
+            "label": "lyra gate",
+            "selector": ".wdEvoTrack[value=\"lyraGate\"]"
+          }
+        ]
+      }
+    },
+    {
+      "caps": true,
+      "pack": "WD_CORE"
+    },
+    {
+      "pack": "WD_PATTERNS",
+      "at": 16640,
+      "about": "32-step patterns, as two 16-step halves",
+      "sequences": [
+        {
+          "name": "KICK",
+          "array": "app.audioSystem.sequences.kick",
+          "length": 32
+        },
+        {
+          "name": "SNARE",
+          "array": "app.audioSystem.sequences.snare",
+          "length": 32
+        },
+        {
+          "name": "HAT",
+          "array": "app.audioSystem.sequences.hat",
+          "length": 32
+        },
+        {
+          "name": "BASS",
+          "array": "app.audioSystem.sequences.bass",
+          "length": 32
+        },
+        {
+          "name": "LYRA_GATE",
+          "array": "app.audioSystem.sequences.lyraGate",
+          "length": 32
+        }
+      ]
+    },
+    {
+      "pack": "WD_STEPMETA",
+      "at": 16896,
+      "about": "Per-step settings",
+      "fields": [
+        {
+          "name": "KICK_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "kick velocity per step, steps 1-16"
+        },
+        {
+          "name": "KICK_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "kick velocity per step, steps 17-32"
+        },
+        {
+          "name": "KICK_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "kick prob per step, steps 1-16"
+        },
+        {
+          "name": "KICK_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "kick prob per step, steps 17-32"
+        },
+        {
+          "name": "KICK_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          },
+          "about": "kick ratchet per step, steps 1-16"
+        },
+        {
+          "name": "KICK_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          },
+          "about": "kick ratchet per step, steps 17-32"
+        },
+        {
+          "name": "KICK_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          },
+          "about": "kick triggerPass per step, steps 1-16"
+        },
+        {
+          "name": "KICK_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "kick",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          },
+          "about": "kick triggerPass per step, steps 17-32"
+        },
+        {
+          "name": "SNARE_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "snare velocity per step, steps 1-16"
+        },
+        {
+          "name": "SNARE_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "snare velocity per step, steps 17-32"
+        },
+        {
+          "name": "SNARE_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "snare prob per step, steps 1-16"
+        },
+        {
+          "name": "SNARE_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "snare prob per step, steps 17-32"
+        },
+        {
+          "name": "SNARE_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          },
+          "about": "snare ratchet per step, steps 1-16"
+        },
+        {
+          "name": "SNARE_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          },
+          "about": "snare ratchet per step, steps 17-32"
+        },
+        {
+          "name": "SNARE_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          },
+          "about": "snare triggerPass per step, steps 1-16"
+        },
+        {
+          "name": "SNARE_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "snare",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          },
+          "about": "snare triggerPass per step, steps 17-32"
+        },
+        {
+          "name": "HAT_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "hat velocity per step, steps 1-16"
+        },
+        {
+          "name": "HAT_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "hat velocity per step, steps 17-32"
+        },
+        {
+          "name": "HAT_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "hat prob per step, steps 1-16"
+        },
+        {
+          "name": "HAT_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "hat prob per step, steps 17-32"
+        },
+        {
+          "name": "HAT_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          },
+          "about": "hat ratchet per step, steps 1-16"
+        },
+        {
+          "name": "HAT_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          },
+          "about": "hat ratchet per step, steps 17-32"
+        },
+        {
+          "name": "HAT_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          },
+          "about": "hat triggerPass per step, steps 1-16"
+        },
+        {
+          "name": "HAT_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "hat",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          },
+          "about": "hat triggerPass per step, steps 17-32"
+        },
+        {
+          "name": "BASS_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "bass velocity per step, steps 1-16"
+        },
+        {
+          "name": "BASS_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "bass velocity per step, steps 17-32"
+        },
+        {
+          "name": "BASS_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "bass prob per step, steps 1-16"
+        },
+        {
+          "name": "BASS_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "bass prob per step, steps 17-32"
+        },
+        {
+          "name": "BASS_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          },
+          "about": "bass ratchet per step, steps 1-16"
+        },
+        {
+          "name": "BASS_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          },
+          "about": "bass ratchet per step, steps 17-32"
+        },
+        {
+          "name": "BASS_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          },
+          "about": "bass triggerPass per step, steps 1-16"
+        },
+        {
+          "name": "BASS_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          },
+          "about": "bass triggerPass per step, steps 17-32"
+        },
+        {
+          "name": "LYRA_GATE_VEL_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "lyra gate velocity per step, steps 1-16"
+        },
+        {
+          "name": "LYRA_GATE_VEL_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = level",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "velocity",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "lyra gate velocity per step, steps 17-32"
+        },
+        {
+          "name": "LYRA_GATE_PROB_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 0
+          },
+          "about": "lyra gate prob per step, steps 1-16"
+        },
+        {
+          "name": "LYRA_GATE_PROB_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (always), 1-255 = chance",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "prob",
+            "codec": "unit",
+            "offset": 16
+          },
+          "about": "lyra gate prob per step, steps 17-32"
+        },
+        {
+          "name": "LYRA_GATE_RATCHET_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 0
+          },
+          "about": "lyra gate ratchet per step, steps 1-16"
+        },
+        {
+          "name": "LYRA_GATE_RATCHET_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (one hit), 2-8 = repeats",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "ratchet",
+            "codec": "raw",
+            "offset": 16
+          },
+          "about": "lyra gate ratchet per step, steps 17-32"
+        },
+        {
+          "name": "LYRA_GATE_PASS_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 0
+          },
+          "about": "lyra gate triggerPass per step, steps 1-16"
+        },
+        {
+          "name": "LYRA_GATE_PASS_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 always, 1 first pass, 2 second pass",
+          "control": {
+            "custom": "stepmeta",
+            "track": "lyraGate",
+            "key": "triggerPass",
+            "codec": "pass",
+            "offset": 16
+          },
+          "about": "lyra gate triggerPass per step, steps 17-32"
+        },
+        {
+          "name": "BASS_ACCENT_1_16",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "accent",
+            "codec": "flag",
+            "offset": 0
+          },
+          "about": "bass accent per step, steps 1-16"
+        },
+        {
+          "name": "BASS_ACCENT_17_32",
+          "type": "steps",
+          "of": "gate",
+          "control": {
+            "custom": "stepmeta",
+            "track": "bass",
+            "key": "accent",
+            "codec": "flag",
+            "offset": 16
+          },
+          "about": "bass accent per step, steps 17-32"
+        }
+      ]
+    },
+    {
+      "pack": "WD_LYRA_NOTES",
+      "at": 17664,
+      "about": "Lyra note banks",
+      "fields": [
+        {
+          "name": "LYRA_A_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "A",
+            "key": "note"
+          },
+          "about": "Lyra bank A: note per step"
+        },
+        {
+          "name": "LYRA_A_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "A",
+            "key": "flags"
+          },
+          "about": "Lyra bank A: active, slide, accent per step, as bits"
+        },
+        {
+          "name": "LYRA_A_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "A",
+            "key": "gate"
+          },
+          "about": "Lyra bank A: gate length per step"
+        },
+        {
+          "name": "LYRA_B_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "B",
+            "key": "note"
+          },
+          "about": "Lyra bank B: note per step"
+        },
+        {
+          "name": "LYRA_B_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "B",
+            "key": "flags"
+          },
+          "about": "Lyra bank B: active, slide, accent per step, as bits"
+        },
+        {
+          "name": "LYRA_B_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "B",
+            "key": "gate"
+          },
+          "about": "Lyra bank B: gate length per step"
+        },
+        {
+          "name": "LYRA_C_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "C",
+            "key": "note"
+          },
+          "about": "Lyra bank C: note per step"
+        },
+        {
+          "name": "LYRA_C_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "C",
+            "key": "flags"
+          },
+          "about": "Lyra bank C: active, slide, accent per step, as bits"
+        },
+        {
+          "name": "LYRA_C_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "C",
+            "key": "gate"
+          },
+          "about": "Lyra bank C: gate length per step"
+        },
+        {
+          "name": "LYRA_D_NOTES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0-24 semitones above the base note",
+          "control": {
+            "custom": "lyra",
+            "bank": "D",
+            "key": "note"
+          },
+          "about": "Lyra bank D: note per step"
+        },
+        {
+          "name": "LYRA_D_FLAGS",
+          "type": "steps",
+          "of": "u8",
+          "note": "bit 0 active, bit 1 slide, bit 2 accent",
+          "control": {
+            "custom": "lyra",
+            "bank": "D",
+            "key": "flags"
+          },
+          "about": "Lyra bank D: active, slide, accent per step, as bits"
+        },
+        {
+          "name": "LYRA_D_GATES",
+          "type": "steps",
+          "of": "u8",
+          "note": "0 = not set (full), 1-255 = gate length",
+          "control": {
+            "custom": "lyra",
+            "bank": "D",
+            "key": "gate"
+          },
+          "about": "Lyra bank D: gate length per step"
+        }
+      ]
+    },
+    {
+      "pack": "WD_PATCHES",
+      "at": 17920,
+      "about": "Patch bay",
+      "fields": [
+        {
+          "name": "PATCH_1_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "source"
+          },
+          "about": "Patch 1: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_1_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "dest"
+          },
+          "about": "Patch 1: what it modulates"
+        },
+        {
+          "name": "PATCH_1_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "amount"
+          },
+          "about": "Patch 1: amount"
+        },
+        {
+          "name": "PATCH_1_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "lock"
+          },
+          "about": "Patch 1: locked to a held value"
+        },
+        {
+          "name": "PATCH_1_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "held"
+          },
+          "about": "Patch 1: held source value"
+        },
+        {
+          "name": "PATCH_1_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "min"
+          },
+          "about": "Patch 1: lowest modulation"
+        },
+        {
+          "name": "PATCH_1_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 0,
+            "part": "max"
+          },
+          "about": "Patch 1: highest modulation"
+        },
+        {
+          "name": "PATCH_2_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "source"
+          },
+          "about": "Patch 2: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_2_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "dest"
+          },
+          "about": "Patch 2: what it modulates"
+        },
+        {
+          "name": "PATCH_2_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "amount"
+          },
+          "about": "Patch 2: amount"
+        },
+        {
+          "name": "PATCH_2_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "lock"
+          },
+          "about": "Patch 2: locked to a held value"
+        },
+        {
+          "name": "PATCH_2_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "held"
+          },
+          "about": "Patch 2: held source value"
+        },
+        {
+          "name": "PATCH_2_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "min"
+          },
+          "about": "Patch 2: lowest modulation"
+        },
+        {
+          "name": "PATCH_2_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 1,
+            "part": "max"
+          },
+          "about": "Patch 2: highest modulation"
+        },
+        {
+          "name": "PATCH_3_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "source"
+          },
+          "about": "Patch 3: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_3_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "dest"
+          },
+          "about": "Patch 3: what it modulates"
+        },
+        {
+          "name": "PATCH_3_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "amount"
+          },
+          "about": "Patch 3: amount"
+        },
+        {
+          "name": "PATCH_3_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "lock"
+          },
+          "about": "Patch 3: locked to a held value"
+        },
+        {
+          "name": "PATCH_3_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "held"
+          },
+          "about": "Patch 3: held source value"
+        },
+        {
+          "name": "PATCH_3_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "min"
+          },
+          "about": "Patch 3: lowest modulation"
+        },
+        {
+          "name": "PATCH_3_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 2,
+            "part": "max"
+          },
+          "about": "Patch 3: highest modulation"
+        },
+        {
+          "name": "PATCH_4_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "source"
+          },
+          "about": "Patch 4: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_4_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "dest"
+          },
+          "about": "Patch 4: what it modulates"
+        },
+        {
+          "name": "PATCH_4_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "amount"
+          },
+          "about": "Patch 4: amount"
+        },
+        {
+          "name": "PATCH_4_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "lock"
+          },
+          "about": "Patch 4: locked to a held value"
+        },
+        {
+          "name": "PATCH_4_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "held"
+          },
+          "about": "Patch 4: held source value"
+        },
+        {
+          "name": "PATCH_4_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "min"
+          },
+          "about": "Patch 4: lowest modulation"
+        },
+        {
+          "name": "PATCH_4_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 3,
+            "part": "max"
+          },
+          "about": "Patch 4: highest modulation"
+        },
+        {
+          "name": "PATCH_5_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "source"
+          },
+          "about": "Patch 5: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_5_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "dest"
+          },
+          "about": "Patch 5: what it modulates"
+        },
+        {
+          "name": "PATCH_5_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "amount"
+          },
+          "about": "Patch 5: amount"
+        },
+        {
+          "name": "PATCH_5_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "lock"
+          },
+          "about": "Patch 5: locked to a held value"
+        },
+        {
+          "name": "PATCH_5_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "held"
+          },
+          "about": "Patch 5: held source value"
+        },
+        {
+          "name": "PATCH_5_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "min"
+          },
+          "about": "Patch 5: lowest modulation"
+        },
+        {
+          "name": "PATCH_5_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 4,
+            "part": "max"
+          },
+          "about": "Patch 5: highest modulation"
+        },
+        {
+          "name": "PATCH_6_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "source"
+          },
+          "about": "Patch 6: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_6_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "dest"
+          },
+          "about": "Patch 6: what it modulates"
+        },
+        {
+          "name": "PATCH_6_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "amount"
+          },
+          "about": "Patch 6: amount"
+        },
+        {
+          "name": "PATCH_6_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "lock"
+          },
+          "about": "Patch 6: locked to a held value"
+        },
+        {
+          "name": "PATCH_6_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "held"
+          },
+          "about": "Patch 6: held source value"
+        },
+        {
+          "name": "PATCH_6_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "min"
+          },
+          "about": "Patch 6: lowest modulation"
+        },
+        {
+          "name": "PATCH_6_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 5,
+            "part": "max"
+          },
+          "about": "Patch 6: highest modulation"
+        },
+        {
+          "name": "PATCH_7_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "source"
+          },
+          "about": "Patch 7: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_7_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "dest"
+          },
+          "about": "Patch 7: what it modulates"
+        },
+        {
+          "name": "PATCH_7_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "amount"
+          },
+          "about": "Patch 7: amount"
+        },
+        {
+          "name": "PATCH_7_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "lock"
+          },
+          "about": "Patch 7: locked to a held value"
+        },
+        {
+          "name": "PATCH_7_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "held"
+          },
+          "about": "Patch 7: held source value"
+        },
+        {
+          "name": "PATCH_7_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "min"
+          },
+          "about": "Patch 7: lowest modulation"
+        },
+        {
+          "name": "PATCH_7_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 6,
+            "part": "max"
+          },
+          "about": "Patch 7: highest modulation"
+        },
+        {
+          "name": "PATCH_8_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "source"
+          },
+          "about": "Patch 8: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_8_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "dest"
+          },
+          "about": "Patch 8: what it modulates"
+        },
+        {
+          "name": "PATCH_8_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "amount"
+          },
+          "about": "Patch 8: amount"
+        },
+        {
+          "name": "PATCH_8_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "lock"
+          },
+          "about": "Patch 8: locked to a held value"
+        },
+        {
+          "name": "PATCH_8_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "held"
+          },
+          "about": "Patch 8: held source value"
+        },
+        {
+          "name": "PATCH_8_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "min"
+          },
+          "about": "Patch 8: lowest modulation"
+        },
+        {
+          "name": "PATCH_8_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 7,
+            "part": "max"
+          },
+          "about": "Patch 8: highest modulation"
+        },
+        {
+          "name": "PATCH_9_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "source"
+          },
+          "about": "Patch 9: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_9_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "dest"
+          },
+          "about": "Patch 9: what it modulates"
+        },
+        {
+          "name": "PATCH_9_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "amount"
+          },
+          "about": "Patch 9: amount"
+        },
+        {
+          "name": "PATCH_9_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "lock"
+          },
+          "about": "Patch 9: locked to a held value"
+        },
+        {
+          "name": "PATCH_9_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "held"
+          },
+          "about": "Patch 9: held source value"
+        },
+        {
+          "name": "PATCH_9_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "min"
+          },
+          "about": "Patch 9: lowest modulation"
+        },
+        {
+          "name": "PATCH_9_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 8,
+            "part": "max"
+          },
+          "about": "Patch 9: highest modulation"
+        },
+        {
+          "name": "PATCH_10_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "source"
+          },
+          "about": "Patch 10: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_10_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "dest"
+          },
+          "about": "Patch 10: what it modulates"
+        },
+        {
+          "name": "PATCH_10_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "amount"
+          },
+          "about": "Patch 10: amount"
+        },
+        {
+          "name": "PATCH_10_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "lock"
+          },
+          "about": "Patch 10: locked to a held value"
+        },
+        {
+          "name": "PATCH_10_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "held"
+          },
+          "about": "Patch 10: held source value"
+        },
+        {
+          "name": "PATCH_10_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "min"
+          },
+          "about": "Patch 10: lowest modulation"
+        },
+        {
+          "name": "PATCH_10_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 9,
+            "part": "max"
+          },
+          "about": "Patch 10: highest modulation"
+        },
+        {
+          "name": "PATCH_11_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "source"
+          },
+          "about": "Patch 11: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_11_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "dest"
+          },
+          "about": "Patch 11: what it modulates"
+        },
+        {
+          "name": "PATCH_11_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "amount"
+          },
+          "about": "Patch 11: amount"
+        },
+        {
+          "name": "PATCH_11_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "lock"
+          },
+          "about": "Patch 11: locked to a held value"
+        },
+        {
+          "name": "PATCH_11_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "held"
+          },
+          "about": "Patch 11: held source value"
+        },
+        {
+          "name": "PATCH_11_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "min"
+          },
+          "about": "Patch 11: lowest modulation"
+        },
+        {
+          "name": "PATCH_11_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 10,
+            "part": "max"
+          },
+          "about": "Patch 11: highest modulation"
+        },
+        {
+          "name": "PATCH_12_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "source"
+          },
+          "about": "Patch 12: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_12_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "dest"
+          },
+          "about": "Patch 12: what it modulates"
+        },
+        {
+          "name": "PATCH_12_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "amount"
+          },
+          "about": "Patch 12: amount"
+        },
+        {
+          "name": "PATCH_12_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "lock"
+          },
+          "about": "Patch 12: locked to a held value"
+        },
+        {
+          "name": "PATCH_12_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "held"
+          },
+          "about": "Patch 12: held source value"
+        },
+        {
+          "name": "PATCH_12_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "min"
+          },
+          "about": "Patch 12: lowest modulation"
+        },
+        {
+          "name": "PATCH_12_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 11,
+            "part": "max"
+          },
+          "about": "Patch 12: highest modulation"
+        },
+        {
+          "name": "PATCH_13_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "source"
+          },
+          "about": "Patch 13: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_13_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "dest"
+          },
+          "about": "Patch 13: what it modulates"
+        },
+        {
+          "name": "PATCH_13_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "amount"
+          },
+          "about": "Patch 13: amount"
+        },
+        {
+          "name": "PATCH_13_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "lock"
+          },
+          "about": "Patch 13: locked to a held value"
+        },
+        {
+          "name": "PATCH_13_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "held"
+          },
+          "about": "Patch 13: held source value"
+        },
+        {
+          "name": "PATCH_13_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "min"
+          },
+          "about": "Patch 13: lowest modulation"
+        },
+        {
+          "name": "PATCH_13_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 12,
+            "part": "max"
+          },
+          "about": "Patch 13: highest modulation"
+        },
+        {
+          "name": "PATCH_14_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "source"
+          },
+          "about": "Patch 14: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_14_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "dest"
+          },
+          "about": "Patch 14: what it modulates"
+        },
+        {
+          "name": "PATCH_14_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "amount"
+          },
+          "about": "Patch 14: amount"
+        },
+        {
+          "name": "PATCH_14_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "lock"
+          },
+          "about": "Patch 14: locked to a held value"
+        },
+        {
+          "name": "PATCH_14_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "held"
+          },
+          "about": "Patch 14: held source value"
+        },
+        {
+          "name": "PATCH_14_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "min"
+          },
+          "about": "Patch 14: lowest modulation"
+        },
+        {
+          "name": "PATCH_14_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 13,
+            "part": "max"
+          },
+          "about": "Patch 14: highest modulation"
+        },
+        {
+          "name": "PATCH_15_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "source"
+          },
+          "about": "Patch 15: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_15_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "dest"
+          },
+          "about": "Patch 15: what it modulates"
+        },
+        {
+          "name": "PATCH_15_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "amount"
+          },
+          "about": "Patch 15: amount"
+        },
+        {
+          "name": "PATCH_15_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "lock"
+          },
+          "about": "Patch 15: locked to a held value"
+        },
+        {
+          "name": "PATCH_15_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "held"
+          },
+          "about": "Patch 15: held source value"
+        },
+        {
+          "name": "PATCH_15_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "min"
+          },
+          "about": "Patch 15: lowest modulation"
+        },
+        {
+          "name": "PATCH_15_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 14,
+            "part": "max"
+          },
+          "about": "Patch 15: highest modulation"
+        },
+        {
+          "name": "PATCH_16_SOURCE",
+          "type": "enum",
+          "options": [
+            "none",
+            "RAMP 16",
+            "RAMP 32",
+            "RAMP 64",
+            "SLEW RANDOM",
+            "KAOS X",
+            "KAOS Y",
+            "LFO 1 (Slow)",
+            "LFO 1 (Slower)",
+            "LFO 2 (Fast)",
+            "LFO 2 (Faster)",
+            "LFO MIX",
+            "S&H (Random)",
+            "S&H (2 steps)",
+            "S&H (4 steps)",
+            "S&H (8 steps)",
+            "S&H (16 steps)",
+            "S&H (32 steps)",
+            "S&H (64 steps)",
+            "BD ENV",
+            "SD ENV",
+            "LYRA ENV",
+            "LYRA LFO",
+            "CLK/2",
+            "CLK/4",
+            "CLK/8",
+            "CLK/16",
+            "CLK/32"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "source"
+          },
+          "about": "Patch 16: modulation source (none = empty slot)"
+        },
+        {
+          "name": "PATCH_16_DEST",
+          "type": "enum",
+          "options": [
+            "none",
+            "BD DECAY",
+            "BD DRIVE",
+            "BD PITCH",
+            "HHT DECAY",
+            "HHT METAL",
+            "SD SNAPPY",
+            "SD TONE",
+            "SNARE DECAY",
+            "BASS DETUNE",
+            "BASS FILTER",
+            "BASS OCTAVE",
+            "BASS RESO",
+            "MASTER DIST",
+            "MASTER REVERB",
+            "LYRA DETUNE",
+            "LYRA DRIVE",
+            "LYRA FM AMT",
+            "LYRA FOLD",
+            "LYRA OSC1 OCT",
+            "LYRA OSC2 OCT",
+            "LYRA FILTER",
+            "LYRA FILTER ENV",
+            "LYRA RESO",
+            "LYRA ATTACK",
+            "LYRA DECAY",
+            "LYRA SUSTAIN",
+            "LYRA RELEASE",
+            "LYRA SLIDE",
+            "LYRA LFO DEPTH",
+            "LYRA LFO RATE",
+            "LYRA DELAY FB",
+            "LYRA DELAY MIX",
+            "LYRA DELAY TIME",
+            "PHASER DEPTH",
+            "PHASER FEEDBACK",
+            "PHASER RATE",
+            "FLANGER DEPTH",
+            "FLANGER RATE",
+            "CHOPPER DEPTH",
+            "CRUSHER BITDEPTH",
+            "CRUSHER DOWNSAMPLE",
+            "QUAZAR FREQ",
+            "QUAZAR RATE",
+            "QUAZAR RESO",
+            "PHASER MIX",
+            "FLANGER MIX",
+            "QUAZAR DEPTH",
+            "QUAZAR SQUELCH",
+            "QUAZAR SPIN",
+            "QUAZAR MIX",
+            "BITCRUSHER MIX",
+            "LYRA GATE PROB",
+            "LYRA OSC1 TYPE",
+            "LYRA OSC2 TYPE",
+            "MASTER DJ FILTER",
+            "STEREO WIDTH",
+            "SYNTH PAN",
+            "BASS DRIVE",
+            "BASS SUB LEVEL",
+            "BASS ENV AMT",
+            "BASS DECAY",
+            "BASS WOBBLE RATE",
+            "BASS WOBBLE DEPTH",
+            "BASS PUNCH",
+            "BASS TRIM",
+            "GLOBAL MOD"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "dest"
+          },
+          "about": "Patch 16: what it modulates"
+        },
+        {
+          "name": "PATCH_16_AMOUNT",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "128 = 0, 0 = -2, 255 = +2",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "amount"
+          },
+          "about": "Patch 16: amount"
+        },
+        {
+          "name": "PATCH_16_LOCK",
+          "type": "bits",
+          "bits": [
+            "locked"
+          ],
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "lock"
+          },
+          "about": "Patch 16: locked to a held value"
+        },
+        {
+          "name": "PATCH_16_HELD",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "the held value when locked, 0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "held"
+          },
+          "about": "Patch 16: held source value"
+        },
+        {
+          "name": "PATCH_16_MIN",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "min"
+          },
+          "about": "Patch 16: lowest modulation"
+        },
+        {
+          "name": "PATCH_16_MAX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "note": "0 = -1, 128 = 0, 255 = +1",
+          "control": {
+            "custom": "patch",
+            "slot": 15,
+            "part": "max"
+          },
+          "about": "Patch 16: highest modulation"
+        }
+      ]
+    },
+    {
+      "pack": "WD_STATE",
+      "at": 18176,
+      "about": "Buttons and Lyra banks",
+      "fields": [
+        {
+          "name": "BUTTONS",
+          "type": "bits",
+          "bits": [
+            "lyra seq on",
+            "lfo sync",
+            "modulation safety"
+          ],
+          "control": {
+            "buttons": [
+              "#lyraSeqToggle",
+              "#lyraLfoSyncToggle",
+              "#safetyToggle"
+            ]
+          },
+          "about": "Toggle buttons: Lyra sequencer on, LFO sync, modulation safety"
+        },
+        {
+          "name": "MUTE",
+          "type": "bits",
+          "bits": [
+            "kick",
+            "snare",
+            "hat",
+            "bass",
+            "synth"
+          ],
+          "control": {
+            "buttons": [
+              ".mute-btn[data-track=\"kick\"]",
+              ".mute-btn[data-track=\"snare\"]",
+              ".mute-btn[data-track=\"hat\"]",
+              ".mute-btn[data-track=\"bass\"]",
+              ".mute-btn[data-track=\"synth\"]"
+            ]
+          },
+          "about": "Muted tracks, one bit each"
+        },
+        {
+          "name": "SOLO",
+          "type": "bits",
+          "bits": [
+            "kick",
+            "snare",
+            "hat",
+            "bass",
+            "synth"
+          ],
+          "control": {
+            "buttons": [
+              ".solo-btn[data-track=\"kick\"]",
+              ".solo-btn[data-track=\"snare\"]",
+              ".solo-btn[data-track=\"hat\"]",
+              ".solo-btn[data-track=\"bass\"]",
+              ".solo-btn[data-track=\"synth\"]"
+            ]
+          },
+          "about": "Soloed tracks, one bit each"
+        },
+        {
+          "name": "LYRA_EDIT_BANK",
+          "type": "enum",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "control": {
+            "custom": "lyrabank",
+            "part": "edit"
+          },
+          "about": "Lyra bank shown in the editor"
+        },
+        {
+          "name": "LYRA_CHAIN_1_16",
+          "type": "steps",
+          "of": "u8",
+          "note": "1-4 = banks A-D, 0 = end of chain",
+          "control": {
+            "custom": "lyrabank",
+            "part": "chain",
+            "offset": 0
+          },
+          "about": "Lyra bank chain, positions 1-16"
+        },
+        {
+          "name": "LYRA_CHAIN_17_32",
+          "type": "steps",
+          "of": "u8",
+          "note": "1-4 = banks A-D, 0 = end of chain",
+          "control": {
+            "custom": "lyrabank",
+            "part": "chain",
+            "offset": 16
+          },
+          "about": "Lyra bank chain, positions 17-32"
+        }
+      ]
+    },
+    {
+      "pack": "WD_FXRACK",
+      "at": 18240,
+      "about": "Effects rack",
+      "fields": [
+        {
+          "name": "FX_SLOT_1",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 0
+          },
+          "about": "Effect in rack position 1"
+        },
+        {
+          "name": "FX_SLOT_2",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 1
+          },
+          "about": "Effect in rack position 2"
+        },
+        {
+          "name": "FX_SLOT_3",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 2
+          },
+          "about": "Effect in rack position 3"
+        },
+        {
+          "name": "FX_SLOT_4",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 3
+          },
+          "about": "Effect in rack position 4"
+        },
+        {
+          "name": "FX_SLOT_5",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 4
+          },
+          "about": "Effect in rack position 5"
+        },
+        {
+          "name": "FX_SLOT_6",
+          "type": "enum",
+          "options": [
+            "Delay",
+            "Phaser",
+            "Flanger",
+            "Quazar",
+            "Chopper",
+            "Bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "order",
+            "slot": 5
+          },
+          "about": "Effect in rack position 6"
+        },
+        {
+          "name": "FX_ON",
+          "type": "bits",
+          "bits": [
+            "delay",
+            "phaser",
+            "flanger",
+            "quazar",
+            "chopper",
+            "bitcrusher"
+          ],
+          "control": {
+            "custom": "fxrack",
+            "part": "on"
+          },
+          "about": "Which effects are on, one bit each"
+        },
+        {
+          "name": "FX_DELAY_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Delay"
+          },
+          "about": "Delay wet mix in the rack"
+        },
+        {
+          "name": "FX_PHASER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Phaser"
+          },
+          "about": "Phaser wet mix in the rack"
+        },
+        {
+          "name": "FX_FLANGER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Flanger"
+          },
+          "about": "Flanger wet mix in the rack"
+        },
+        {
+          "name": "FX_QUAZAR_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Quazar"
+          },
+          "about": "Quazar wet mix in the rack"
+        },
+        {
+          "name": "FX_CHOPPER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Chopper"
+          },
+          "about": "Chopper wet mix in the rack"
+        },
+        {
+          "name": "FX_BITCRUSHER_MIX",
+          "type": "u8",
+          "min": 0,
+          "max": 255,
+          "control": {
+            "custom": "fxrack",
+            "part": "mix",
+            "effect": "Bitcrusher"
+          },
+          "about": "Bitcrusher wet mix in the rack"
+        }
+      ]
+    }
+  ],
+  "extraControls": [
+    {
+      "id": "swing",
+      "type": "range",
+      "min": 0,
+      "max": 0.75,
+      "step": 0.01,
+      "label": "SWING (made at startup)"
+    }
+  ],
+  "listsFrom": "Patch sources and destinations read from WHITE DWARF at runtime (getModSources, getModDestinations)"
+}
