@@ -6,7 +6,8 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.56 has no Chromium for Ubuntu 26.04, which ubuntu-latest became in Oct 2026
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
