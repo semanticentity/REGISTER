@@ -80,39 +80,28 @@ A song is a description, not a recording. Each machine plays it at whatever qual
 │  └──────────────────────────────┘  │
 │              ▲ read/write          │
 │  ┌───────────┴──────────────────┐  │
-│  │     MTMC-16 / WASM CPU       │  │
+│  │  MTMC-16 (x366) / WASM CPU   │  │
 │  └──────────────────────────────┘  │
 └────────────────────────────────────┘
 ```
 
-## Assembly Extensions
+## Assembly (x366)
 
-23 opcodes for MTMC-16. Inspired by SPC-700 (SNES audio CPU).
+The MTMC-16 runs x366, an x86-style 16-bit assembly. REGISTER adds no instructions to it. The chip watches memory, so a MOV is a POKE:
 
 ```asm
-; Bit operations (step = bit)
-SBIT $00.0        ; set bit 0 at $1000 (step 0 ON)
-CBIT $00.4        ; clear bit 4 (step 4 OFF)
-BSET $00.0, loop  ; branch if bit set
+.MEMORY 16K               ; the chip sits at 0x1000-0x1FFF, under the stack
 
-; Voice operations
-SELV #0           ; select voice 0 (kick)
-GATE #0, #1       ; gate ON at step 0
-NOTE #4, #60      ; MIDI 60 at step 4
-TRIG              ; immediate trigger (syscall)
+    MOV [0x1000], 1       ; KICK_GATE[0]
+    MOV [0x1501], 120     ; SEQ_TEMPO
+    MOV [0x1500], 3       ; SEQ_CTRL: play and loop, always last
 
-; Sequencer control
-PLAY              ; $1500 |= 1
-STOP              ; $1500 &= ~1
-TICK              ; wait one step (syscall)
-BPM #120          ; set tempo
-
-; Loop primitives
-LOOP #16, label   ; decrement counter, branch if ≠0
-STEP+             ; S = (S+1) & 15
+    SYSCALL READ_CHAR     ; wait for a key
+    MOV [0x1500], 0       ; stop
+    SYSCALL EXIT
 ```
 
-Full instruction set: [asm.html](asm.html)
+Pointers, LOOP and a Euclidean rhythm in x366, plus a proposal for sound in the MTMC-16 emulator: [asm.html](asm.html)
 
 ## Tuning Modes
 
@@ -136,7 +125,7 @@ POKE $10A5, 135   ; lead detune +7 cents
 |------|-------------|
 | `index.html` | Home page linking every demo |
 | `tour.html` | Specification |
-| `asm.html` | Assembly instruction set |
+| `asm.html` | Playing the chip from x366, the MTMC-16 assembly, and a proposal for sound in its emulator |
 | `sequencer.html` | Browser sequencer |
 | `arcade.html` | Game demos |
 | `tweet.html` | Tweet-format player. Runs on the WASM core, shows live memory, exports to all five targets |
@@ -167,7 +156,7 @@ Old `1010*.html` addresses redirect to the new names, so existing links keep wor
 
 ## Compile Targets
 
-- **MTMC-16**: Native assembly
+- **MTMC-16**: x366 assembly, plain byte stores
 - **WebAssembly**: Browser target
 - **C**: Embedded (Arduino, Pi Pico)
 - **Rust**: no_std compatible
@@ -476,8 +465,8 @@ The tests live in `tests/`, with a short harness you can read in one sitting (`t
 
 ## References
 
-- [SPC-700 Instruction Set](https://wiki.superfamicom.org/spc700-reference) - Sony SNES audio CPU
-- [MTMC-16](https://github.com/bigskysoftware/mtmc-16) - Montana State teaching computer
+- [SPC-700 Instruction Set](https://wiki.superfamicom.org/spc700-reference) - Sony SNES audio CPU, which played music by writing the DSP's registers
+- [MTMC-16](https://github.com/msu/mtmc) - Montana State teaching computer and its x366 assembly
 - [Colundi Sequence](https://daily.bandcamp.com/lists/colundi-aleksi-perala-interview) - Alternative tuning system
 
 ## License

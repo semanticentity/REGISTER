@@ -17,7 +17,7 @@
   (import "audio" "triggerNoise" (func $triggerNoise (param i32)))    ;; decay
 
   ;; ============ MEMORY ============
-  ;; 64KB address space (matches MTMC-16)
+  ;; 64KB address space; the chip uses $1000-$1FFF
   ;; Audio region: $1000-$15FF
   (memory (export "memory") 1)
 

@@ -1696,7 +1696,7 @@
             <button id="btn-evolve" class="tool-btn evolve-active active" title="Evolve: auto-mutate patterns over time while playing">EVO</button>
             <button id="btn-lfo" class="tool-btn" title="LFO: low-frequency oscillator modulates bass and noise params">LFO</button>
             <button id="btn-timeline" class="tool-btn" title="Timeline: view session history as code, undo/redo, export">TL</button>
-            <button id="btn-toolchain" class="tool-btn" title="Toolchain: compile DSL to MTMC-16/WASM/C/Rust" style="color:var(--c-cyan);">TC</button>
+            <button id="btn-toolchain" class="tool-btn" title="Toolchain: compile DSL to MTMC-16 (x366)/WASM/C/Rust" style="color:var(--c-cyan);">TC</button>
             <button id="btn-map" class="tool-btn" title="Memory map: every setting this machine implements, as controls. COPY and PASTE bytes." style="color:var(--gb-0);">MAP</button>
             <button id="btn-wave" class="tool-btn" title="Wavetable: draw the 32-sample wave the wave engine plays ($1A20)">WAVE</button>
             <button id="btn-locks" class="tool-btn" title="Parameter locks: one setting changes on one step only ($1E00)">LOCKS</button>
@@ -1764,7 +1764,7 @@
         <div class="tc-header">
           <span style="color:var(--gb-0);font-size:0.7rem;">REGISTER COMPILER</span>
           <select id="tc-target" style="background:#222;color:var(--gb-0);border:1px solid #444;font-size:0.6rem;padding:2px 4px;">
-            <option value="mtmc16">MTMC-16 ASM</option>
+            <option value="mtmc16">MTMC-16 ASM (x366)</option>
             <option value="wasm">WASM (.wat)</option>
             <option value="c">C (embedded)</option>
             <option value="rust">Rust (embedded)</option>
@@ -2052,7 +2052,7 @@
         <div class="voice-btns">
           <button onclick="exportData()" title="JSON: export all scenes as JSON file + clipboard">JSON</button>
           <button onclick="importData()" title="Load: import JSON data from clipboard">LOAD</button>
-          <button onclick="exportASM()" title="ASM: export as MTMC-16 assembly code (.asm)">ASM</button>
+          <button onclick="exportASM()" title="ASM: export as MTMC-16 assembly code, x366 (.asm)">ASM</button>
           <button onclick="exportWAV(4)" title="WAV: render and download 4 bars as audio file">WAV</button>
           <button onclick="exportMIDI(4)" title="MIDI: export 4 bars as standard MIDI file">MIDI</button>
           <button onclick="importMIDI()" title="Import: load a MIDI file into the sequencer">IMP</button>
@@ -5245,322 +5245,65 @@
       return data;
     }
 
-    // ============ MTMC-16 ASSEMBLY COMPILER ============
+    // ============ MTMC-16 ASSEMBLY EXPORT (x366) ============
+    // The MTMC-16 teaching computer runs x366, an x86-style 16-bit assembly.
+    // The chip watches memory, so the export is plain byte stores, MOV [addr], imm,
+    // written in address order with SEQ_CTRL last. compiler.js has the same
+    // generator (Compiler1010.toX366); this copy keeps the button working
+    // when the compiler is not loaded.
     function exportASM() {
-      const title = document.getElementById('tl-title')?.value || 'Untitled';
-      const date = new Date().toISOString().split('T')[0];
+      const title = (document.getElementById('tl-title')?.value || 'Untitled').replace(/[\r\n]+/g, ' ');
+      const regions = [
+        [0x1000, 'KICK_GATE'], [0x1010, 'KICK_PITCH'], [0x1020, 'SNARE_GATE'], [0x1030, 'SNARE_TONE'],
+        [0x1040, 'SNARE_SNAP'], [0x1100, 'LEAD_GATE'], [0x1110, 'LEAD_ARP'], [0x1200, 'BASS_GATE'],
+        [0x1210, 'BASS_FM'], [0x1220, 'BASS_FILT'], [0x1300, 'NOISE_GATE'], [0x1310, 'NOISE_DECAY'],
+        [0x1320, 'NOISE_TYPE']
+      ];
+      const hex = n => '0x' + n.toString(16).toUpperCase().padStart(4, '0');
+      const store = (addr, v, name) => `    MOV [${hex(addr)}], ${v}`.padEnd(28) + `; ${name}`;
+      const pattern = (base, melodic) => Array.from(MEM.slice(base, base + 16)).map(v => {
+        if (!v) return '.';
+        if (!melodic) return 'x';
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        return notes[v % 12] + (Math.floor(v / 12) - 1);
+      }).join('');
 
-      // Helper to format array as assembly data
-      const dataLine = (arr) => arr.map(v => v.toString()).join(' ');
+      const lines = [];
+      if (tempo) lines.push(store(0x1501, tempo & 0xFF, 'SEQ_TEMPO'));
+      if (swing) lines.push(store(0x1503, swing & 0xFF, 'SEQ_SWING'));
+      for (const [base, name] of regions) {
+        for (let i = 0; i < 16; i++) {
+          const v = MEM[base + i];
+          if (v) lines.push(store(base + i, v, `${name}[${i}]`));
+        }
+      }
 
-      // Helper to create pattern string notation
-      const patternStr = (arr, melodic = false) => {
-        return arr.map(v => {
-          if (v === 0) return '.';
-          if (melodic) {
-            const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-            const oct = Math.floor(v / 12) - 1;
-            const note = notes[v % 12];
-            return note + oct;
-          }
-          return 'x';
-        }).join('');
-      };
-
-      // Get current patterns
-      const kick = Array.from(MEM.slice(0x1000, 0x1010));
-      const kickPitch = Array.from(MEM.slice(0x1010, 0x1020));
-      const snare = Array.from(MEM.slice(0x1020, 0x1030));
-      const snareTone = Array.from(MEM.slice(0x1030, 0x1040));
-      const snareSnap = Array.from(MEM.slice(0x1040, 0x1050));
-      const lead = Array.from(MEM.slice(0x1100, 0x1110));
-      const leadArp = Array.from(MEM.slice(0x1110, 0x1120));
-      const bass = Array.from(MEM.slice(0x1200, 0x1210));
-      const bassFm = Array.from(MEM.slice(0x1210, 0x1220));
-      const bassFilt = Array.from(MEM.slice(0x1220, 0x1230));
-      const noise = Array.from(MEM.slice(0x1300, 0x1310));
-      const noiseDecay = Array.from(MEM.slice(0x1310, 0x1320));
-      const noiseType = Array.from(MEM.slice(0x1320, 0x1330));
-
-      const asm = `; ${title}.asm
-; Generated by REGISTER SEQUENCER for MTMC-16
-; Date: ${date}
+      const asm = `; ${title}
+; REGISTER song for the MTMC-16 (x366 assembly)
 ; Tempo: ${tempo} BPM | Swing: ${swing}%
 ;
-; Pattern notation:
-;   KICK:  ${patternStr(kick)}
-;   SNARE: ${patternStr(snare)}
-;   LEAD:  ${patternStr(lead, true)}
-;   BASS:  ${patternStr(bass, true)}
-;   NOISE: ${patternStr(noise)}
+;   KICK:  ${pattern(0x1000)}
+;   SNARE: ${pattern(0x1020)}
+;   LEAD:  ${pattern(0x1100, true)}
+;   BASS:  ${pattern(0x1200, true)}
+;   NOISE: ${pattern(0x1300)}
 ;
-; Requires: MTMC-16 Audio Coprocessor ($1000-$1FFF)
-; See: MTMC16_AUDIO_SPEC.md
+; The REGISTER sound chip reads memory at 0x1000-0x1FFF. Writing a byte
+; there is the whole interface: no sound instructions, no sound syscalls.
+;
+; Run it, press a key to stop.
 
-.data
-  ; === VOICE PATTERNS (16 steps each) ===
+.MEMORY 16K
 
-  ; KICK ($1000)
-  kick_gate:  ${dataLine(kick)}
-  kick_pitch: ${dataLine(kickPitch)}
-
-  ; SNARE ($1020)
-  snare_gate: ${dataLine(snare)}
-  snare_tone: ${dataLine(snareTone)}
-  snare_snap: ${dataLine(snareSnap)}
-
-  ; LEAD ($1100)
-  lead_gate:  ${dataLine(lead)}
-  lead_arp:   ${dataLine(leadArp)}
-
-  ; BASS ($1200)
-  bass_gate:  ${dataLine(bass)}
-  bass_fm:    ${dataLine(bassFm)}
-  bass_filt:  ${dataLine(bassFilt)}
-
-  ; NOISE ($1300)
-  noise_gate:  ${dataLine(noise)}
-  noise_decay: ${dataLine(noiseDecay)}
-  noise_type:  ${dataLine(noiseType)}
-
-  ; Strings
-  title_str: "${title}"
-  ready_str: "READY - Press A to play, B to stop"
-
-.text
-; ============================================
-; MAIN ENTRY POINT
-; ============================================
 main:
-  jal audio_init          ; Initialize audio coprocessor
-  jal load_patterns       ; Load patterns to audio memory
-  jal display_init        ; Initialize display
+${lines.join('\n')}
 
-main_loop:
-  sys joystick            ; Read controller
-  mov t0 rv
+    ; Start the sequencer last, once the song is in memory
+    MOV [0x1500], 3         ; SEQ_CTRL (bit 0 play, bit 1 loop)
 
-  ; A button (bit 0) = Start/toggle playback
-  mov t1 t0
-  andi t1 1
-  jz check_b
-  jal seq_toggle
-  li a0 100
-  sys sleep               ; Debounce
-
-check_b:
-  ; B button (bit 1) = Stop
-  mov t1 t0
-  andi t1 2
-  jz check_dpad
-  jal seq_stop
-
-check_dpad:
-  ; D-pad could control tempo, scene, etc.
-  ; (extend as needed)
-
-  ; Update display
-  jal display_update
-
-  j main_loop
-
-; ============================================
-; AUDIO INITIALIZATION
-; ============================================
-audio_init:
-  push ra
-
-  ; Set tempo (${tempo} BPM)
-  li t0 ${tempo}
-  sb t0 $1501             ; SEQ_TEMPO
-
-  ; Set swing (${swing}%)
-  li t0 ${swing}
-  sb t0 $1503             ; SEQ_SWING
-
-  ; Scene 0
-  li t0 0
-  sb t0 $1504             ; SEQ_SCENE
-
-  pop ra
-  ret
-
-; ============================================
-; LOAD PATTERNS TO AUDIO MEMORY
-; ============================================
-load_patterns:
-  push ra
-
-  ; KICK gate pattern -> $1000
-  la a0 kick_gate
-  li a1 $1000
-  li a2 16
-  sys memcopy
-
-  ; KICK pitch -> $1010
-  la a0 kick_pitch
-  li a1 $1010
-  li a2 16
-  sys memcopy
-
-  ; SNARE gate -> $1020
-  la a0 snare_gate
-  li a1 $1020
-  li a2 16
-  sys memcopy
-
-  ; SNARE tone -> $1030
-  la a0 snare_tone
-  li a1 $1030
-  li a2 16
-  sys memcopy
-
-  ; SNARE snap -> $1040
-  la a0 snare_snap
-  li a1 $1040
-  li a2 16
-  sys memcopy
-
-  ; LEAD gate -> $1100
-  la a0 lead_gate
-  li a1 $1100
-  li a2 16
-  sys memcopy
-
-  ; LEAD arp -> $1110
-  la a0 lead_arp
-  li a1 $1110
-  li a2 16
-  sys memcopy
-
-  ; BASS gate -> $1200
-  la a0 bass_gate
-  li a1 $1200
-  li a2 16
-  sys memcopy
-
-  ; BASS fm -> $1210
-  la a0 bass_fm
-  li a1 $1210
-  li a2 16
-  sys memcopy
-
-  ; BASS filter -> $1220
-  la a0 bass_filt
-  li a1 $1220
-  li a2 16
-  sys memcopy
-
-  ; NOISE gate -> $1300
-  la a0 noise_gate
-  li a1 $1300
-  li a2 16
-  sys memcopy
-
-  ; NOISE decay -> $1310
-  la a0 noise_decay
-  li a1 $1310
-  li a2 16
-  sys memcopy
-
-  ; NOISE type -> $1320
-  la a0 noise_type
-  li a1 $1320
-  li a2 16
-  sys memcopy
-
-  pop ra
-  ret
-
-; ============================================
-; SEQUENCER CONTROL
-; ============================================
-seq_start:
-  push ra
-  li t0 3                 ; bits: loop=1, play=1
-  sb t0 $1500             ; SEQ_CTRL
-  pop ra
-  ret
-
-seq_stop:
-  push ra
-  li t0 0
-  sb t0 $1500             ; SEQ_CTRL
-  pop ra
-  ret
-
-seq_toggle:
-  push ra
-  lb t0 $1500             ; Read current state
-  xori t0 1               ; Toggle play bit
-  sb t0 $1500
-  pop ra
-  ret
-
-; ============================================
-; DISPLAY (160x144, 4-color)
-; ============================================
-display_init:
-  push ra
-  sys fbreset
-
-  ; Draw title
-  ; (Could use drawimg or custom font)
-
-  sys fbflush
-  pop ra
-  ret
-
-display_update:
-  push ra
-
-  ; Read current step
-  lb t0 $1502             ; SEQ_STEP
-
-  ; Draw step indicator (16 columns)
-  ; Clear previous, highlight current
-  sys fbreset
-
-  ; Draw 16-step grid
-  li t1 0                 ; Column counter
-draw_grid:
-  ; Calculate X position: t1 * 10
-  mov a0 t1
-  li t2 10
-  mul a0 t2
-
-  ; Draw column (height based on voices active)
-  li a1 80                ; Y position
-  li a2 8                 ; Width
-  li a3 40                ; Height
-
-  ; Highlight current step
-  eq t1 t0
-  jz not_current
-  li a0 2                 ; Brighter color
-  sys scolor
-  j draw_col
-not_current:
-  li a0 1
-  sys scolor
-
-draw_col:
-  mov a0 t1
-  li t2 10
-  mul a0 t2
-  sys fbrect
-
-  inc t1
-  lti t1 16
-  jnz draw_grid
-
-  sys fbflush
-  pop ra
-  ret
-
-; ============================================
-; END
-; ============================================
+    SYSCALL READ_CHAR       ; wait for a key
+    MOV [0x1500], 0         ; SEQ_CTRL: stop
+    SYSCALL EXIT
 `;
 
       // Download
@@ -5574,11 +5317,8 @@ draw_col:
 
       // Copy to clipboard
       navigator.clipboard.writeText(asm).then(() => {
-        document.getElementById('status').innerText = 'EXPORTED MTMC-16 ASSEMBLY';
+        document.getElementById('status').innerText = 'EXPORTED MTMC-16 (x366) ASSEMBLY';
       });
-
-      console.log('=== MTMC-16 ASM ===');
-      console.log(asm);
 
       return asm;
     }
