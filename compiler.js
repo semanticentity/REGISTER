@@ -840,10 +840,10 @@ const Compiler1010 = (function() {
     // Memory starts at zero, so a zero byte needs no store
     const stores = [...image].filter(([, v]) => v !== 0).sort((a, b) => a[0] - b[0]);
 
-    // MOV [addr], imm is 4 bytes; the ending is two MOVs and two SYSCALLs
-    const codeEnd = 0x0020 + stores.length * 4 + 4 + 2 + 4 + 2;
+    // MOV [addr], imm is 4 bytes; the ending is one more MOV and a JMP
+    const codeEnd = 0x0020 + stores.length * 4 + 4 + 4;
     if (codeEnd > X366_CODE_LIMIT) {
-      return { output: null, error: `Song needs ${stores.length} byte stores; x366 code must end below 0x1000, which fits ${Math.floor((X366_CODE_LIMIT - 0x0020 - 12) / 4)}` };
+      return { output: null, error: `Song needs ${stores.length} byte stores; x366 code must end below 0x1000, which fits ${Math.floor((X366_CODE_LIMIT - 0x0020 - 8) / 4)}` };
     }
 
     const hex = n => '0x' + n.toString(16).toUpperCase().padStart(4, '0');
@@ -859,7 +859,7 @@ const Compiler1010 = (function() {
 ; The REGISTER sound chip reads memory at 0x1000-0x1FFF. Writing a byte
 ; there is the whole interface: no sound instructions, no sound syscalls.
 ${notes ? notes + '\n' : ''};
-; Run it, press a key to stop.
+; Run it, press quit to stop.
 
 .MEMORY 16K
 
@@ -870,9 +870,9 @@ main:
     ; Start the sequencer last, once the song is in memory
 ${store(0x1500, ctrl)} (bit 0 play, bit 1 loop)
 
-    SYSCALL READ_CHAR       ; wait for a key
-    MOV [0x1500], 0         ; SEQ_CTRL: stop
-    SYSCALL EXIT
+    ; The chip plays on its own from here
+hold:
+    JMP hold
 `;
     return { output: asm, error: null };
   }

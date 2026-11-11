@@ -96,9 +96,8 @@ The MTMC-16 runs x366, an x86-style 16-bit assembly. REGISTER adds no instructio
     MOV [0x1501], 120     ; SEQ_TEMPO
     MOV [0x1500], 3       ; SEQ_CTRL: play and loop, always last
 
-    SYSCALL READ_CHAR     ; wait for a key
-    MOV [0x1500], 0       ; stop
-    SYSCALL EXIT
+hold:
+    JMP hold              ; the chip plays on its own; press quit to stop
 ```
 
 Pointers, LOOP and a Euclidean rhythm in x366, plus a proposal for sound in the MTMC-16 emulator: [asm.html](asm.html)

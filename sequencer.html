@@ -5291,7 +5291,7 @@
 ; The REGISTER sound chip reads memory at 0x1000-0x1FFF. Writing a byte
 ; there is the whole interface: no sound instructions, no sound syscalls.
 ;
-; Run it, press a key to stop.
+; Run it, press quit to stop.
 
 .MEMORY 16K
 
@@ -5301,9 +5301,9 @@ ${lines.join('\n')}
     ; Start the sequencer last, once the song is in memory
     MOV [0x1500], 3         ; SEQ_CTRL (bit 0 play, bit 1 loop)
 
-    SYSCALL READ_CHAR       ; wait for a key
-    MOV [0x1500], 0         ; SEQ_CTRL: stop
-    SYSCALL EXIT
+    ; The chip plays on its own from here
+hold:
+    JMP hold
 `;
 
       // Download

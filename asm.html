@@ -119,9 +119,8 @@
     <span class="op">MOV</span> [<span class="num">0x1501</span>], <span class="num">120</span>   <span class="comment">; SEQ_TEMPO</span>
     <span class="op">MOV</span> [<span class="num">0x1500</span>], <span class="num">3</span>     <span class="comment">; SEQ_CTRL: play and loop</span>
 
-    <span class="op">SYSCALL</span> READ_CHAR    <span class="comment">; wait for a key</span>
-    <span class="op">MOV</span> [<span class="num">0x1500</span>], <span class="num">0</span>     <span class="comment">; stop</span>
-    <span class="op">SYSCALL</span> EXIT</code></pre>
+<span class="label">hold:</span>
+    <span class="op">JMP</span> hold         <span class="comment">; the chip plays on its own; press quit to stop</span></code></pre>
     <p>This is what the compiler emits for any song: every byte in address order, then SEQ_CTRL last so nothing plays half loaded.</p>
 
     <h3>The same beat with a pointer and LOOP</h3>
