@@ -92,13 +92,18 @@ The MTMC-16 runs x366, an x86-style 16-bit assembly. REGISTER adds no instructio
 ```asm
 .MEMORY 16K               ; the chip sits at 0x1000-0x1FFF, under the stack
 
-    MOV [0x1000], 1       ; KICK_GATE[0]
-    MOV [0x1501], 120     ; SEQ_TEMPO
-    MOV [0x1500], 3       ; SEQ_CTRL: play and loop, always last
+    MOV AL, 1
+    MOV [0x1000], AL      ; KICK_GATE[0]
+    MOV AL, 120
+    MOV [0x1501], AL      ; SEQ_TEMPO
+    MOV AL, 3
+    MOV [0x1500], AL      ; SEQ_CTRL: play and loop, always last
 
 hold:
     JMP hold              ; the chip plays on its own; press quit to stop
 ```
+
+Store through AL. The emulator currently runs `MOV [addr], imm` as a 16-bit write, so the byte lands one address late.
 
 Pointers, LOOP and a Euclidean rhythm in x366, plus a proposal for sound in the MTMC-16 emulator: [asm.html](asm.html)
 

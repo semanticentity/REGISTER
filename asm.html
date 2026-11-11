@@ -93,8 +93,8 @@
 
     <table>
       <tr><th>x366</th><th>What it does to the chip</th></tr>
-      <tr><td>MOV [0x1000], 1</td><td>Store one byte (0-255): kick on at step 0</td></tr>
-      <tr><td>MOV [0x1501], AL</td><td>Store the low byte of a register: set the tempo</td></tr>
+      <tr><td>MOV AL, 1<br>MOV [0x1000], AL</td><td>Store one byte: kick on at step 0</td></tr>
+      <tr><td>MOV [0x1501], AL</td><td>Store AL again, elsewhere: AL keeps its value</td></tr>
       <tr><td>MOV [BX], AL</td><td>Store a byte where BX points: walk a pattern with a pointer</td></tr>
       <tr><td>MOV AL, [0x1502]</td><td>Read a byte: which step the chip is on</td></tr>
     </table>
@@ -105,6 +105,12 @@
       Byte stores are always right.
     </p>
 
+    <p class="note">
+      <strong>Why not <code>MOV [0x1000], 1</code>?</strong> The x366 docs list it as a one-byte store,
+      but the emulator (October 2026) writes it as a 16-bit word: 0x00 lands at 0x1000 and the 1 at 0x1001.
+      Until that changes, load AL and store AL. Every example here was run in the emulator that way.
+    </p>
+
     <!-- ==================== EXAMPLES ==================== -->
     <h2>Examples</h2>
 
@@ -112,16 +118,19 @@
     <pre><code><span class="op">.MEMORY</span> <span class="num">16K</span>
 
 <span class="label">main:</span>
-    <span class="op">MOV</span> [<span class="num">0x1000</span>], <span class="num">1</span>     <span class="comment">; KICK_GATE[0]</span>
-    <span class="op">MOV</span> [<span class="num">0x1004</span>], <span class="num">1</span>     <span class="comment">; KICK_GATE[4]</span>
-    <span class="op">MOV</span> [<span class="num">0x1008</span>], <span class="num">1</span>     <span class="comment">; KICK_GATE[8]</span>
-    <span class="op">MOV</span> [<span class="num">0x100C</span>], <span class="num">1</span>     <span class="comment">; KICK_GATE[12]</span>
-    <span class="op">MOV</span> [<span class="num">0x1501</span>], <span class="num">120</span>   <span class="comment">; SEQ_TEMPO</span>
-    <span class="op">MOV</span> [<span class="num">0x1500</span>], <span class="num">3</span>     <span class="comment">; SEQ_CTRL: play and loop</span>
+    <span class="op">MOV</span> AL, <span class="num">1</span>
+    <span class="op">MOV</span> [<span class="num">0x1000</span>], AL    <span class="comment">; KICK_GATE[0]</span>
+    <span class="op">MOV</span> [<span class="num">0x1004</span>], AL    <span class="comment">; KICK_GATE[4]</span>
+    <span class="op">MOV</span> [<span class="num">0x1008</span>], AL    <span class="comment">; KICK_GATE[8]</span>
+    <span class="op">MOV</span> [<span class="num">0x100C</span>], AL    <span class="comment">; KICK_GATE[12]</span>
+    <span class="op">MOV</span> AL, <span class="num">120</span>
+    <span class="op">MOV</span> [<span class="num">0x1501</span>], AL    <span class="comment">; SEQ_TEMPO</span>
+    <span class="op">MOV</span> AL, <span class="num">3</span>
+    <span class="op">MOV</span> [<span class="num">0x1500</span>], AL    <span class="comment">; SEQ_CTRL: play and loop</span>
 
 <span class="label">hold:</span>
     <span class="op">JMP</span> hold         <span class="comment">; the chip plays on its own; press quit to stop</span></code></pre>
-    <p>This is what the compiler emits for any song: every byte in address order, then SEQ_CTRL last so nothing plays half loaded.</p>
+    <p>This is what the compiler emits for any song: every byte in address order, then SEQ_CTRL last so nothing plays half loaded. AL is only reloaded when the value changes.</p>
 
     <h3>The same beat with a pointer and LOOP</h3>
     <pre><code>    <span class="op">MOV</span> BX, <span class="num">0x1000</span>    <span class="comment">; BX points at KICK_GATE[0]</span>
@@ -199,7 +208,7 @@
     <h2>Teaching map</h2>
     <table>
       <tr><th>x366</th><th>CS concept</th></tr>
-      <tr><td>MOV [addr], imm</td><td>Memory-mapped I/O: a device is just addresses</td></tr>
+      <tr><td>MOV [addr], AL</td><td>Memory-mapped I/O: a device is just addresses</td></tr>
       <tr><td>MOV [BX], AL</td><td>Pointers, arrays, indexing</td></tr>
       <tr><td>LOOP</td><td>Counted loops</td></tr>
       <tr><td>CMP / JL</td><td>Branching, integer math (Bresenham)</td></tr>

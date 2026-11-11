@@ -803,7 +803,12 @@ const Compiler1010 = (function() {
   // The MTMC-16 teaching computer runs x366, a 16-bit assembly modeled on x86
   // (github.com/msu/mtmc). REGISTER needs no new instructions there. The chip
   // watches memory, so a program plays a song with plain byte stores:
-  // MOV [addr], imm. Those are the same POKEs as everywhere else in REGISTER.
+  // MOV AL, value then MOV [addr], AL. Those are the same POKEs as everywhere
+  // else in REGISTER.
+  //
+  // Why not MOV [addr], imm? x366 documents it as a byte store, but the
+  // emulator (Oct 2026) executes it as a 16-bit big-endian write: 0x00 lands
+  // at addr and the value at addr+1. MOV [addr], AL writes one byte.
   //
   // Layout: the chip sits in RAM at 0x1000-0x1FFF, so the program asks for
   // 16K. Code starts at 0x0020 and must end below 0x1000. The stack starts at
@@ -840,17 +845,25 @@ const Compiler1010 = (function() {
     // Memory starts at zero, so a zero byte needs no store
     const stores = [...image].filter(([, v]) => v !== 0).sort((a, b) => a[0] - b[0]);
 
-    // MOV [addr], imm is 4 bytes; the ending is one more MOV and a JMP
-    const codeEnd = 0x0020 + stores.length * 4 + 4 + 4;
-    if (codeEnd > X366_CODE_LIMIT) {
-      return { output: null, error: `Song needs ${stores.length} byte stores; x366 code must end below 0x1000, which fits ${Math.floor((X366_CODE_LIMIT - 0x0020 - 8) / 4)}` };
-    }
-
     const hex = n => '0x' + n.toString(16).toUpperCase().padStart(4, '0');
+    // Every instruction used here is 4 bytes. AL is reloaded only when the
+    // value changes, so a run of gates costs one store each.
+    let al = null;
+    let size = 0;
     const store = (addr, v) => {
+      let out = '';
+      if (v !== al) { out += `    MOV AL, ${v}\n`; al = v; size += 4; }
       const name = x366Name(addr);
-      return `    MOV [${hex(addr)}], ${v}`.padEnd(28) + (name ? `; ${name}` : '').trimEnd();
+      out += `    MOV [${hex(addr)}], AL`.padEnd(28) + (name ? `; ${name}` : '');
+      size += 4;
+      return out.trimEnd();
     };
+    const body = stores.map(([addr, v]) => store(addr, v)).join('\n');
+    const start = store(0x1500, ctrl);
+    size += 4; // JMP hold
+    if (0x0020 + size > X366_CODE_LIMIT) {
+      return { output: null, error: `Song needs ${size} bytes of x366 code for ${stores.length} byte stores; code must end below 0x1000, which leaves ${X366_CODE_LIMIT - 0x0020} bytes` };
+    }
     const notes = (options.notes || []).map(n => `;   ${n}`).join('\n');
 
     let asm = `; ${title}
@@ -865,10 +878,10 @@ ${notes ? notes + '\n' : ''};
 
 main:
 `;
-    for (const [addr, v] of stores) asm += store(addr, v) + '\n';
+    if (body) asm += body + '\n';
     asm += `
     ; Start the sequencer last, once the song is in memory
-${store(0x1500, ctrl)} (bit 0 play, bit 1 loop)
+${start} (bit 0 play, bit 1 loop)
 
     ; The chip plays on its own from here
 hold:

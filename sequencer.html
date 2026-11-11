@@ -5247,8 +5247,9 @@
 
     // ============ MTMC-16 ASSEMBLY EXPORT (x366) ============
     // The MTMC-16 teaching computer runs x366, an x86-style 16-bit assembly.
-    // The chip watches memory, so the export is plain byte stores, MOV [addr], imm,
-    // written in address order with SEQ_CTRL last. compiler.js has the same
+    // The chip watches memory, so the export is plain byte stores through AL
+    // (MOV AL, v / MOV [addr], AL; the emulator runs MOV [addr], imm as a 16-bit
+    // write), in address order with SEQ_CTRL last. compiler.js has the same
     // generator (Compiler1010.toX366); this copy keeps the button working
     // when the compiler is not loaded.
     function exportASM() {
@@ -5260,7 +5261,12 @@
         [0x1320, 'NOISE_TYPE']
       ];
       const hex = n => '0x' + n.toString(16).toUpperCase().padStart(4, '0');
-      const store = (addr, v, name) => `    MOV [${hex(addr)}], ${v}`.padEnd(28) + `; ${name}`;
+      let al = null;
+      const store = (addr, v, name) => {
+        const load = v !== al ? `    MOV AL, ${v}\n` : '';
+        al = v;
+        return load + `    MOV [${hex(addr)}], AL`.padEnd(28) + `; ${name}`;
+      };
       const pattern = (base, melodic) => Array.from(MEM.slice(base, base + 16)).map(v => {
         if (!v) return '.';
         if (!melodic) return 'x';
@@ -5299,7 +5305,7 @@ main:
 ${lines.join('\n')}
 
     ; Start the sequencer last, once the song is in memory
-    MOV [0x1500], 3         ; SEQ_CTRL (bit 0 play, bit 1 loop)
+${store(0x1500, 3, 'SEQ_CTRL (bit 0 play, bit 1 loop)')}
 
     ; The chip plays on its own from here
 hold:
