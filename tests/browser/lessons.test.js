@@ -11,14 +11,22 @@ for (const n of [1, 2, 3]) {
   }, B);
 }
 
-test('lesson 1: clicking boxes and POKE lines complete both goals, and it plays', async t => {
+test('lesson 1: clicking boxes and POKE lines complete all three goals, and it plays', async t => {
   const p = await t.page('lesson1.html');
+  t.equal(await p.evaluate(() => [MEM[0x1100], MEM[0x1104], MEM[0x1101]]), [84, 72, 0], 'the click track starts on the beats');
+  t.equal(await p.textContent('#clicks .k-grid-label'), 'CLICKS', 'the opening grid shows no addresses yet');
+  await p.click('#clicks .k-cell >> nth=2');
+  t.equal(await p.evaluate(() => MEM[0x1102]), 67, 'clicking the & adds a click');
   for (const s of [0, 4, 8, 12]) await p.click(`#kick .k-cell >> nth=${s}`);
   await p.fill('#poke textarea', 'POKE $1024, 1\nPOKE $102C, 1\nPEEK $102C');
   await p.click('#poke .k-run');
   await p.waitForTimeout(400);
   t.ok(/\$102C = 1/.test(await p.textContent('#poke .k-out')), 'PEEK reads it back');
-  t.equal(await p.locator('.k-check.done').count(), 2, 'both goals done');
+  t.equal(await p.locator('.k-check.done').count(), 2, 'four on the floor and the backbeat are done');
+  await p.fill('#poke2 textarea', 'POKE $100E, 1');
+  await p.click('#poke2 .k-run');
+  await p.waitForTimeout(400);
+  t.equal(await p.locator('.k-check.done').count(), 3, 'the transfer task is done');
   await p.click('#play');
   await p.waitForTimeout(1200);
   t.above(await p.evaluate(() => window.__osc), 2, 'the beat plays through the engine');

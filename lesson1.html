@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lesson 1: Memory and POKE | REGISTER</title>
-  <meta name="description" content="Lesson 1 of REGISTER: memory is numbered boxes, POKE writes one, and a sound chip reads them every step. Learn addresses, bytes and hex by making a drum beat.">
+  <meta name="description" content="Lesson 1 of REGISTER: count a bar in sixteenths, then build a drum beat by writing bytes into memory. Learn addresses, bytes, hex, POKE and memory-mapped sound.">
   <style>
     * { box-sizing: border-box; }
     body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
@@ -13,17 +13,32 @@
     .crumb { font-size: 12px; color: #666; }
     .crumb a { color: #888; }
     h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
-    h2 { color: #9bbc0f; font-size: 17px; margin: 30px 0 6px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
     .sub { color: #888; margin: 0 0 18px; }
     code, kbd { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
     pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    pre.count { font-size: 15px; letter-spacing: 0.04em; text-align: center; color: #c8e86a; }
     button { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 14px; font: inherit; font-size: 12px; cursor: pointer; }
     button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
     button.on { border-color: #9bbc0f; color: #9bbc0f; }
-    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
-    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
     th { color: #888; font-weight: normal; }
-    .next { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
     h1, h2, .sub { text-wrap: balance; }
     p, li { text-wrap: pretty; }
   </style>
@@ -31,42 +46,120 @@
 <body>
   <div class="crumb"><a href="index.html">REGISTER</a> / <a href="tour.html">Tour</a> / Lesson 1 of 3</div>
   <h1>Memory and POKE</h1>
-  <p class="sub">A computer's memory is a long row of numbered boxes. Each box holds one small number. A sound chip reads some of those boxes over and over, and plays what it finds.</p>
+  <p class="sub">Make a drum groove by writing numbers into a computer, and find out how a program talks to a sound chip.</p>
 
-  <h2>Boxes with numbers on them</h2>
-  <p>Every box has an <b>address</b>, its number in the row. Every box holds a <b>byte</b>: a whole number from 0 to 255. That is all memory is.</p>
-  <p>REGISTER is a sound chip that owns the boxes from <code>$1000</code> to <code>$1FFF</code>. The <code>$</code> means the number is written in <b>hex</b>, which counts in sixteens. <code>$1000</code> is 4096 in everyday numbers. Programmers use hex for addresses because the digits line up with how the hardware is wired; lesson 2 shows why.</p>
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 15 minutes, sound on). You will be able to:
+    <ul>
+      <li>count a bar of music in sixteenths</li>
+      <li>turn on a drum hit at any step by writing one number into memory</li>
+      <li>explain why writing memory makes sound</li>
+    </ul>
+  </aside>
 
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
+
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: counting to sixteen</h2>
+  <p>Press PLAY and listen. You hear a <dfn data-term="metronome">metronome</dfn>: a click that keeps steady time. <a class="more" href="https://en.wikipedia.org/wiki/Metronome" target="_blank" rel="noopener" aria-label="More about metronomes, on Wikipedia">more</a></p>
+  <p>Each click is a <dfn data-term="beat">beat</dfn>, the steady pulse you tap your foot to. <a class="more" href="https://en.wikipedia.org/wiki/Beat_(music)" target="_blank" rel="noopener" aria-label="More about beats, on Wikipedia">more</a> Tap along.</p>
+  <p>The clicks come in groups of four, and the high one starts each group. A group of beats is a <dfn data-term="bar">bar</dfn>, also called a measure. Most pop and dance music has four beats in a bar. <a class="more" href="https://en.wikipedia.org/wiki/Bar_(music)" target="_blank" rel="noopener" aria-label="More about bars, on Wikipedia">more</a></p>
+  <p>Musicians split each beat into four smaller pieces. Each piece is a <dfn data-term="sixteenth note">sixteenth note</dfn>, because a bar of four beats holds sixteen of them. <a class="more" href="https://en.wikipedia.org/wiki/Sixteenth_note" target="_blank" rel="noopener" aria-label="More about sixteenth notes, on Wikipedia">more</a> Count them out loud with the clicks. The numbers land on the clicks, and e, &amp;, a fall between them:</p>
+<pre class="count">1 e &amp; a  2 e &amp; a  3 e &amp; a  4 e &amp; a</pre>
+  <div id="clicks"></div>
+  <p>Each box above is one sixteenth. Click an empty box to add a click there, and click a lit box to remove it. Try adding a click on every &amp;.</p>
+  <p>The sound chip in these lessons, REGISTER, counts the same way. It splits each bar into 16 <dfn data-term="step">steps</dfn>, one per sixteenth note. <a class="more" href="https://en.wikipedia.org/wiki/Music_sequencer" target="_blank" rel="noopener" aria-label="More about step sequencers, on Wikipedia">more</a> After the last step it jumps back to the first and plays the bar again. Music that repeats like that is a <dfn data-term="loop">loop</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Loop_(music)" target="_blank" rel="noopener" aria-label="More about loops, on Wikipedia">more</a></p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
+  <h2>Memory is a row of numbered boxes</h2>
+  <p>Now the computer side. A computer's <dfn data-term="memory">memory</dfn> is a long row of boxes, each holding one small number. <a class="more" href="https://en.wikipedia.org/wiki/Computer_memory" target="_blank" rel="noopener" aria-label="More about computer memory, on Wikipedia">more</a></p>
+  <p>Every box has an <dfn data-term="address">address</dfn>: its number in the row. <a class="more" href="https://en.wikipedia.org/wiki/Memory_address" target="_blank" rel="noopener" aria-label="More about memory addresses, on Wikipedia">more</a> Every box holds one <dfn data-term="byte">byte</dfn>: a whole number from 0 to 255. <a class="more" href="https://en.wikipedia.org/wiki/Byte" target="_blank" rel="noopener" aria-label="More about bytes, on Wikipedia">more</a></p>
+  <p>Addresses here are written in <dfn data-term="hex">hex</dfn>, a way of writing numbers that counts in sixteens, using the letters A to F for ten to fifteen. <a class="more" href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener" aria-label="More about hexadecimal, on Wikipedia">more</a> A <code>$</code> in front marks a hex number. For now you need only two facts: <code>$1000</code> is the name of one box, and <code>$100C</code> is twelve boxes after it, because C means twelve. Lesson 2 shows why programmers like hex.</p>
+  <p>REGISTER owns the boxes from <code>$1000</code> to <code>$1FFF</code>. On every step it reads some of them, and plays what it finds.</p>
+
+  <!-- ==================== TRY IT ==================== -->
   <h2>The kick drum is 16 boxes</h2>
-  <p>A beat here is 16 steps long. The chip gives the kick drum 16 boxes, one per step, from <code>$1000</code> to <code>$100F</code>. On each step the chip looks at that step's box. If it holds 1, the kick plays. If it holds 0, it stays quiet.</p>
-  <p>Press PLAY, then click some boxes. Each click writes a byte to memory, and you hear the change on the next loop.</p>
-  <p><button id="play">PLAY</button></p>
+  <p>The chip can play five sounds at once. Each one is a <dfn data-term="voice">voice</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Polyphony_and_monophony_in_instruments" target="_blank" rel="noopener" aria-label="More about voices in instruments, on Wikipedia">more</a> The first voice is the <dfn data-term="kick drum">kick drum</dfn>, the low boom at the bottom of most dance music. <a class="more" href="https://en.wikipedia.org/wiki/Bass_drum" target="_blank" rel="noopener" aria-label="More about kick drums, on Wikipedia">more</a></p>
+  <p>The kick gets 16 boxes, one per step, from <code>$1000</code> to <code>$100F</code>. On each step the chip looks in that step's box. If it holds 1, the kick plays. If it holds 0, it stays quiet.</p>
+  <p>One catch: musicians count from 1, and computers count from 0. The first step is step 0, in box <code>$1000</code>. So beat 1 is step 0, beat 2 is step 4, beat 3 is step 8, and beat 4 is step 12.</p>
   <div id="kick"></div>
+  <p>Your first groove is <dfn data-term="four on the floor">four on the floor</dfn>: a kick drum on every beat. <a class="more" href="https://en.wikipedia.org/wiki/Four_on_the_floor_(music)" target="_blank" rel="noopener" aria-label="More about four on the floor, on Wikipedia">more</a> It drives house and disco. Click boxes to build it. Each click writes a byte into memory, and you hear the change the next time the bar comes around.</p>
   <div id="goal1"></div>
 
   <h2>POKE: write a box by its address</h2>
-  <p>Clicking is a shortcut. The real operation is <b>POKE</b>: put this value in the box at this address. BASIC on home computers had the same command in the 1980s, and people used it to make their machines play sound.</p>
+  <p>Clicking a box is a shortcut. Underneath, every click is a <dfn data-term="POKE">POKE</dfn>: put a value into the box at an address. <a class="more" href="https://en.wikipedia.org/wiki/PEEK_and_POKE" target="_blank" rel="noopener" aria-label="More about POKE, on Wikipedia">more</a> Its partner is <dfn data-term="PEEK">PEEK</dfn>: read the value in the box at an address. <a class="more" href="https://en.wikipedia.org/wiki/PEEK_and_POKE" target="_blank" rel="noopener" aria-label="More about PEEK, on Wikipedia">more</a> Home computers in the 1980s had both commands built in, and people used them to make their machines play music.</p>
 <pre>POKE $1000, 1    ; step 0: kick on
 POKE $1004, 1    ; step 4: kick on
 PEEK $1004       ; read it back</pre>
-  <p>Step 4 is <code>$1000 + 4 = $1004</code>. The address of a step is the start of the voice plus the step number. Try the lines below, then write your own.</p>
+  <p>To find a step's box, add the step number to the voice's first address. Step 4 is <code>$1000 + 4 = $1004</code>. Press RUN on the lines below, then change them.</p>
   <div id="poke"></div>
-
-  <h2>A second voice, a second set of boxes</h2>
-  <p>The snare lives at <code>$1020</code> to <code>$102F</code>. Same rule: one box per step, 1 means hit.</p>
+  <p>The second voice is the <dfn data-term="snare drum">snare drum</dfn>, the sharp crack that answers the kick. <a class="more" href="https://en.wikipedia.org/wiki/Snare_drum" target="_blank" rel="noopener" aria-label="More about snare drums, on Wikipedia">more</a> Its boxes are <code>$1020</code> to <code>$102F</code>. Same rule: one box per step, and 1 means hit.</p>
   <div id="snare"></div>
+  <p>Pop music puts a <dfn data-term="backbeat">backbeat</dfn> over the kick: the snare on beats 2 and 4. <a class="more" href="https://en.wikipedia.org/wiki/Beat_(music)#Backbeat" target="_blank" rel="noopener" aria-label="More about the backbeat, on Wikipedia">more</a> Which steps are those? Write it with POKE lines in the box above.</p>
   <div id="goal2"></div>
 
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again</h2>
+  <p>Listen to what you built. The kick is on every beat, and the snare is on 2 and 4. That is the skeleton of most pop music, and it is six bytes:</p>
+<pre>POKE $1000, 1    ; kick,  beat 1 (step 0)
+POKE $1004, 1    ; kick,  beat 2 (step 4)
+POKE $1008, 1    ; kick,  beat 3 (step 8)
+POKE $100C, 1    ; kick,  beat 4 (step 12)
+POKE $1024, 1    ; snare, beat 2 (step 4)
+POKE $102C, 1    ; snare, beat 4 (step 12)</pre>
+  <p>Look at the addresses. Each beat is 4 boxes after the last, because a beat is four sixteenths. Counting music in fours and adding 4 to an address are the same idea.</p>
+  <p>The clicks from the start were bytes too. They live in the third voice's boxes, starting at <code>$1100</code>. Each lit box holds a number for how high the click sounds: 84 for the high click, 72 for the low ones. A later lesson explains those numbers.</p>
+  <div id="lead"></div>
+  <p>There is no "play a click" command anywhere. The program writes memory, and the chip reads memory. A device you control that way is <dfn data-term="memory-mapped">memory-mapped</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Memory-mapped_I/O_and_port-mapped_I/O" target="_blank" rel="noopener" aria-label="More about memory-mapped devices, on Wikipedia">more</a> Game consoles like the NES worked this way, and so does the MTMC-16 this chip is built for.</p>
+
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>One more groove, and no clicking this time. Drummers often add a kick just before the bar repeats, on the &amp; of beat 4. Count it: beat 4, e, &amp;.</p>
+  <div id="poke2"></div>
+  <div id="goal3"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>Why are the kicks for beats 1 to 4 four boxes apart?</summary><p>Each beat holds four sixteenths, and each sixteenth is one box. See "Hear it again".</p></details>
+  <details class="q"><summary>What does <code>POKE $1008, 0</code> do?</summary><p>It writes 0 into the box for step 8, so the kick on beat 3 goes quiet. See "The kick drum is 16 boxes".</p></details>
+  <details class="q"><summary>What would you POKE to put the snare on beat 3?</summary><p>Beat 3 is step 8, and the snare starts at <code>$1020</code>. <code>$1020 + 8 = $1028</code>, so <code>POKE $1028, 1</code>. See "POKE: write a box by its address".</p></details>
+  <details class="q"><summary>Why doesn't the chip need a "play kick" command?</summary><p>It is memory-mapped. It reads its boxes on every step, so writing 1 in the right box is the command. See the end of "Hear it again".</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>all three goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
+
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
   <h2>What you just learned</h2>
   <table>
-    <tr><th>Word</th><th>Meaning here</th></tr>
-    <tr><td>address</td><td>the number of a box, like <code>$1004</code></td></tr>
-    <tr><td>byte</td><td>what a box holds, 0 to 255</td></tr>
-    <tr><td>POKE</td><td>write a byte to an address</td></tr>
-    <tr><td>PEEK</td><td>read the byte at an address</td></tr>
-    <tr><td>memory-mapped</td><td>the chip reads ordinary memory, so writing memory is how you control it</td></tr>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>metronome</td><td>a click that keeps steady time</td></tr>
+    <tr><td>beat</td><td>the steady pulse you tap your foot to</td></tr>
+    <tr><td>bar</td><td>a group of beats, usually four</td></tr>
+    <tr><td>sixteenth note</td><td>a quarter of a beat; sixteen in a bar</td></tr>
+    <tr><td>step</td><td>one slot in the chip's row; here, one sixteenth</td></tr>
+    <tr><td>loop</td><td>music that plays again from the start each time it ends</td></tr>
+    <tr><td>voice</td><td>one sound the chip can play alongside the others</td></tr>
+    <tr><td>kick drum</td><td>the low boom</td></tr>
+    <tr><td>snare drum</td><td>the sharp crack</td></tr>
+    <tr><td>four on the floor</td><td>a kick on every beat</td></tr>
+    <tr><td>backbeat</td><td>the snare on beats 2 and 4</td></tr>
   </table>
-  <p>That last row is the big idea. There is no special sound command. The program writes memory, and the chip watches memory. Real game consoles worked this way, and so does the MTMC-16 this chip is built for.</p>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>memory</td><td>a long row of numbered boxes</td></tr>
+    <tr><td>address</td><td>a box's number, like <code>$1004</code></td></tr>
+    <tr><td>byte</td><td>what a box holds, 0 to 255</td></tr>
+    <tr><td>hex</td><td>numbers that count in sixteens; <code>$</code> marks them, and C is twelve</td></tr>
+    <tr><td>POKE</td><td>write a value to an address</td></tr>
+    <tr><td>PEEK</td><td>read the value at an address</td></tr>
+    <tr><td>memory-mapped</td><td>controlled by writing ordinary memory</td></tr>
+  </table>
+  <p>The big idea: there is no special sound command. The program writes memory, and the chip watches memory.</p>
+  </section>
 
   <div class="next"><a href="tour.html">Back to the tour</a><a href="lesson2.html">Lesson 2: bits and patterns</a></div>
 
@@ -77,21 +170,40 @@ PEEK $1004       ; read it back</pre>
   <script>
     Kit.boot();
     Kit.playButton(document.getElementById('play'));
+
+    // The click track lives in the lead voice: a high note on beat 1, low notes on beats 2 to 4
+    const COUNT = '1 e & a 2 e & a 3 e & a 4 e & a'.split(' ');
+    const clickNote = i => i === 0 ? 84 : i % 4 === 0 ? 72 : 67;
+    [0, 4, 8, 12].forEach(i => { MEM[0x1100 + i] = clickNote(i); });
+    Kit.grid(document.getElementById('clicks'), {
+      addr: 0x1100, label: 'CLICKS', plain: true, onValue: clickNote,
+      show: (v, i) => COUNT[i],
+      name: i => i % 4 === 0 ? `beat ${i / 4 + 1}` : `${COUNT[i]} of beat ${Math.floor(i / 4) + 1}`
+    });
     Kit.grid(document.getElementById('kick'), { addr: 0x1000, label: 'KICK_GATE' });
     Kit.grid(document.getElementById('snare'), { addr: 0x1020, label: 'SNARE_GATE' });
+    Kit.grid(document.getElementById('lead'), { addr: 0x1100, label: 'LEAD_GATE (the clicks)', onValue: clickNote });
     Kit.pokeBox(document.getElementById('poke'), { start: 'POKE $1000, 1\nPOKE $1004, 1\nPEEK $1004' });
+    Kit.pokeBox(document.getElementById('poke2'), { start: '; your POKE line here\n' });
+
     const on = (addr, steps) => Array.from({ length: 16 }, (_, i) => !!MEM[addr + i] === steps.includes(i)).every(Boolean);
     Kit.check(document.getElementById('goal1'), {
-      goal: 'make "four on the floor": the kick on steps 0, 4, 8 and 12, and nowhere else.',
-      hint: 'Click the first box of each group of four. The groups have brighter edges.',
-      ok: 'Four on the floor is the heartbeat of house and disco. Its addresses are $1000, $1004, $1008 and $100C.',
+      goal: 'build four on the floor: the kick on steps 0, 4, 8 and 12, and nowhere else.',
+      hint: 'Beat 1 is step 0, then every fourth box. Each group of four boxes has brighter edges.',
+      ok: 'Four on the floor. Its boxes are $1000, $1004, $1008 and $100C.',
       test: () => on(0x1000, [0, 4, 8, 12])
     });
     Kit.check(document.getElementById('goal2'), {
-      goal: 'add a backbeat: the snare on steps 4 and 12 only. Use POKE lines if you like.',
-      hint: 'POKE $1024, 1 and POKE $102C, 1. In hex, 12 is C.',
-      ok: 'Kick on every beat, snare on 2 and 4. That is most pop music, written as six bytes.',
+      goal: 'add a backbeat: the snare on steps 4 and 12, and nowhere else.',
+      hint: 'Beat 2 is step 4, and beat 4 is step 12. Add each to $1020. In hex, 12 is C.',
+      ok: 'Kick on every beat, snare on 2 and 4. That is most pop music.',
       test: () => on(0x1020, [4, 12])
+    });
+    Kit.check(document.getElementById('goal3'), {
+      goal: 'with POKE lines, add a kick on the & of beat 4. Keep four on the floor too.',
+      hint: 'Beat 4 is step 12, and the & is two sixteenths later, at step 14. Add 14 to $1000. In hex, 14 is E.',
+      ok: 'POKE $100E, 1. That extra kick pushes the bar into the next one, and you found its box with arithmetic.',
+      test: () => on(0x1000, [0, 4, 8, 12, 14])
     });
   </script>
 </body>

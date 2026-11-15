@@ -148,6 +148,8 @@ POKE $10A5, 135   ; lead detune +7 cents
 | `map-panel.js` | Builds controls, COPY and PASTE from any typed map |
 | `engine.js` | The sound engine every page shares: voices, envelopes, mixer, effects, WAV render |
 | `lesson-kit.js`, `lesson1-3.html` | The lessons and the small kit they share |
+| `docs/PEDAGOGY.md` | How the lessons teach: the rules, the lesson template, the rubric, and where each lesson scores |
+| `glossary.json` | Every term the lessons teach, with its definition and a "more" link; `tests/unit/terms.test.js` holds the lessons to it |
 | `dom-bridge.js`, `tools/map-from-html.js` | Port any HTML instrument: draft its map, bind memory to its controls |
 | `white-dwarf-map.json`, `bridges/` | The WHITE DWARF port |
 | `chip-editors.js` | The wave and parameter lock editors |

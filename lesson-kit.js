@@ -72,17 +72,18 @@ const Kit = (() => {
   }
 
   // 16 boxes for 16 bytes starting at addr. Click to toggle between 0 and
-  // onValue (1 for a drum, a note number for a melody).
+  // onValue (1 for a drum, a note number for a melody). plain: true hides
+  // addresses, for a lesson that has not taught them yet.
   function grid(el, opts) {
-    const { addr, label, onValue = 1 } = opts;
+    const { addr, label, onValue = 1, plain = false } = opts;
     el.classList.add('k-grid');
-    el.innerHTML = `<div class="k-grid-label">${label} <span>${hex(addr)}-${hex(addr + 15)}</span></div><div class="k-cells"></div>`;
+    el.innerHTML = `<div class="k-grid-label">${label}${plain ? '' : ` <span>${hex(addr)}-${hex(addr + 15)}</span>`}</div><div class="k-cells"></div>`;
     const cells = el.querySelector('.k-cells');
     const boxes = [];
     for (let i = 0; i < 16; i++) {
       const b = document.createElement('button');
       b.className = 'k-cell';
-      b.setAttribute('aria-label', `${label} step ${i}, address ${hex(addr + i)}`);
+      b.setAttribute('aria-label', plain ? `${label} ${opts.name ? opts.name(i) : i + 1}` : `${label} step ${i}, address ${hex(addr + i)}`);
       b.onclick = () => {
         MEM[addr + i] = MEM[addr + i] ? 0 : (typeof onValue === 'function' ? onValue(i) : onValue);
         if (opts.onPoke) opts.onPoke(addr + i, MEM[addr + i]);
@@ -98,7 +99,7 @@ const Kit = (() => {
         b.textContent = opts.show ? opts.show(v, i) : v;
         b.classList.toggle('set', !!v);
         b.classList.toggle('now', i === lit);
-        b.title = `${hex(addr + i)} = ${v}`;
+        if (!plain) b.title = `${hex(addr + i)} = ${v}`;
       });
     }
     listeners.push(s => { lit = s; draw(); });
