@@ -78,29 +78,31 @@ If a goal will not tick, the hint under it is the next step. If an answer surpri
 
 Only lessons rewritten to this standard have glossary entries. Add a lesson's terms when you rewrite it.
 
+Terms match in any case. A term marked `"case": true` matches its exact case only. That is how lesson 6 teaches the word *register* while every page carries the name REGISTER.
+
 ## Where the lessons stand
 
-Scored against the rubric above. The first three columns are the original three lessons, before this standard. The last five are the lessons now: the old lesson 3 became lessons 4 and 5, and lesson 3 is new.
+Scored against the rubric above. The first three columns are the original three lessons, before this standard. The rest are the lessons now: the old lesson 3 became lessons 4 and 5, and lessons 3 and 6 are new.
 
-| # | Criterion | Old 1 | Old 2 | Old 3 | 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | Objectives | 0 | 0 | 0 | 2 | 2 | 2 | 2 | 2 |
-| 2 | One big idea | 2 | 0 | 0 | 2 | 2 | 2 | 2 | 2 |
-| 3 | Builds on earlier lessons | 2 | 1 | 2 | 2 | 2 | 2 | 2 | 2 |
-| 4 | Terms defined at first use | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 2 |
-| 5 | Terms link out | 0 | 0 | 0 | 2 | 2 | 2 | 2 | 2 |
-| 6 | Music before | 0 | 0 | 1 | 2 | 2 | 2 | 2 | 2 |
-| 7 | Music after | 1 | 0 | 0 | 2 | 2 | 2 | 2 | 2 |
-| 8 | Hands on early | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
-| 9 | Check yourself | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 2 |
-| 10 | Recap | 1 | 0 | 2 | 2 | 2 | 2 | 2 | 2 |
-| 11 | Plain language | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
-| 12 | Works for everyone | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
-| | **Total** | **14** | **9** | **13** | **24** | **24** | **24** | **24** | **24** |
+| # | Criterion | Old 1 | Old 2 | Old 3 | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Objectives | 0 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 2 | One big idea | 2 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 3 | Builds on earlier lessons | 2 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 4 | Terms defined at first use | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 5 | Terms link out | 0 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 6 | Music before | 0 | 0 | 1 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 7 | Music after | 1 | 0 | 0 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 8 | Hands on early | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 9 | Check yourself | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 10 | Recap | 1 | 0 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 11 | Plain language | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| 12 | Works for everyone | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| | **Total** | **14** | **9** | **13** | **24** | **24** | **24** | **24** | **24** | **24** |
 
 Every lesson is now 24 by this rubric. The rubric checks the rules, not whether learners actually learn, so the next real test is watching someone new go through them.
 
-One known soft spot in both rewritten lessons: a goal checks memory, not how the learner got there, so a transfer task meant to be worked out on paper can still be solved by clicking boxes. The hidden-answer questions are what catch that.
+One known soft spot in lessons 1 to 5: a goal checks memory, not how the learner got there, so a transfer task meant to be worked out on paper can still be solved by clicking boxes. The hidden-answer questions are what catch that. Lesson 6 closes the gap for its own goals: they check what the learner's program stored, so clicking boxes cannot meet them.
 
 ## The lesson map
 
@@ -113,6 +115,6 @@ One big idea per lesson, each paired with the music it explains.
 | 3 | Pitch, semitones, octaves, transposing | Note numbers, encoding, arithmetic | Written |
 | 4 | Timbre and the envelope (ADSR) | Structs, fields, base addresses, offsets | Written |
 | 5 | Doubling and patches | Arrays, indexes, pointers, compilers | Written |
-| 6 | Playing a note by hand | Registers and instructions | New |
+| 6 | Intervals and the major scale | Processors, instructions, registers, assembly language | Written |
 | 7 | Repeats, Euclidean rhythms | Loops and branching | New |
 | 8 | Muting and picking voices | Bitmasks: AND and OR | Moved out of the old lesson 2 |

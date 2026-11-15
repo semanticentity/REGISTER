@@ -1,0 +1,7 @@
+{
+ "start": "MOV AL, 60        ; middle C\nMOV [0x1100], AL  ; step 0\nADD AL, 2         ; up 2 semitones\nMOV [0x1102], AL  ; step 2\nADD AL, 2\nMOV [0x1104], AL  ; step 4\n",
+ "major_c": "MOV AL, 60\nMOV [0x1100], AL\nADD AL, 2\nMOV [0x1102], AL\nADD AL, 2\nMOV [0x1104], AL\nADD AL, 1\nMOV [0x1106], AL\nADD AL, 2\nMOV [0x1108], AL\nADD AL, 2\nMOV [0x110A], AL\nADD AL, 2\nMOV [0x110C], AL\nADD AL, 1\nMOV [0x110E], AL\n",
+ "major_g": "MOV AL, 67\nMOV [0x1100], AL\nADD AL, 2\nMOV [0x1102], AL\nADD AL, 2\nMOV [0x1104], AL\nADD AL, 1\nMOV [0x1106], AL\nADD AL, 2\nMOV [0x1108], AL\nADD AL, 2\nMOV [0x110A], AL\nADD AL, 2\nMOV [0x110C], AL\nADD AL, 1\nMOV [0x110E], AL\n",
+ "down": "MOV AL, 72\nMOV [0x1100], AL\nSUB AL, 1\nMOV [0x1102], AL\nSUB AL, 2\nMOV [0x1104], AL\nSUB AL, 2\nMOV [0x1106], AL\nSUB AL, 2\nMOV [0x1108], AL\nSUB AL, 1\nMOV [0x110A], AL\nSUB AL, 2\nMOV [0x110C], AL\nSUB AL, 2\nMOV [0x110E], AL\n",
+ "bass": "MOV AL, 60\nMOV BL, AL\nSUB BL, 24\nMOV [0x1200], BL\n"
+}

@@ -147,7 +147,8 @@ POKE $10A5, 135   ; lead detune +7 cents
 | `pixel-map.json` / `pixel-map.js` | PIXEL's typed memory map (`$2000-$3FFF`) |
 | `map-panel.js` | Builds controls, COPY and PASTE from any typed map |
 | `engine.js` | The sound engine every page shares: voices, envelopes, mixer, effects, WAV render |
-| `lesson-kit.js`, `lesson1-5.html` | The lessons and the small kit they share |
+| `lesson-kit.js`, `lesson1-6.html` | The lessons and the small kit they share |
+| `tiny-x366.js` | MOV, ADD and SUB from x366, run one line at a time for lesson 6 |
 | `docs/PEDAGOGY.md` | How the lessons teach: the rules, the lesson template, the rubric, and where each lesson scores |
 | `glossary.json` | Every term the lessons teach, with its definition and a "more" link; `tests/unit/terms.test.js` holds the lessons to it |
 | `dom-bridge.js`, `tools/map-from-html.js` | Port any HTML instrument: draft its map, bind memory to its controls |
@@ -406,15 +407,16 @@ Scroll down to the settings and a mini view of the picture follows you in the co
 
 ## Lessons
 
-Five short lessons that run in the page and check your work as you go. All five follow the standard in [docs/PEDAGOGY.md](docs/PEDAGOGY.md): music first, every term defined where it appears, and a check at the end.
+Six short lessons that run in the page and check your work as you go. All six follow the standard in [docs/PEDAGOGY.md](docs/PEDAGOGY.md): music first, every term defined where it appears, and a check at the end.
 
 1. [Memory and POKE](lesson1.html): beats, bars and sixteenths, then addresses, bytes, hex, and why a memory-mapped chip needs no sound command.
 2. [Bits and Patterns](lesson2.html): rhythm as hits and rests, the tresillo, eight bits make a byte, and one hex digit is one beat.
 3. [Notes Are Numbers](lesson3.html): pitch, semitones and octaves, every key as a number, transposing as addition, and why +12 doubles the frequency.
 4. [A Sound Is a Struct](lesson4.html): attack, decay, sustain and release as four bytes in a fixed order: structs, fields, base addresses and offsets.
 5. [One Sound, Every Voice](lesson5.html): doubling a melody and loading one patch onto two voices: arrays, indexes, pointers, and a compiler that turns field names into addresses.
+6. [One Instruction at a Time](lesson6.html): intervals and the major scale, then a processor, its registers, and x366 instructions that build the scale one line at a time. Every program also runs on the real MTMC-16.
 
-They share `lesson-kit.js` and play through `engine.js`, the same engine as everything else.
+They share `lesson-kit.js` (and lesson 6 uses `tiny-x366.js`, a few x366 instructions run line by line) and play through `engine.js`, the same engine as everything else.
 
 ## Song Structure
 

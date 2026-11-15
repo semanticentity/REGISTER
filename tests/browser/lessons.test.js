@@ -2,7 +2,7 @@
 const { test } = require('../lib');
 const B = { browser: true };
 
-for (const n of [1, 2, 3, 4, 5]) {
+for (const n of [1, 2, 3, 4, 5, 6]) {
   test(`lesson ${n} loads with no errors and fits a phone`, async t => {
     const p = await t.page(`lesson${n}.html`, { device: 'iPhone 13' });
     t.equal(p.errors, []);
@@ -151,5 +151,46 @@ test('lesson 5: doubling, one formula for any voice, a pointer, a compiler, and 
   await p.click('#play');
   await p.waitForTimeout(1200);
   t.above(await p.evaluate(() => window.__osc), 2, 'the doubled melody plays');
+  t.equal(p.errors, []);
+}, B);
+
+test('lesson 6: gaps make a scale, a program builds it one line at a time, and only the program meets the goals', async t => {
+  const P = require('../fixtures/x366-lesson6.json');
+  const p = await t.page('lesson6.html');
+  const evens = () => p.evaluate(() => Array.from({ length: 8 }, (_, k) => MEM[0x1100 + k * 2]));
+  t.equal(await evens(), [60, 62, 64, 65, 67, 69, 71, 72], 'the lead starts on C major');
+  await p.selectOption('#gaps select >> nth=1', '1');
+  await p.selectOption('#gaps select >> nth=2', '2');
+  t.equal((await evens()).slice(0, 4), [60, 62, 63, 65], 'changing a gap changes the notes after it');
+  await p.click('#major');
+  t.equal(await evens(), [60, 62, 64, 65, 67, 69, 71, 72], 'MAJOR puts it back');
+  await p.waitForTimeout(400);
+  t.equal(await p.locator('.k-check.done').count(), 0, 'the scale in memory alone does not meet a goal');
+
+  await p.click('#clear');
+  t.equal(await evens(), [0, 0, 0, 0, 0, 0, 0, 0], 'CLEAR LEAD empties the lead');
+  for (let i = 0; i < 3; i++) await p.click('#one');
+  t.ok(/AL\s*62 D4/.test(await p.textContent('#regs')), 'AL holds 62 after three lines');
+  t.equal(await p.textContent('#status'), 'next: line 4', 'line 4 is next');
+  t.ok(/AL: 60 → 62/.test(await p.textContent('#trace')), 'the trace shows what ADD did');
+  t.equal(await p.evaluate(() => [MEM[0x1100], MEM[0x1102]]), [60, 0], 'only step 0 is stored so far');
+
+  await p.fill('#prog', 'MOV [$1100], AL');
+  t.ok(/line 1: x366 writes hex with 0x/.test(await p.textContent('#status')), 'a mistake gets a plain message');
+
+  const run = async src => { await p.fill('#prog', src); await p.click('#all'); await p.waitForTimeout(400); };
+  await run(P.major_c);
+  t.equal(await p.locator('.k-check.done').count(), 1, 'C major written by the program');
+  await run(P.major_g);
+  t.equal(await p.locator('.k-check.done').count(), 2, 'one changed line moves it to G');
+  t.ok(/F♯5/.test(await p.textContent('#names')), 'and lands on F sharp');
+  await run(P.down);
+  t.equal(await p.locator('.k-check.done').count(), 3, 'the transfer task, coming down');
+  await run(P.major_c + P.bass);
+  t.equal(await p.evaluate(() => MEM[0x1200]), 36, 'BL puts the bass two octaves down');
+  t.ok(/AL\s*60 C4BL\s*36 C2/.test(await p.textContent('#regs')), 'AL keeps middle C while BL holds the bass note');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.above(await p.evaluate(() => window.__osc), 2, 'the scale plays');
   t.equal(p.errors, []);
 }, B);

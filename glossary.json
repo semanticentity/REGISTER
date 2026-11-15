@@ -1,5 +1,5 @@
 {
-  "about": "Every term the lessons teach, in the order they teach them. tests/unit/terms.test.js checks the lessons against this file. See docs/PEDAGOGY.md.",
+  "about": "Every term the lessons teach, in the order they teach them. tests/unit/terms.test.js checks the lessons against this file. A term marked \"case\": true matches its exact case only, so the name REGISTER is not the word register. See docs/PEDAGOGY.md.",
   "terms": [
     {
       "term": "metronome",
@@ -463,6 +463,65 @@
       "kind": "computer",
       "define": "a program that turns names into the addresses and numbers a machine runs",
       "more": "https://en.wikipedia.org/wiki/Compiler"
+    },
+    {
+      "term": "interval",
+      "aliases": [],
+      "lesson": 6,
+      "kind": "music",
+      "define": "The distance between two notes, counted in semitones.",
+      "more": "https://en.wikipedia.org/wiki/Interval_(music)"
+    },
+    {
+      "term": "scale",
+      "aliases": [],
+      "lesson": 6,
+      "kind": "music",
+      "define": "A set of notes in order of pitch, that tunes are built from.",
+      "more": "https://en.wikipedia.org/wiki/Scale_(music)"
+    },
+    {
+      "term": "major scale",
+      "aliases": [],
+      "lesson": 6,
+      "kind": "music",
+      "define": "The \"do re mi\" scale, built from intervals of 2, 2, 1, 2, 2, 2, 1 semitones.",
+      "more": "https://en.wikipedia.org/wiki/Major_scale"
+    },
+    {
+      "term": "processor",
+      "aliases": [
+        "CPU"
+      ],
+      "lesson": 6,
+      "kind": "computer",
+      "define": "The part of a computer that does the work, by following instructions one at a time.",
+      "more": "https://en.wikipedia.org/wiki/Central_processing_unit"
+    },
+    {
+      "term": "instruction",
+      "aliases": [],
+      "lesson": 6,
+      "kind": "computer",
+      "define": "One small job a processor knows how to do, like copying a number or adding to it.",
+      "more": "https://en.wikipedia.org/wiki/Instruction_set_architecture#Instructions"
+    },
+    {
+      "term": "register",
+      "aliases": [],
+      "lesson": 6,
+      "kind": "computer",
+      "define": "A tiny named storage slot inside the processor that holds the number it is working on.",
+      "more": "https://en.wikipedia.org/wiki/Processor_register",
+      "case": true
+    },
+    {
+      "term": "assembly language",
+      "aliases": [],
+      "lesson": 6,
+      "kind": "computer",
+      "define": "Instructions written as short words, one per line.",
+      "more": "https://en.wikipedia.org/wiki/Assembly_language"
     }
   ]
 }

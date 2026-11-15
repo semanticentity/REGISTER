@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 6: One Instruction at a Time | REGISTER</title>
+  <meta name="description" content="Lesson 6 of REGISTER: a scale is a starting note and a list of gaps, and a program builds it the same way. Learn processors, instructions, registers and assembly language by writing a major scale in x366, the MTMC-16's assembly language.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button, select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible, select:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
+    th { color: #888; font-weight: normal; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .gaps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 10px 0 4px; max-width: 420px; }
+    .gaps select { width: 100%; padding: 5px 2px; text-align: center; }
+    .readout { color: #c8e86a; font-size: 13px; margin: 4px 0 10px; min-height: 1.6em; }
+    textarea { width: 100%; height: 170px; background: #0b0b0b; color: #9bbc0f; border: 1px solid #222; border-radius: 4px; padding: 8px;
+      font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
+    .regs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin: 8px 0; }
+    .regs div { border: 1px solid #222; border-radius: 4px; padding: 4px 8px; font-size: 12px; color: #666; }
+    .regs b { display: block; color: #c8e86a; font-weight: normal; font-size: 15px; }
+    .regs div.hot { border-color: #9bbc0f; background: #12180a; }
+    .status { font-size: 12px; color: #888; margin: 4px 0; white-space: pre-line; }
+    .status.err { color: #ff8a5a; }
+    .out { background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; padding: 8px; color: #8a9a7a; white-space: pre-wrap; font-size: 12px; min-height: 2.4em; margin: 4px 0; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+    @media (max-width: 600px) { textarea, select { font-size: 16px; } .regs b { font-size: 14px; } }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson5.html">Lesson 5</a> / Lesson 6 of 6</div>
+  <h1>One Instruction at a Time</h1>
+  <p class="sub">A run of notes can be described as one starting note and a list of moves. A computer works the same way: it holds one number, changes it a little, and writes it down, over and over.</p>
+
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 20 minutes, sound on). You will be able to:
+    <ul>
+      <li>build a major scale from its pattern of intervals</li>
+      <li>write instructions that hold a note in a register and store it in memory</li>
+      <li>move a whole scale to a new starting note by changing one number</li>
+    </ul>
+    You will use what lessons 1 to 5 taught: addresses, hex, POKE, note numbers, semitones, and the lead voice at <code>$1100</code>.
+  </aside>
+
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
+
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: walking up</h2>
+  <p>Press PLAY. The lead walks up from middle C to the C an octave above, one note on every other step.</p>
+  <p>The distance between two notes, counted in semitones, is an <dfn data-term="interval">interval</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Interval_(music)" target="_blank" rel="noopener" aria-label="More about intervals, on Wikipedia">more</a> From C to D is an interval of 2 semitones, because the black key C♯ sits between them. From E to F is only 1. There is no black key between E and F.</p>
+  <p>A set of notes in order of pitch, that tunes are built from, is a <dfn data-term="scale">scale</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Scale_(music)" target="_blank" rel="noopener" aria-label="More about scales, on Wikipedia">more</a> The one you hear is the <dfn data-term="major scale">major scale</dfn>, the "do re mi" scale. It is built from these intervals, in this order: 2, 2, 1, 2, 2, 2, 1. <a class="more" href="https://en.wikipedia.org/wiki/Major_scale" target="_blank" rel="noopener" aria-label="More about the major scale, on Wikipedia">more</a></p>
+  <p>Here are those seven intervals. Change one and listen. Then try 2, 1, 2, 2, 1, 2, 2: the same first note, but a darker sound that many sad songs use. Press MAJOR to go back.</p>
+  <div class="gaps" id="gaps" role="group" aria-label="The seven gaps, starting from middle C"></div>
+  <p class="readout" id="names" aria-live="polite"></p>
+  <div class="row"><button id="major">MAJOR</button></div>
+  <p>Notice what you just changed. Not the notes themselves, only the moves between them. A scale is one starting note and a list of moves.</p>
+  <p>On a piano your hand does exactly this. It rests on one key. It moves up by the next gap and presses. It only has to keep one thing in mind: where it is right now.</p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
+  <h2>The computer's hand</h2>
+  <p>So far you have typed every note into memory yourself, with POKE. A computer builds a scale the way your hand does. The part of a computer that does the work, by following commands one at a time, is the <dfn data-term="processor">processor</dfn>, also called the CPU. <a class="more" href="https://en.wikipedia.org/wiki/Central_processing_unit" target="_blank" rel="noopener" aria-label="More about processors, on Wikipedia">more</a></p>
+  <p>Each command is an <dfn data-term="instruction">instruction</dfn>: one small job the processor knows how to do, like "put 60 here" or "add 2 to that". <a class="more" href="https://en.wikipedia.org/wiki/Instruction_set_architecture#Instructions" target="_blank" rel="noopener" aria-label="More about instructions, on Wikipedia">more</a></p>
+  <p>The processor holds the number it is working on in a <dfn data-term="register">register</dfn>: a tiny storage slot inside the processor itself, with a name instead of an address. <a class="more" href="https://en.wikipedia.org/wiki/Processor_register" target="_blank" rel="noopener" aria-label="More about processor registers, on Wikipedia">more</a> There are only a few registers, and the processor can use them faster than anything in memory. Memory is the shelf. A register is the hand.</p>
+  <p>Instructions written as short words, one per line, are <dfn data-term="assembly language">assembly language</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Assembly_language" target="_blank" rel="noopener" aria-label="More about assembly language, on Wikipedia">more</a> Each family of processors has its own. This page uses x366, the assembly language of the <a href="https://mtmc.cs.montana.edu/" target="_blank" rel="noopener">MTMC-16</a>, a small teaching computer from Montana State University. One of its registers is called AL, and it holds one byte.</p>
+  <p>Four instructions are all you need today:</p>
+  <table>
+    <tr><th>Instruction</th><th>What it does</th></tr>
+    <tr><td>MOV AL, 60</td><td>put 60 in AL</td></tr>
+    <tr><td>MOV [0x1100], AL</td><td>copy AL into memory at address 0x1100</td></tr>
+    <tr><td>ADD AL, 2</td><td>add 2 to AL</td></tr>
+    <tr><td>SUB AL, 1</td><td>take 1 away from AL</td></tr>
+  </table>
+  <p>MOV is short for move, but it copies: AL still holds its number afterward. Square brackets mean "the memory at this address". And x366 writes hex with 0x in front instead of $, so <code>0x1100</code> is the same address as <code>$1100</code>, the lead's step 0.</p>
+
+  <h2>Run it one line at a time</h2>
+  <p>Here is a program that starts the scale. Press CLEAR LEAD, then press ONE LINE again and again. Watch AL, and watch the lead's boxes fill in.</p>
+  <textarea id="prog" spellcheck="false" aria-label="x366 program"></textarea>
+  <div class="regs" id="regs" aria-label="Registers"></div>
+  <div class="row">
+    <button id="one">ONE LINE</button>
+    <button id="all">RUN ALL</button>
+    <button id="clear">CLEAR LEAD</button>
+  </div>
+  <p class="status" id="status" aria-live="polite"></p>
+  <pre class="out" id="trace" aria-label="What each line did"></pre>
+  <div id="lead"></div>
+  <p>Read the program again. Start on 60, store it, move up 2, store, move up 2, store. That is the scale's list of gaps, written as instructions. Each ADD line is one gap. Each store is your finger pressing a key.</p>
+  <p>Now finish it. Type more lines so the program writes all eight notes, every other step from <code>0x1100</code> to <code>0x110E</code>. Then press RUN ALL.</p>
+  <div id="goal1"></div>
+
+  <h2>More than one hand</h2>
+  <p>AL is not the only register. x366 also has BL, CL and DL, and they work the same way. Two registers can hold two notes at once. These four lines put middle C in AL, copy it into BL, drop BL two octaves, and store it on the bass's step 0:</p>
+<pre>MOV AL, 60
+MOV BL, AL         ; copy AL into BL
+SUB BL, 24         ; two octaves down
+MOV [0x1200], BL   ; the bass's step 0</pre>
+  <p>Paste them under your program and press RUN ALL. AL keeps its 60 while BL does the bass part.</p>
+
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again: move the whole scale</h2>
+  <p>In lesson 3 you moved a tune by changing every note, one POKE each. Look at your program now. Only the first line names an actual note. Every other note is worked out from the one before it.</p>
+  <p>So change <code>MOV AL, 60</code> to <code>MOV AL, 67</code> and press RUN ALL. The scale now starts on G and it is still a major scale, because the gaps did not change. One number moved eight notes. One of them now lands on a black key, F♯: starting anywhere but C, a major scale needs black keys to keep its gaps.</p>
+  <div id="goal2"></div>
+  <p>This is your hand on the piano again. The first MOV is where the hand starts. The ADD lines are the gaps. The stores are the key presses. A scale is a list of moves from a starting note, and so is this program. The processor plays it one instruction at a time, keeping its place in a register.</p>
+  <p>Every program on this page also runs on the real MTMC-16. Put <code>.MEMORY 16K</code> on the first line, so the computer has memory reaching up to the chip. The bytes land at the same addresses. The MTMC-16 does not play the chip out loud yet, so listen here.</p>
+
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>Walk the scale back down. Write a new program that starts on the top C, 72, and ends on middle C, with the notes on every other step from <code>0x1100</code> to <code>0x110E</code>. Work out the gaps first: going down, which gap comes first?</p>
+  <div id="goal3"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>What does MOV [0x1104], AL do, and what is in AL afterward?</summary><p>It copies the number in AL into memory at <code>0x1104</code>, the lead's step 4. AL still holds the same number, because MOV copies. See "The computer's hand".</p></details>
+  <details class="q"><summary>From E to F is an interval of how many semitones, and why?</summary><p>1. There is no black key between E and F, so they are one semitone apart. See "Hear it".</p></details>
+  <details class="q"><summary>Why did changing one line move the whole scale?</summary><p>Only the first line sets a note. Every other note is the one before it plus a gap, so they all follow the first. See "Hear it again".</p></details>
+  <details class="q"><summary>How is a register different from memory?</summary><p>A register is inside the processor and has a name, like AL. Memory is outside it and is found by address. There are only a few registers, and the processor works on numbers in them. See "The computer's hand".</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>all three goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
+
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
+  <h2>What you just learned</h2>
+  <table>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>interval</td><td>the distance between two notes, in semitones</td></tr>
+    <tr><td>scale</td><td>a set of notes in order of pitch</td></tr>
+    <tr><td>major scale</td><td>the "do re mi" scale: gaps of 2, 2, 1, 2, 2, 2, 1</td></tr>
+  </table>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>processor</td><td>the part of a computer that follows instructions</td></tr>
+    <tr><td>instruction</td><td>one small job the processor can do</td></tr>
+    <tr><td>register</td><td>a named slot inside the processor that holds a number</td></tr>
+    <tr><td>assembly language</td><td>instructions written as short words, one per line</td></tr>
+  </table>
+  <p>The big idea: a program is a list of instructions the processor runs one at a time, keeping its work in registers. Write a scale's gaps as ADD instructions and the program is the scale.</p>
+  </section>
+
+  <nav class="next" data-terms-ok><a href="lesson5.html">Lesson 5: one sound, every voice</a><a href="asm.html">More x366: playing REGISTER from assembly</a></nav>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script src="tiny-x366.js"></script>
+  <script>
+    Kit.boot();
+    Kit.playButton(document.getElementById('play'));
+    MEM[0x1501] = 100;
+
+    const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+    const nameOf = v => `${NAMES[v % 12]}${Math.floor(v / 12) - 1}`;
+    const LEAD = 0x1100, MAJOR = [2, 2, 1, 2, 2, 2, 1];
+    const scaleFrom = (start, gaps, sign = 1) => gaps.reduce((notes, g) => [...notes, notes[notes.length - 1] + sign * g], [start]);
+    const leadNotes = () => Array.from({ length: 8 }, (_, i) => MEM[LEAD + 2 * i]);
+
+    // Hear it: seven gaps make the scale
+    const gapsEl = document.getElementById('gaps'), names = document.getElementById('names');
+    const selects = MAJOR.map((g, i) => {
+      const s = document.createElement('select');
+      [1, 2, 3].forEach(v => s.add(new Option(v, v)));
+      s.value = g;
+      s.setAttribute('aria-label', `gap ${i + 1}, in semitones`);
+      s.onchange = writeScale;
+      gapsEl.append(s);
+      return s;
+    });
+    function writeScale() {
+      const notes = scaleFrom(60, selects.map(s => Number(s.value)));
+      for (let i = 0; i < 16; i++) MEM[LEAD + i] = i % 2 ? 0 : notes[i / 2];
+    }
+    document.getElementById('major').onclick = () => { selects.forEach((s, i) => { s.value = MAJOR[i]; }); writeScale(); };
+    writeScale();
+    setInterval(() => { names.textContent = leadNotes().map(v => (v ? nameOf(v) : 'rest')).join('  '); }, 250);
+
+    const leadGrid = Kit.grid(document.getElementById('lead'), { addr: LEAD, label: 'lead', onValue: 60, show: v => (v ? nameOf(v) : '') });
+
+    // The processor: one line at a time
+    const ta = document.getElementById('prog'), regsEl = document.getElementById('regs');
+    const statusEl = document.getElementById('status'), traceEl = document.getElementById('trace');
+    ta.value = 'MOV AL, 60        ; middle C\nMOV [0x1100], AL  ; step 0\nADD AL, 2         ; up 2 semitones\nMOV [0x1102], AL  ; step 2\nADD AL, 2\nMOV [0x1104], AL  ; step 4\n';
+    let cpu, trace = [], hot = '';
+    const runs = [];   // what each finished pass stored, for the goals
+
+    function load() {
+      cpu = TinyX366.machine(ta.value, MEM);
+      trace = []; hot = '';
+      draw();
+    }
+    function draw() {
+      regsEl.innerHTML = TinyX366.REGS.map(r => {
+        const v = cpu.regs[r];
+        return `<div class="${r === hot ? 'hot' : ''}">${r}<b>${v}${v ? ' ' + nameOf(v) : ''}</b></div>`;
+      }).join('');
+      traceEl.textContent = trace.slice(-8).join('\n');
+      leadGrid.draw();
+      if (cpu.errors.length) {
+        statusEl.className = 'status err';
+        statusEl.textContent = cpu.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+      } else {
+        statusEl.className = 'status';
+        const n = cpu.next();
+        statusEl.textContent = n ? `next: line ${n}` : 'End of the program. ONE LINE starts again from the top.';
+      }
+    }
+    function did(r) {
+      trace.push(`line ${String(r.line).padEnd(3)} ${r.text.replace(/\s*;.*$/, '').padEnd(18)} ${r.did}`);
+      const m = /^([A-D]L)\b/.exec(r.did);
+      hot = m ? m[1] : '';
+    }
+    function finished() { runs.push(new Map(cpu.writes)); }
+    document.getElementById('one').onclick = () => {
+      if (cpu.errors.length) return draw();
+      if (!cpu.next()) { cpu.reset(); trace = []; }
+      const r = cpu.step();
+      if (r) did(r);
+      if (!cpu.next()) finished();
+      draw();
+    };
+    document.getElementById('all').onclick = () => {
+      if (cpu.errors.length) return draw();
+      cpu.reset(); trace = [];
+      cpu.run().forEach(did);
+      finished();
+      draw();
+    };
+    document.getElementById('clear').onclick = () => { for (let i = 0; i < 16; i++) MEM[LEAD + i] = 0; };
+    ta.oninput = load;
+    load();
+
+    // A goal is met when one pass of the program stored these notes on the even steps
+    const stored = notes => runs.some(w => notes.every((v, i) => w.get(LEAD + 2 * i) === v)) && leadNotes().join() === notes.join();
+    Kit.check(document.getElementById('goal1'), {
+      goal: 'make the program write the whole C major scale, 60 up to 72, then RUN ALL.',
+      hint: 'The gaps are 2, 2, 1, 2, 2, 2, 1, and each note goes 2 addresses after the last. After MOV [0x1104], AL comes ADD AL, 1 and MOV [0x1106], AL.',
+      ok: 'Eight notes from one starting number and seven ADD lines. The program is the scale.',
+      test: () => stored(scaleFrom(60, MAJOR))
+    });
+    Kit.check(document.getElementById('goal2'), {
+      goal: 'change only the first line so the program writes a major scale that starts on G, 67.',
+      hint: 'Change MOV AL, 60 to MOV AL, 67, leave every other line alone, and press RUN ALL.',
+      ok: 'G A B C D E F♯ G. Same gaps, new start: one register moved the whole scale.',
+      test: () => stored(scaleFrom(67, MAJOR))
+    });
+    Kit.check(document.getElementById('goal3'), {
+      goal: 'write C major coming down: 72 on step 0 down to 60 on step 14.',
+      hint: 'Going down, the gaps come in reverse: 1, 2, 2, 2, 1, 2, 2. Start with MOV AL, 72 and use SUB AL, 1 for the first gap.',
+      ok: 'SUB walks the same gaps backward. You built that one yourself.',
+      test: () => stored(scaleFrom(72, [...MAJOR].reverse(), -1))
+    });
+  </script>
+</body>
+</html>

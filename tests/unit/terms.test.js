@@ -12,8 +12,9 @@ for (let n = 1; fs.existsSync(lessonFile(n)); n++) lessons.push(n);
 const taught = [...new Set(terms.map(t => t.lesson))];
 
 const escape = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-// The term or an alias, plural or not, as a whole word
-const wordsFor = t => new RegExp(`\\b(${[t.term, ...t.aliases].map(escape).join('|')})(s|es)?\\b`, 'i');
+// The term or an alias, plural or not, as a whole word. Any case, unless the
+// term is marked "case": the word register is a term, the name REGISTER is not.
+const wordsFor = t => new RegExp(`\\b(${[t.term, ...t.aliases].map(escape).join('|')})(s|es)?\\b`, t.case ? '' : 'i');
 
 // The body a learner reads, as one string the same length as the HTML: tags,
 // the head, scripts, headings, and asides and navs marked data-terms-ok (the
