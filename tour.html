@@ -247,13 +247,14 @@ POKE $1500, 3      <span class="comment">; start sequencer</span>
     <p><span class="byte-size">180 BYTES</span> = full 5-voice beat. That's the core.</p>
 
     <h3>XMixer Pack (Optional)</h3>
-    <p>Volume, pan, basic mixing. Load when you need levels.</p>
+    <p>Volume, pan, mute, basic mixing. Load when you need levels.</p>
     <table>
       <tr><th>Address</th><th>Size</th><th>Function</th><th>Range</th></tr>
       <tr><td>$10B0</td><td>5</td><td>VOICE_VOL (per voice)</td><td>0-127 unsigned</td></tr>
       <tr><td>$10B5</td><td>5</td><td>VOICE_PAN (per voice)</td><td>-64 to +63 signed</td></tr>
       <tr><td>$10A8</td><td>1</td><td>MASTER_VOL</td><td>0-255</td></tr>
       <tr><td>$10A9</td><td>1</td><td>MASTER_PAN</td><td>-64 to +63</td></tr>
+      <tr><td>$10AA</td><td>1</td><td>VOICE_MUTE</td><td>one bit per voice, kick = bit 0</td></tr>
     </table>
 
     <h3>XEnv Pack (Optional)</h3>
@@ -538,7 +539,7 @@ function tick(step) {
     <table>
       <tr><th>Pack</th><th>Region</th><th>Size</th><th>Teaches</th></tr>
       <tr><td>XVoice</td><td>$1050-$105F</td><td>16 bytes</td><td>Drum character, engine select, lead and bass unison</td></tr>
-      <tr><td>XMixer</td><td>$10A8-$10B9</td><td>12 bytes</td><td>Volume, pan, signed bytes</td></tr>
+      <tr><td>XMixer</td><td>$10A8-$10B9</td><td>13 bytes</td><td>Volume, pan, mute bits, signed bytes</td></tr>
       <tr><td>XEnv</td><td>$1060-$1073</td><td>20 bytes</td><td>ADSR envelopes, time-varying state</td></tr>
       <tr><td>XTuning</td><td>$10A0-$10A7</td><td>8 bytes</td><td>Temperament, A4 reference, cents</td></tr>
       <tr><td>XStep</td><td>$1400-$149F</td><td>160 bytes</td><td>Per-step probability and ratchets</td></tr>
@@ -658,7 +659,7 @@ POKE $1D00, 1          <span class="comment">; 1 patch active</span></code></pre
 
     <!-- ==================== TEACHING ==================== -->
     <h2 id="teaching">Teaching Map</h2>
-    <p>Start with the lessons: <a href="lesson1.html">1. Memory and POKE</a>, <a href="lesson2.html">2. Bits and Patterns</a>, <a href="lesson3.html">3. Notes Are Numbers</a>, <a href="lesson4.html">4. A Sound Is a Struct</a>, <a href="lesson5.html">5. One Sound, Every Voice</a>, <a href="lesson6.html">6. One Instruction at a Time</a>, <a href="lesson7.html">7. Play It Again</a>. Each one runs in the page and checks your work as you go.</p>
+    <p>Start with the lessons: <a href="lesson1.html">1. Memory and POKE</a>, <a href="lesson2.html">2. Bits and Patterns</a>, <a href="lesson3.html">3. Notes Are Numbers</a>, <a href="lesson4.html">4. A Sound Is a Struct</a>, <a href="lesson5.html">5. One Sound, Every Voice</a>, <a href="lesson6.html">6. One Instruction at a Time</a>, <a href="lesson7.html">7. Play It Again</a>, <a href="lesson8.html">8. Mute and Solo</a>. Each one runs in the page and checks your work as you go.</p>
     <p>One primitive, entire CS curriculum:</p>
 
     <table>

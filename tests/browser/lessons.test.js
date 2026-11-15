@@ -2,7 +2,7 @@
 const { test } = require('../lib');
 const B = { browser: true };
 
-for (const n of [1, 2, 3, 4, 5, 6, 7]) {
+for (const n of [1, 2, 3, 4, 5, 6, 7, 8]) {
   test(`lesson ${n} loads with no errors and fits a phone`, async t => {
     const p = await t.page(`lesson${n}.html`, { device: 'iPhone 13' });
     t.equal(p.errors, []);
@@ -241,6 +241,53 @@ test('lesson 7: spreading hits, a counted loop, a branch, and goals only a progr
   t.equal(await p.locator('.k-check.done').count(), 2, 'four on the floor without a branch does not count for goal 3');
   await run(2, P.four_euclid);
   t.equal(await p.locator('.k-check.done').count(), 3, 'goal 3: four on the floor as a Euclidean rhythm');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.above(await p.evaluate(() => window.__osc), 2, 'it plays');
+  t.equal(p.errors, []);
+}, B);
+
+test('lesson 8: mute and solo are bits of $10AA, OR and AND change one, and the toggle needs a branch', async t => {
+  const P = require('../fixtures/x366-lesson8.json');
+  const p = await t.page('lesson8.html');
+  const mute = () => p.evaluate(() => MEM[0x10AA]);
+  t.equal(await mute(), 0, 'every voice starts playing');
+  t.equal([await p.inputValue('#prog1'), await p.inputValue('#prog2')], [P.mute_lead, P.unmute_lead], 'the page starts from the tested programs');
+  await p.click('[aria-label="Mute kick"]');
+  await p.click('[aria-label="Mute bass"]');
+  t.equal(await mute(), 0b01001, 'MUTE buttons set bits 0 and 3');
+  t.ok(/0b00001001 = 9: muted: kick, bass/.test(await p.textContent('#byte')), 'the byte reads out in binary');
+  await p.click('[aria-label="Solo bass"]');
+  t.equal(await mute(), 0b10111, 'SOLO mutes everyone else');
+  await p.waitForTimeout(300);
+  t.equal(await p.getAttribute('[aria-label="Solo bass"]', 'aria-pressed'), 'true', 'and shows as pressed');
+  await p.click('[aria-label="Solo bass"]');
+  t.equal(await mute(), 0, 'pressing SOLO again brings everyone back');
+
+  await p.click('[aria-label="Mute kick"]');
+  for (let i = 0; i < 2; i++) await p.click('#one1');
+  t.ok(/AL 00000001\n\s+OR 00000100\n\s+= 00000101/.test(await p.textContent('#trace1')), 'the OR is stacked bit over bit');
+  await p.click('#one1');
+  t.equal(await mute(), 0b00101, 'the lead is muted and the kick still is');
+
+  const run = async (n, src) => { await p.fill(`#prog${n}`, src); await p.click(`#all${n}`); await p.waitForTimeout(400); };
+  await run(1, P.mute_bass_hats);
+  t.equal(await mute(), 0b11101, 'bass and hi-hat added, nothing else moved');
+  t.equal(await p.locator('.k-check.done').count(), 1, 'goal 1');
+  await run(2, P.unmute_lead);
+  t.equal(await mute(), 0b11001, 'only the lead came back');
+  t.equal(await p.locator('.k-check.done').count(), 2, 'goal 2');
+
+  await run(1, 'MOV AL, 2\nMOV [0x10AA], AL');
+  await run(1, 'MOV AL, 0\nMOV [0x10AA], AL');
+  t.equal(await p.locator('.k-check.done').count(), 2, 'two different programs that write the byte do not count as a toggle');
+  await run(1, 'MOV AL, 1\nMOV [0x10AB], AL');
+  t.ok(/only|nowhere else/.test(await p.textContent('#status1')), 'stores outside the mute byte are refused');
+  await run(2, P.toggle_snare);
+  t.equal(await mute(), 0b00010, 'the toggle mutes a playing snare');
+  await run(2, P.toggle_snare);
+  t.equal(await mute(), 0, 'and unmutes it the second time');
+  t.equal(await p.locator('.k-check.done').count(), 3, 'goal 3, the transfer task');
   await p.click('#play');
   await p.waitForTimeout(1200);
   t.above(await p.evaluate(() => window.__osc), 2, 'it plays');

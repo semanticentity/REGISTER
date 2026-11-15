@@ -32,6 +32,7 @@
     "lesson5.html",
     "lesson6.html",
     "lesson7.html",
+    "lesson8.html",
     "tiny-x366.js",
     "llms.txt",
     "llms-full.txt",
@@ -85,7 +86,7 @@
     "XENV": "Attack, decay, sustain and release for each voice",
     "XFX": "Master effects: filter with an envelope, delay, bitcrush",
     "XTUNING": "Temperament, A4 reference and fine tune per voice",
-    "XMIXER": "Master and per-voice volume and pan",
+    "XMIXER": "Master and per-voice volume, pan and mute",
     "XVEL": "Velocity per voice",
     "XSTEP": "Per-step probability and ratchets for each voice",
     "XFM": "4-operator FM wired like the Yamaha YM2151 and YM2612",
@@ -693,9 +694,24 @@
     },
     {
       "start": "0x10AA",
+      "end": "0x10AA",
+      "pack": "XMIXER",
+      "name": "VOICE_MUTE",
+      "about": "Mute: one bit per voice, kick = bit 0 to noise = bit 4. A set bit silences that voice. 0 = every voice plays",
+      "fields": [
+        {
+          "name": "VOICE_MUTE",
+          "type": "bits",
+          "bits": ["kick", "snare", "lead", "bass", "noise"],
+          "note": "none ticked = every voice plays"
+        }
+      ]
+    },
+    {
+      "start": "0x10AB",
       "end": "0x10AF",
       "pack": "RESERVED",
-      "name": "RESERVED_10AA",
+      "name": "RESERVED_10AB",
       "about": "Unassigned"
     },
     {

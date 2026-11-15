@@ -135,3 +135,37 @@ test('jump mistakes get a plain message', t => {
   t.ok(/^1: x366 has no "PUSH" on this page/.test(err('PUSH AX')), 'instructions this page does not run');
   t.equal(err('top: MOV AL, 1\nJMP top'), 'none', 'a label can share a line with an instruction');
 });
+
+// Lesson 8: AND and OR on the mute byte. Each program was run on
+// mtmc.cs.montana.edu from the same four starting bytes, November 2026.
+const P8 = require(path.join(root, 'tests', 'fixtures', 'x366-lesson8.json'));
+
+test('the lesson 8 programs match the real emulator from every starting byte', t => {
+  const want = {
+    mute_lead: ['0->4', '3->7', '6->6', '21->21', 3],
+    mute_bass_hats: ['0->24', '3->27', '6->30', '21->29', 3],
+    unmute_lead: ['0->0', '3->3', '6->2', '21->17', 3],
+    solo_bass: ['0->23', '3->23', '6->23', '21->23', 4],
+  };
+  for (const [k, w] of Object.entries(want)) {
+    const got = [0, 3, 6, 21].map(pre => {
+      const mem = new Uint8Array(65536); mem[0x10AA] = pre;
+      const cpu = X.machine(P8[k], mem);
+      t.equal(cpu.run().length, w[4], `${k} from ${pre}: ${w[4]} instructions`);
+      return `${pre}->${mem[0x10AA]}`;
+    });
+    t.equal(got, w.slice(0, 4), k);
+  }
+  const toggle = [0, 3, 6, 21].map(pre => { const mem = new Uint8Array(65536); mem[0x10AA] = pre; const n = X.machine(P8.toggle_snare, mem).run().length; return `${pre}->${mem[0x10AA]} (${n})`; });
+  t.equal(toggle, ['0->2 (7)', '3->1 (8)', '6->4 (8)', '21->23 (7)'], 'the snare toggle flips bit 1 only, either way');
+});
+
+test('AND and OR show their work in binary, and 0b numbers read as binary', t => {
+  const mem = new Uint8Array(65536); mem[0x10AA] = 3;
+  const did = X.machine(P8.mute_lead, mem).run().map(r => r.did);
+  t.equal(did[1], 'AL: 00000011 OR 00000100 = 00000111', 'OR, bit by bit');
+  const and = X.machine(P8.unmute_lead, mem).run().map(r => r.did);
+  t.equal(and[1], 'AL: 00000111 AND 00011011 = 00000011', 'AND, bit by bit');
+  t.ok(/no _ in them: write 0b11/.test(X.parse('MOV AL, 0b1_1').errors[0].message), 'the real assembler misreads 0b1_1, so it is refused');
+  t.ok(/^This page runs MOV, ADD and SUB/.test(X.parse('AND AL, 1', X.LESSON6).errors[0].message), 'lesson 6 still stops at three instructions');
+});

@@ -1,0 +1,7 @@
+{
+ "mute_lead": "MOV AL, [0x10AA]   ; read the mute byte\nOR AL, 0b00100     ; switch on the lead's flag\nMOV [0x10AA], AL   ; write it back\n",
+ "mute_bass_hats": "MOV AL, [0x10AA]   ; read the mute byte\nOR AL, 0b11000     ; switch on the bass and hi-hat flags\nMOV [0x10AA], AL   ; write it back\n",
+ "unmute_lead": "MOV AL, [0x10AA]   ; read the mute byte\nAND AL, 0b11011    ; switch off the lead's flag\nMOV [0x10AA], AL   ; write it back\n",
+ "solo_bass": "MOV AL, [0x10AA]   ; read the mute byte\nOR AL, 0b11111     ; mute every voice\nAND AL, 0b10111    ; then unmute the bass\nMOV [0x10AA], AL   ; write it back\n",
+ "toggle_snare": "MOV AL, [0x10AA]   ; read the mute byte\nMOV BL, AL         ; a copy to test\nAND BL, 0b00010    ; keep only the snare's flag\nCMP BL, 0\nJE mute            ; 0: the snare is playing, so mute it\nAND AL, 0b11101    ; 1: it is muted, so unmute it\nJMP done\nmute:\nOR AL, 0b00010\ndone:\nMOV [0x10AA], AL   ; write it back\n"
+}

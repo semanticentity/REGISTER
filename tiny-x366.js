@@ -1,6 +1,7 @@
 /*
  * Tiny x366: part of the MTMC-16's assembly language, run one line at a time
- * against the chip's memory, for the lessons.
+ * against the chip's memory, for the lessons. It knows MOV, ADD, SUB, AND,
+ * OR, INC, DEC, CMP, the jumps and LOOP, on AX to DX and AL to DL.
  *
  *   const cpu = TinyX366.machine(source, MEM, options)
  *   cpu.errors      problems found before running: [{ line, message }]
@@ -26,7 +27,8 @@
   const WIDE = ['AX', 'BX', 'CX', 'DX'], BYTE = ['AL', 'BL', 'CL', 'DL'];
   const REG_OF = { AX: 'AX', BX: 'BX', CX: 'CX', DX: 'DX', AL: 'AX', BL: 'BX', CL: 'CX', DL: 'DX' };
   const JUMPS = { JMP: () => true, JE: c => c === 0, JNE: c => c !== 0, JL: c => c < 0, JLE: c => c <= 0, JG: c => c > 0, JGE: c => c >= 0 };
-  const ALL = ['MOV', 'ADD', 'SUB', 'INC', 'DEC', 'CMP', 'LOOP', ...Object.keys(JUMPS)];
+  const ALL = ['MOV', 'ADD', 'SUB', 'AND', 'OR', 'INC', 'DEC', 'CMP', 'LOOP', ...Object.keys(JUMPS)];
+  const BITWISE = { AND: (a, b) => a & b, OR: (a, b) => a | b };
   const LO = 0x1000, HI = 0x1FFF;
   const hex = n => '0x' + n.toString(16).toUpperCase().padStart(4, '0');
   const signed = v => (v & 0x8000 ? v - 0x10000 : v);
@@ -36,7 +38,9 @@
 
   function number(s) {
     if (/^\$[0-9a-f]+$/i.test(s)) throw new Error(`x366 writes hex with 0x, so ${s} is 0x${s.slice(1)}.`);
+    if (s.includes('_')) throw new Error(`x366 numbers have no _ in them: write ${s.replace(/_/g, '')}.`);
     if (/^0x[0-9a-f]+$/i.test(s)) return parseInt(s, 16);
+    if (/^0b[01]+$/i.test(s)) return parseInt(s.slice(2), 2);
     if (/^\d+$/.test(s)) return parseInt(s, 10);
     return null;
   }
@@ -186,8 +190,14 @@
           did = `compare ${ins.dst.reg} (${a}) with ${value}`;
         } else {
           const r = ins.dst.reg, was = get(r);
-          set(r, ins.op === 'ADD' ? R[REG_OF[r]] + value : ins.op === 'SUB' ? R[REG_OF[r]] - value : value);
-          did = ins.op === 'MOV' ? `${r} = ${show(r, get(r))}` : `${r}: ${show(r, was)} → ${show(r, get(r))}`;
+          const now = R[REG_OF[r]];
+          set(r, ins.op === 'ADD' ? now + value : ins.op === 'SUB' ? now - value : BITWISE[ins.op] ? BITWISE[ins.op](now, value) : value);
+          if (BITWISE[ins.op]) {
+            const bits = v => (BYTE.includes(r) ? (v & 255).toString(2).padStart(8, '0') : v.toString(2).padStart(16, '0'));
+            did = `${r}: ${bits(was)} ${ins.op} ${bits(value)} = ${bits(get(r))}`;
+          } else {
+            did = ins.op === 'MOV' ? `${r} = ${show(r, get(r))}` : `${r}: ${show(r, was)} → ${show(r, get(r))}`;
+          }
           reg = REG_OF[r];
         }
       }

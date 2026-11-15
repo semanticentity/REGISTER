@@ -67,6 +67,28 @@ test('channel strips: volume 32 is 32/127 of full, pan -64 is hard left', async 
   t.below(r.right, 0.001, 'right channel silent');
 }, B);
 
+test('mute: a set bit in $10AA silences only that voice', async t => {
+  const p = await t.page('sequencer.html', { wait: 2000 });
+  const r = await render(p, `
+    MEM[0x1100] = 60; MEM[0x115A] = 0; MEM.set([10, 40, 128, 60], 0x1068);
+    MEM[0x1004] = 1;                       // a kick at 0.5 s, after the lead
+    const lead = b => rms(b, 0, 0.05, 0.4), kick = b => rms(b, 0, 0.5, 0.7);
+    MEM[0x10AA] = 0; const open = await bar();
+    MEM[0x10AA] = 4; const leadMuted = await bar();
+    MEM[0x10AA] = 1; const kickMuted = await bar();
+    MEM[0x10AA] = 31; const all = await bar();
+    MEM[0x10AA] = 0; const back = await bar();
+    return { lead: [lead(open), lead(leadMuted), lead(kickMuted), lead(back)], kick: [kick(open), kick(leadMuted), kick(kickMuted)], all: rms(all, 0, 0, 1) };`);
+  const [open, leadMuted, kickMuted, back] = r.lead;
+  t.above(open, 0.001, 'the lead plays');
+  t.below(leadMuted, 0.00001, 'bit 2 mutes the lead');
+  t.near(kickMuted, open, open * 0.01, 'bit 0 leaves the lead alone');
+  t.below(r.kick[2], r.kick[0] * 0.05, 'bit 0 mutes the kick');
+  t.above(r.kick[1], r.kick[0] * 0.5, 'and the kick still plays with only the lead muted');
+  t.below(r.all, 0.00001, 'all five bits: silence');
+  t.near(back, open, open * 0.01, 'clear the bits and it all comes back');
+}, B);
+
 test('WAV export uses the real engines: FM differs from the plain lead, speech is not silent', async t => {
   const p = await t.page('sequencer.html', { wait: 2000 });
   const r = await render(p, `

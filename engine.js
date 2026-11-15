@@ -496,10 +496,22 @@ let playingVoice = null;  // the voice being played, so one engine can serve sev
 const VOICE_ORDER = ['kick', 'snare', 'lead', 'bass', 'noise'];
 function voiceIndexNow() { const i = VOICE_ORDER.indexOf(playingVoice); return i < 0 ? 2 : i; }
 
+// XMIXER VOICE_MUTE ($10AA): one bit per voice, kick = bit 0 to noise = bit 4.
+// A set bit is a mixer's mute button: the voice plays nothing new, and what it
+// was playing fades out over a few ms.
+const VOICE_MUTE = 0x10AA;
+function voiceMuted(voice) { return (MEM[VOICE_MUTE] >> MIX_INDEX[voice]) & 1; }
+
 function withVoiceStrip(voice, play, t) {
   const voiceBefore = playingVoice;
   playingVoice = voice;
   if (!audioCtx || !(voice in MIX_INDEX)) { try { return play(); } finally { playingVoice = voiceBefore; } }
+  if (voiceMuted(voice)) {
+    const strip = voiceStrips[voice];
+    if (strip && strip.out === (masterBus || audioCtx.destination)) strip.gain.gain.setTargetAtTime(0, Math.max(audioCtx.currentTime, t || 0), 0.005);
+    playingVoice = voiceBefore;
+    return;
+  }
   const before = voiceDest;
   voiceDest = voiceStrip(voice, t);
   if (t !== undefined) filterEnvHit(voice, t);

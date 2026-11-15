@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 8: Mute and Solo | REGISTER</title>
+  <meta name="description" content="Lesson 8 of REGISTER: a mixer's mute buttons are five bits of one byte. Learn flags, bitmasks, AND and OR by muting and soloing voices from x366, one bit at a time.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
+    th { color: #888; font-weight: normal; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .desk { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 10px 0; }
+    .strip { border: 1px solid #222; border-radius: 4px; padding: 6px 4px; text-align: center; font-size: 11px; color: #888; display: flex; flex-direction: column; gap: 4px; }
+    .strip button { padding: 5px 2px; font-size: 11px; }
+    .strip button[aria-pressed="true"].m { background: #3a1408; border-color: #ff8a5a; color: #ffb08a; }
+    .strip button[aria-pressed="true"].s { background: #22300a; border-color: #9bbc0f; color: #c8e86a; }
+    .bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; margin: 10px 0 4px; text-align: center; font-size: 11px; }
+    .bits div { border: 1px solid #222; border-radius: 3px; padding: 4px 0; color: #555; }
+    .bits div b { display: block; font-size: 16px; font-weight: normal; color: #666; }
+    .bits div.on { border-color: #ff8a5a; background: #24100a; color: #ffb08a; }
+    .bits div.on b { color: #ffb08a; }
+    .readout { color: #c8e86a; font-size: 13px; margin: 2px 0 10px; }
+    textarea { width: 100%; height: 110px; background: #0b0b0b; color: #9bbc0f; border: 1px solid #222; border-radius: 4px; padding: 8px;
+      font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
+    .regs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 8px 0; }
+    .regs div { border: 1px solid #222; border-radius: 4px; padding: 4px 8px; font-size: 12px; color: #666; }
+    .regs b { display: block; color: #c8e86a; font-weight: normal; font-size: 15px; letter-spacing: 0.05em; }
+    .regs div.hot { border-color: #9bbc0f; background: #12180a; }
+    .status { font-size: 12px; color: #888; margin: 4px 0; white-space: pre-line; }
+    .status.err { color: #ff8a5a; }
+    .out { background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; padding: 8px; color: #8a9a7a; white-space: pre-wrap; font-size: 12px; min-height: 2.4em; margin: 4px 0; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+    @media (max-width: 600px) { textarea { font-size: 16px; } .regs b { font-size: 14px; } }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson7.html">Lesson 7</a> / Lesson 8 of 8</div>
+  <h1>Mute and Solo</h1>
+  <p class="sub">Any voice can be silenced and brought back. Inside the chip, all five of those switches live in one byte, and two instructions change one switch without disturbing the rest.</p>
+
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 25 minutes, sound on). You will be able to:
+    <ul>
+      <li>mute and solo voices, and hear what each one adds</li>
+      <li>read a byte as a row of yes-or-no switches</li>
+      <li>switch one bit on with OR and off with AND, leaving the others alone</li>
+    </ul>
+    You will use what lessons 1 to 7 taught: bits and binary, voices, registers, x366 instructions, and branches.
+  </aside>
+
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
+
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: taking voices away</h2>
+  <p>Press PLAY. All five voices at once: kick, snare, hi-hat, a bass line, and the melody from lesson 3 on the lead.</p>
+  <p>In a studio, the voices of a song meet at a <dfn data-term="mixer">mixer</dfn>: a desk with a row of controls for each voice, where they are balanced and combined into one sound. <a class="more" href="https://en.wikipedia.org/wiki/Mixing_console" target="_blank" rel="noopener" aria-label="More about mixers, on Wikipedia">more</a></p>
+  <p>Every voice on a mixer has a button to <dfn data-term="mute">mute</dfn> it: silence it without deleting what it plays. <a class="more" href="https://en.wiktionary.org/wiki/mute#Verb" target="_blank" rel="noopener" aria-label="More about the word mute, on Wiktionary">more</a> Press it again and the voice comes straight back.</p>
+  <div class="desk" id="desk"></div>
+  <p>Mute the kick and the bass together. The track suddenly floats. Producers do this on purpose before a big moment: unmute them, and the beat lands harder for having been gone.</p>
+  <p>Next to each mute is a <dfn data-term="solo">solo</dfn> button, which lets you hear one voice alone by muting all the others. <a class="more" href="https://en.wikipedia.org/wiki/Mixing_console#Cue_system" target="_blank" rel="noopener" aria-label="More about solo on a mixing console, on Wikipedia">more</a> Solo the bass and listen to what it really plays. Press it again to bring everyone back.</p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
+  <h2>Five buttons, one byte</h2>
+  <p>REGISTER keeps all five mute buttons in one byte, at <code>$10AA</code>. Each voice gets one bit, from lesson 2: the kick is bit 0, on the right, then the snare, lead, bass and hi-hat. A 1 means muted. The top three bits are not used.</p>
+  <div class="bits" id="bits" aria-hidden="true"></div>
+  <p class="readout" id="byte" aria-live="polite"></p>
+  <p>Press the mute buttons above again and watch the bits change. A single bit used as a yes-or-no switch is a <dfn data-term="flag">flag</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Flag_(programming)" target="_blank" rel="noopener" aria-label="More about flags, on Wikipedia">more</a> This byte holds five flags, one per voice.</p>
+
+  <h2>Changing one flag</h2>
+  <p>Say a program should mute the lead. <code>MOV AL, 4</code> then <code>MOV [0x10AA], AL</code> would set the lead's flag, but it writes all eight bits at once. Any other voice that was muted would come back on. The program has to change one bit and leave the other seven as they were.</p>
+  <p>A number used to pick which bits to change is a <dfn data-term="bitmask">bitmask</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Mask_(computing)" target="_blank" rel="noopener" aria-label="More about bitmasks, on Wikipedia">more</a> The lead's bitmask is <code>0b00100</code>: a 1 on the lead's bit and 0 everywhere else. x366 writes binary with 0b in front, the way it writes hex with 0x.</p>
+  <p>The first tool is <dfn data-term="OR">OR</dfn>. It combines two numbers bit by bit, and each bit of the answer is 1 if either bit is 1. <a class="more" href="https://en.wikipedia.org/wiki/Bitwise_operation#OR" target="_blank" rel="noopener" aria-label="More about OR, on Wikipedia">more</a></p>
+  <table>
+    <tr><th>Bit</th><th>Mask bit</th><th>Bit OR mask bit</th></tr>
+    <tr><td>0</td><td>0</td><td>0: stays as it was</td></tr>
+    <tr><td>1</td><td>0</td><td>1: stays as it was</td></tr>
+    <tr><td>0</td><td>1</td><td>1: switched on</td></tr>
+    <tr><td>1</td><td>1</td><td>1: already on</td></tr>
+  </table>
+  <p>So OR with a bitmask switches on the mask's bits and leaves every other bit alone. Mute the kick with its button first, then run this, one line at a time:</p>
+  <textarea wrap="off" id="prog1" spellcheck="false" aria-label="x366 program: mute the lead with OR"></textarea>
+  <div class="regs" id="regs1" aria-label="Registers"></div>
+  <div class="row"><button id="one1">ONE LINE</button><button id="all1">RUN ALL</button><button id="clear1">UNMUTE ALL</button></div>
+  <p class="status" id="status1" aria-live="polite"></p>
+  <pre class="out" id="trace1" aria-label="What each line did"></pre>
+  <p>Read the OR line in the trace, bit by bit. The lead's bit came on, and the kick stayed muted. Read the byte, change one bit, write it back: that pattern is how programs change flags.</p>
+  <p>Now mute the bass and the hi-hat together with one OR, and leave every other voice as it was.</p>
+  <div id="goal1"></div>
+
+  <h2>Switching a flag off</h2>
+  <p>The second tool is <dfn data-term="AND">AND</dfn>. It combines two numbers bit by bit, and each bit of the answer is 1 only if both bits are 1. <a class="more" href="https://en.wikipedia.org/wiki/Bitwise_operation#AND" target="_blank" rel="noopener" aria-label="More about AND, on Wikipedia">more</a></p>
+  <table>
+    <tr><th>Bit</th><th>Mask bit</th><th>Bit AND mask bit</th></tr>
+    <tr><td>0</td><td>1</td><td>0: stays as it was</td></tr>
+    <tr><td>1</td><td>1</td><td>1: stays as it was</td></tr>
+    <tr><td>1</td><td>0</td><td>0: switched off</td></tr>
+    <tr><td>0</td><td>0</td><td>0: already off</td></tr>
+  </table>
+  <p>So AND works the other way round. Its bitmask has a 0 on the bit to switch off and a 1 on every bit to keep. To unmute the lead, the mask is <code>0b11011</code>.</p>
+  <textarea wrap="off" id="prog2" spellcheck="false" aria-label="x366 program: unmute the lead with AND"></textarea>
+  <div class="regs" id="regs2" aria-label="Registers"></div>
+  <div class="row"><button id="one2">ONE LINE</button><button id="all2">RUN ALL</button><button id="clear2">UNMUTE ALL</button></div>
+  <p class="status" id="status2" aria-live="polite"></p>
+  <pre class="out" id="trace2" aria-label="What each line did"></pre>
+  <p>Mute the lead and one other voice with the buttons, then run it. Only the lead comes back.</p>
+  <div id="goal2"></div>
+
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again</h2>
+  <p>Now the mixer makes sense from the inside. A mute button is a flag. The row of mute buttons is one byte. Pressing one button is an OR or an AND with that voice's bitmask: the one bit changes, and the rest of the mix stays as it was.</p>
+  <p>Solo is the two together. Solo the bass means OR with <code>0b11111</code> to mute everyone, then AND with <code>0b10111</code> to bring the bass back. Press a solo button above and watch the byte: that is what it did.</p>
+  <p>You have used flags since lesson 1, too. PLAY writes 3 to <code>$1500</code>, which is <code>0b11</code>: bit 0 says play, and bit 1 says loop.</p>
+  <p>Every program on this page runs on the real MTMC-16 too, with <code>.MEMORY 16K</code> on the first line, and leaves the same byte at <code>0x10AA</code>.</p>
+
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>A real mute button flips: press it once to mute, again to unmute. Write one program that does that for the snare. Run on a playing snare, it mutes it. Run again, it unmutes it. Every other voice stays as it was both times. You will need a test and a branch, from lesson 7. Type it in either box above, and run it twice.</p>
+  <div id="goal3"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>The mute byte is 0b01001. Which voices are muted?</summary><p>The kick (bit 0) and the bass (bit 3). Count bits from the right, starting at 0. See "Five buttons, one byte".</p></details>
+  <details class="q"><summary>Why not just MOV AL, 4 and store it, to mute the lead?</summary><p>That writes the whole byte, so every other flag becomes 0 and every other voice comes back on. OR changes only the bits in the mask. See "Changing one flag".</p></details>
+  <details class="q"><summary>The snare is already muted. What does OR AL, 0b00010 do to it?</summary><p>Nothing: 1 OR 1 is 1. OR can only switch bits on. See the OR table.</p></details>
+  <details class="q"><summary>Which bitmask unmutes the kick with AND?</summary><p><code>0b11110</code>: a 0 on the kick's bit, bit 0, and a 1 on every bit to keep. See "Switching a flag off".</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>all three goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
+
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
+  <h2>What you just learned</h2>
+  <table>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>mixer</td><td>a desk that balances and combines the voices of a song</td></tr>
+    <tr><td>mute</td><td>silence a voice without deleting what it plays</td></tr>
+    <tr><td>solo</td><td>hear one voice alone, by muting all the others</td></tr>
+  </table>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>flag</td><td>a single bit used as a yes-or-no switch</td></tr>
+    <tr><td>bitmask</td><td>a number that picks which bits to change</td></tr>
+    <tr><td>OR</td><td>bit by bit, 1 if either bit is 1: switches bits on</td></tr>
+    <tr><td>AND</td><td>bit by bit, 1 only if both bits are 1: switches bits off</td></tr>
+  </table>
+  <p>The big idea: a byte can hold eight separate yes-or-no answers. OR switches chosen bits on, AND switches chosen bits off, and a bitmask says which. That is how a mixer, or any machine full of switches, keeps its settings in a few bytes.</p>
+  </section>
+
+  <nav class="next" data-terms-ok><a href="lesson7.html">Lesson 7: play it again</a><a href="sequencer.html">That is all eight. Try it all in the sequencer</a></nav>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script src="tiny-x366.js"></script>
+  <script>
+    Kit.boot();
+    Kit.playButton(document.getElementById('play'));
+    MEM[0x1501] = 100;
+    const MUTE = 0x10AA;
+    const DESK = ['kick', 'snare', 'lead', 'bass', 'hi-hat'];
+    const bin = (v, w = 8) => v.toString(2).padStart(w, '0');
+
+    // The groove: four on the floor, a backbeat, eighth-note hats, a bass line, and the lesson 3 melody
+    const ODE = [64, 64, 65, 67, 67, 65, 64, 62];
+    const BASS = { 0: 36, 3: 36, 6: 43, 8: 36, 11: 36, 14: 41 };
+    for (let s = 0; s < 16; s++) {
+      MEM[0x1000 + s] = s % 4 ? 0 : 1;
+      MEM[0x1020 + s] = s === 4 || s === 12 ? 1 : 0;
+      MEM[0x1300 + s] = s % 2 ? 0 : 1;
+      MEM[0x1100 + s] = s % 2 ? 0 : ODE[s / 2];
+      MEM[0x1200 + s] = BASS[s] || 0;
+    }
+    MEM[MUTE] = 0;
+
+    // The mixer desk: a mute and a solo button per voice, both just bits of $10AA
+    const desk = document.getElementById('desk');
+    const strips = DESK.map((v, i) => {
+      const d = document.createElement('div');
+      d.className = 'strip';
+      d.innerHTML = `<span>${v}</span><button class="m" aria-pressed="false" aria-label="Mute ${v}">MUTE</button><button class="s" aria-pressed="false" aria-label="Solo ${v}">SOLO</button>`;
+      const [mute, solo] = d.querySelectorAll('button');
+      mute.onclick = () => { MEM[MUTE] ^= 1 << i; draw(); };
+      solo.onclick = () => { MEM[MUTE] = (MEM[MUTE] & 31) === (31 & ~(1 << i)) ? 0 : 31 & ~(1 << i); draw(); };
+      desk.append(d);
+      return { mute, solo };
+    });
+
+    const bitsEl = document.getElementById('bits'), byteEl = document.getElementById('byte');
+    const NAMES = ['kick', 'snare', 'lead', 'bass', 'hi-hat', '', '', ''];
+    for (let b = 7; b >= 0; b--) bitsEl.insertAdjacentHTML('beforeend', `<div data-b="${b}"><b>0</b>${NAMES[b] || 'bit ' + b}</div>`);
+    let shown = -1;
+    function draw() {
+      const v = MEM[MUTE];
+      if (v === shown) return;
+      shown = v;
+      strips.forEach(({ mute, solo }, i) => {
+        mute.setAttribute('aria-pressed', String(!!(v >> i & 1)));
+        solo.setAttribute('aria-pressed', String((v & 31) === (31 & ~(1 << i))));
+      });
+      bitsEl.querySelectorAll('div').forEach(d => { const on = v >> Number(d.dataset.b) & 1; d.classList.toggle('on', !!on); d.querySelector('b').textContent = on; });
+      const muted = DESK.filter((_, i) => v >> i & 1);
+      byteEl.textContent = `$10AA = 0b${bin(v)} = ${v}: ${muted.length ? 'muted: ' + muted.join(', ') : 'every voice plays'}`;
+    }
+    setInterval(draw, 200);
+    draw();
+
+    // Programs may store to the mute byte and nowhere else
+    const guard = a => (a === MUTE ? null : `This page lets a program store to the mute byte, 0x10AA, and nowhere else.`);
+    const runs = [];   // each finished pass: the program text, and the mute byte before and after
+    function stepper(n, start) {
+      const $ = id => document.getElementById(id + n);
+      const ta = $('prog'), regsEl = $('regs'), statusEl = $('status'), traceEl = $('trace');
+      ta.value = start;
+      let cpu, trace = [], hot = '', before = 0;
+      function load() { cpu = TinyX366.machine(ta.value, MEM, { guard }); trace = []; hot = ''; drawCpu(); }
+      function drawCpu() {
+        regsEl.innerHTML = ['AL', 'BL'].map(r => `<div class="${r[0] + 'X' === hot ? 'hot' : ''}">${r}<b>0b${bin(cpu.regs[r])} = ${cpu.regs[r]}</b></div>`).join('');
+        traceEl.textContent = trace.slice(-10).join('\n');
+        if (cpu.errors.length) {
+          statusEl.className = 'status err';
+          statusEl.textContent = cpu.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+        } else if (cpu.stopped) {
+          statusEl.className = 'status err';
+          statusEl.textContent = cpu.stopped;
+        } else {
+          statusEl.className = 'status';
+          const l = cpu.next();
+          statusEl.textContent = l ? `next: line ${l}` : 'End of the program. ONE LINE starts again from the top.';
+        }
+        draw();
+      }
+      function did(r) {
+        const code = `line ${String(r.line).padEnd(3)} ${r.text.replace(/\s*;.*$/, '')}`;
+        const bits = /^(\w+): (\d+) (AND|OR) (\d+) = (\d+)$/.exec(r.did);
+        // AND and OR stacked like a sum, so each column is one bit
+        if (bits) trace.push(code, `    ${bits[1].padStart(4)} ${bits[2]}`, `    ${bits[3].padStart(4)} ${bits[4]}`, `       = ${bits[5]}`);
+        else trace.push(`${code.padEnd(26)} ${r.did}`);
+        hot = r.reg || '';
+      }
+      const finished = () => { if (!cpu.stopped && cpu.writes.has(MUTE)) runs.push({ src: ta.value, before, after: MEM[MUTE] }); };
+      $('one').onclick = () => {
+        if (cpu.errors.length) return drawCpu();
+        if (!cpu.next()) { cpu.reset(); trace = []; }
+        if (cpu.count === 0) before = MEM[MUTE];
+        const r = cpu.step();
+        if (r) did(r);
+        if (!cpu.next()) finished();
+        drawCpu();
+      };
+      $('all').onclick = () => {
+        if (cpu.errors.length) return drawCpu();
+        cpu.reset(); trace = [];
+        before = MEM[MUTE];
+        cpu.run().forEach(did);
+        if (!cpu.next()) finished();
+        drawCpu();
+      };
+      $('clear').onclick = () => { MEM[MUTE] = 0; draw(); };
+      ta.oninput = load;
+      load();
+    }
+    stepper(1, "MOV AL, [0x10AA]   ; read the mute byte\nOR AL, 0b00100     ; switch on the lead's flag\nMOV [0x10AA], AL   ; write it back\n");
+    stepper(2, "MOV AL, [0x10AA]   ; read the mute byte\nAND AL, 0b11011    ; switch off the lead's flag\nMOV [0x10AA], AL   ; write it back\n");
+
+    const uses = (src, op) => new RegExp(`^\\s*(\\w+:\\s*)?${op}\\b`, 'im').test(src);
+    const others = (a, b, bits) => (a & ~bits & 31) === (b & ~bits & 31);
+    Kit.check(document.getElementById('goal1'), {
+      goal: 'with one OR, mute the bass and the hi-hat, and leave every other voice as it was.',
+      hint: 'The bass is bit 3 and the hi-hat is bit 4, so the bitmask is 0b11000. Change the OR line to OR AL, 0b11000 and run it.',
+      ok: 'One OR, two flags. Nothing else in the byte moved.',
+      test: () => runs.some(r => uses(r.src, 'OR') && (r.after & 24) === 24 && others(r.before, r.after, 24))
+    });
+    Kit.check(document.getElementById('goal2'), {
+      goal: 'mute the lead and at least one other voice, then unmute only the lead with AND.',
+      hint: 'Use the MUTE buttons for the lead and, say, the kick. Then RUN ALL on the AND program.',
+      ok: 'AND with 0b11011 switched off one bit and kept the rest.',
+      test: () => runs.some(r => uses(r.src, 'AND') && (r.before & 4) && (r.before & 27) && r.after === (r.before & ~4))
+    });
+    // The transfer task: the same program flips the snare both ways, and nothing else
+    Kit.check(document.getElementById('goal3'), {
+      goal: 'write one program that mutes the snare if it is playing and unmutes it if it is muted. Run it at least twice.',
+      hint: 'Read the byte into AL. Copy it to BL and AND BL with the snare\'s mask, 0b00010, so only its flag is left. CMP BL, 0 and branch: if it was 0, OR AL with 0b00010; if not, AND AL with 0b11101. Then store AL.',
+      ok: 'A real mute button: test the flag, then switch it the other way. One branch, one AND, one OR.',
+      test: () => {
+        const flips = runs.filter(r => others(r.before, r.after, 2) && ((r.before ^ r.after) & 2));
+        return flips.some(a => !(a.before & 2) && flips.some(b => b.src === a.src && (b.before & 2)));
+      }
+    });
+  </script>
+</body>
+</html>

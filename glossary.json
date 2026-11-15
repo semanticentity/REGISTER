@@ -575,6 +575,64 @@
       "kind": "computer",
       "define": "A jump that only happens when a test passes.",
       "more": "https://en.wikipedia.org/wiki/Branch_(computer_science)"
+    },
+    {
+      "term": "mixer",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "music",
+      "define": "A desk with a row of controls for each voice, where the voices of a song are balanced and combined into one sound.",
+      "more": "https://en.wikipedia.org/wiki/Mixing_console"
+    },
+    {
+      "term": "mute",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "music",
+      "define": "Silence a voice without deleting what it plays.",
+      "more": "https://en.wiktionary.org/wiki/mute#Verb"
+    },
+    {
+      "term": "solo",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "music",
+      "define": "Hear one voice alone, by muting all the others.",
+      "more": "https://en.wikipedia.org/wiki/Mixing_console#Cue_system"
+    },
+    {
+      "term": "flag",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "computer",
+      "define": "A single bit used as a yes-or-no switch.",
+      "more": "https://en.wikipedia.org/wiki/Flag_(programming)"
+    },
+    {
+      "term": "bitmask",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "computer",
+      "define": "A number used to pick which bits to change.",
+      "more": "https://en.wikipedia.org/wiki/Mask_(computing)"
+    },
+    {
+      "term": "OR",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "computer",
+      "case": true,
+      "define": "Combines two numbers bit by bit: each bit of the answer is 1 if either bit is 1. It switches bits on.",
+      "more": "https://en.wikipedia.org/wiki/Bitwise_operation#OR"
+    },
+    {
+      "term": "AND",
+      "aliases": [],
+      "lesson": 8,
+      "kind": "computer",
+      "case": true,
+      "define": "Combines two numbers bit by bit: each bit of the answer is 1 only if both bits are 1. It switches bits off.",
+      "more": "https://en.wikipedia.org/wiki/Bitwise_operation#AND"
     }
   ]
 }
