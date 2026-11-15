@@ -33,19 +33,33 @@ test('lesson 1: clicking boxes and POKE lines complete all three goals, and it p
   t.equal(p.errors, []);
 }, B);
 
-test('lesson 2: a byte of switches, hex patterns unpacked into memory, and a bitmask', async t => {
+test('lesson 2: a groove of bits, the tresillo, a byte of switches, and hex one beat per digit', async t => {
   const p = await t.page('lesson2.html');
+  const word = base => p.evaluate(b => Array.from({ length: 16 }, (_, s) => MEM[b + s] ? 1 : 0).join(''), base);
+  t.equal(await word(0x1300), '1010101010101010', 'the hi-hat opens on eighth notes');
+  await p.click('#tresillo');
+  t.equal(await word(0x1000), '1000001000001000', 'the tresillo is 1, the & of 2, and 4');
+  await p.click('#four');
+  t.equal(await word(0x1000), '1000100010001000', 'and back to four on the floor');
   for (const k of [2, 4, 6]) await p.click(`#byte .bit >> nth=${k}`);   // 32 + 8 + 2
-  for (const [hex, voice] of [['$8888', '4096'], ['$0808', '4128'], ['$AAAA', '4864']]) {
-    await p.fill('#hex-in', hex);
-    await p.selectOption('#target', voice);
-    await p.click('#load');
-  }
-  await p.check('#follow input >> nth=0');
-  await p.check('#follow input >> nth=2');
+  t.ok(/value 42/.test(await p.textContent('#byte-out')), 'the byte reads 42');
+  await p.click('#word .bit >> nth=14');
+  t.equal(await p.inputValue('#hex-in'), '$080A', 'clicking a step changes that beat\'s hex digit');
+  t.equal(await p.textContent('#word .nib-hex >> nth=3'), 'beat 4: A');
+  await p.fill('#hex-in', '$080A');
+  await p.selectOption('#target', '4128');
+  await p.click('#load');
+  await p.fill('#hex-in', '$2222');
+  await p.selectOption('#target', '4864');
+  await p.click('#load');
   await p.waitForTimeout(500);
-  t.equal(await p.evaluate(() => [MEM[0x1000], MEM[0x1004], MEM[0x1001], MEM[0x1084]]), [1, 1, 0, 5]);
+  t.equal(await word(0x1020), '0000100000001010');
+  t.equal(await word(0x1300), '0010001000100010');
   t.equal(await p.locator('.k-check.done').count(), 3, 'all three goals done');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.above(await p.evaluate(() => window.__osc), 2, 'the groove plays');
+  t.equal(p.errors, []);
 }, B);
 
 test('lesson 3: base plus offset, and one sound on two voices', async t => {

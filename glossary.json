@@ -1,59 +1,237 @@
 {
   "about": "Every term the lessons teach, in the order they teach them. tests/unit/terms.test.js checks the lessons against this file. See docs/PEDAGOGY.md.",
   "terms": [
-    { "term": "metronome", "aliases": [], "lesson": 1, "kind": "music",
+    {
+      "term": "metronome",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "a click that keeps steady time",
-      "more": "https://en.wikipedia.org/wiki/Metronome" },
-    { "term": "beat", "aliases": [], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Metronome"
+    },
+    {
+      "term": "beat",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "the steady pulse you tap your foot to",
-      "more": "https://en.wikipedia.org/wiki/Beat_(music)" },
-    { "term": "bar", "aliases": ["measure"], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Beat_(music)"
+    },
+    {
+      "term": "bar",
+      "aliases": [
+        "measure"
+      ],
+      "lesson": 1,
+      "kind": "music",
       "define": "a group of beats; most pop and dance music has four beats in a bar",
-      "more": "https://en.wikipedia.org/wiki/Bar_(music)" },
-    { "term": "sixteenth note", "aliases": ["sixteenth", "sixteenths"], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Bar_(music)"
+    },
+    {
+      "term": "sixteenth note",
+      "aliases": [
+        "sixteenth",
+        "sixteenths"
+      ],
+      "lesson": 1,
+      "kind": "music",
       "define": "a quarter of a beat, so a bar of four beats holds sixteen of them",
-      "more": "https://en.wikipedia.org/wiki/Sixteenth_note" },
-    { "term": "step", "aliases": [], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Sixteenth_note"
+    },
+    {
+      "term": "step",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "one slot in a sequencer's row; here, one sixteenth note",
-      "more": "https://en.wikipedia.org/wiki/Music_sequencer" },
-    { "term": "loop", "aliases": [], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Music_sequencer"
+    },
+    {
+      "term": "loop",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "a section that plays again from the start each time it ends",
-      "more": "https://en.wikipedia.org/wiki/Loop_(music)" },
-    { "term": "memory", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/Loop_(music)"
+    },
+    {
+      "term": "memory",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "a long row of boxes, each holding one small number",
-      "more": "https://en.wikipedia.org/wiki/Computer_memory" },
-    { "term": "address", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/Computer_memory"
+    },
+    {
+      "term": "address",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "a box's number in the row",
-      "more": "https://en.wikipedia.org/wiki/Memory_address" },
-    { "term": "byte", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/Memory_address"
+    },
+    {
+      "term": "byte",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "what one box holds: a whole number from 0 to 255",
-      "more": "https://en.wikipedia.org/wiki/Byte" },
-    { "term": "hex", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/Byte"
+    },
+    {
+      "term": "hex",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "a way of writing numbers that counts in sixteens, using A to F for ten to fifteen",
-      "more": "https://en.wikipedia.org/wiki/Hexadecimal" },
-    { "term": "voice", "aliases": [], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Hexadecimal"
+    },
+    {
+      "term": "voice",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "one sound the chip can play at the same time as the others",
-      "more": "https://en.wikipedia.org/wiki/Polyphony_and_monophony_in_instruments" },
-    { "term": "kick drum", "aliases": ["kick"], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Polyphony_and_monophony_in_instruments"
+    },
+    {
+      "term": "kick drum",
+      "aliases": [
+        "kick"
+      ],
+      "lesson": 1,
+      "kind": "music",
       "define": "the low boom at the bottom of most dance music",
-      "more": "https://en.wikipedia.org/wiki/Bass_drum" },
-    { "term": "four on the floor", "aliases": [], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Bass_drum"
+    },
+    {
+      "term": "four on the floor",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "a kick drum on every beat",
-      "more": "https://en.wikipedia.org/wiki/Four_on_the_floor_(music)" },
-    { "term": "POKE", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/Four_on_the_floor_(music)"
+    },
+    {
+      "term": "POKE",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "put a value into the box at an address",
-      "more": "https://en.wikipedia.org/wiki/PEEK_and_POKE" },
-    { "term": "PEEK", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/PEEK_and_POKE"
+    },
+    {
+      "term": "PEEK",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "read the value in the box at an address",
-      "more": "https://en.wikipedia.org/wiki/PEEK_and_POKE" },
-    { "term": "snare drum", "aliases": ["snare"], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/PEEK_and_POKE"
+    },
+    {
+      "term": "snare drum",
+      "aliases": [
+        "snare"
+      ],
+      "lesson": 1,
+      "kind": "music",
       "define": "the sharp crack that answers the kick",
-      "more": "https://en.wikipedia.org/wiki/Snare_drum" },
-    { "term": "backbeat", "aliases": [], "lesson": 1, "kind": "music",
+      "more": "https://en.wikipedia.org/wiki/Snare_drum"
+    },
+    {
+      "term": "backbeat",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "music",
       "define": "the snare on beats 2 and 4",
-      "more": "https://en.wikipedia.org/wiki/Beat_(music)#Backbeat" },
-    { "term": "memory-mapped", "aliases": [], "lesson": 1, "kind": "computer",
+      "more": "https://en.wikipedia.org/wiki/Beat_(music)#Backbeat"
+    },
+    {
+      "term": "memory-mapped",
+      "aliases": [],
+      "lesson": 1,
+      "kind": "computer",
       "define": "a device you control by writing ordinary memory addresses",
-      "more": "https://en.wikipedia.org/wiki/Memory-mapped_I/O_and_port-mapped_I/O" }
+      "more": "https://en.wikipedia.org/wiki/Memory-mapped_I/O_and_port-mapped_I/O"
+    },
+    {
+      "term": "rhythm",
+      "aliases": [],
+      "lesson": 2,
+      "kind": "music",
+      "define": "the pattern of when sounds happen, and when they don't",
+      "more": "https://en.wikipedia.org/wiki/Rhythm"
+    },
+    {
+      "term": "rest",
+      "aliases": [],
+      "lesson": 2,
+      "kind": "music",
+      "define": "a step where nothing plays",
+      "more": "https://en.wikipedia.org/wiki/Rest_(music)"
+    },
+    {
+      "term": "hi-hat",
+      "aliases": [
+        "hat"
+      ],
+      "lesson": 2,
+      "kind": "music",
+      "define": "the ticking cymbal that keeps time over the drums",
+      "more": "https://en.wikipedia.org/wiki/Hi-hat"
+    },
+    {
+      "term": "eighth note",
+      "aliases": [
+        "eighth",
+        "eighths"
+      ],
+      "lesson": 2,
+      "kind": "music",
+      "define": "half a beat, so a bar of four beats holds eight of them",
+      "more": "https://en.wikipedia.org/wiki/Eighth_note"
+    },
+    {
+      "term": "syncopation",
+      "aliases": [
+        "syncopated"
+      ],
+      "lesson": 2,
+      "kind": "music",
+      "define": "a hit placed between the beats, where you don't expect it",
+      "more": "https://en.wikipedia.org/wiki/Syncopation"
+    },
+    {
+      "term": "tresillo",
+      "aliases": [],
+      "lesson": 2,
+      "kind": "music",
+      "define": "three hits spaced 3, 3 and 2 eighth notes apart: on 1, the & of 2, and 4",
+      "more": "https://en.wikipedia.org/wiki/Clave_(rhythm)#Tresillo"
+    },
+    {
+      "term": "bit",
+      "aliases": [],
+      "lesson": 2,
+      "kind": "computer",
+      "define": "a single 0 or 1, the smallest piece a computer stores",
+      "more": "https://en.wikipedia.org/wiki/Bit"
+    },
+    {
+      "term": "binary",
+      "aliases": [],
+      "lesson": 2,
+      "kind": "computer",
+      "define": "writing numbers with only 0 and 1, where each place is worth twice the place to its right",
+      "more": "https://en.wikipedia.org/wiki/Binary_number"
+    },
+    {
+      "term": "nibble",
+      "aliases": [],
+      "lesson": 2,
+      "kind": "computer",
+      "define": "four bits, half a byte, which is exactly one hex digit",
+      "more": "https://en.wikipedia.org/wiki/Nibble"
+    }
   ]
 }

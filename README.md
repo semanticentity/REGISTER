@@ -406,10 +406,10 @@ Scroll down to the settings and a mini view of the picture follows you in the co
 
 ## Lessons
 
-Three short lessons that run in the page and check your work as you go:
+Three short lessons that run in the page and check your work as you go. Lessons 1 and 2 follow the standard in [docs/PEDAGOGY.md](docs/PEDAGOGY.md): music first, every term defined where it appears, and a check at the end.
 
-1. [Memory and POKE](lesson1.html): addresses, bytes, hex, and why a memory-mapped chip needs no sound command.
-2. [Bits and Patterns](lesson2.html): eight bits make a byte, a hex digit is four bits, a bar fits in two bytes, and a byte can be a list of choices.
+1. [Memory and POKE](lesson1.html): beats, bars and sixteenths, then addresses, bytes, hex, and why a memory-mapped chip needs no sound command.
+2. [Bits and Patterns](lesson2.html): rhythm as hits and rests, the tresillo, eight bits make a byte, and one hex digit is one beat.
 3. [A Sound Is a Struct](lesson3.html): fields and offsets, an array of structs, a voice as a pointer, and names that compile to addresses.
 
 They share `lesson-kit.js` and play through `engine.js`, the same engine as everything else.

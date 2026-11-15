@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lesson 2: Bits and Patterns | REGISTER</title>
-  <meta name="description" content="Lesson 2 of REGISTER: a byte is eight bits, a hex digit is four, and a 16-step drum pattern fits in two bytes. Learn binary, hex and bitmasks by writing rhythms.">
+  <meta name="description" content="Lesson 2 of REGISTER: a rhythm is a row of hits and rests, and so is a byte. Learn bits, binary and hex, and why one hex digit is exactly one beat.">
   <style>
     * { box-sizing: border-box; }
     body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
@@ -13,7 +13,7 @@
     .crumb { font-size: 12px; color: #666; }
     .crumb a { color: #888; }
     h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
-    h2 { color: #9bbc0f; font-size: 17px; margin: 30px 0 6px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
     .sub { color: #888; margin: 0 0 18px; }
     code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
     pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
@@ -21,71 +21,164 @@
     button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
     button.on { border-color: #9bbc0f; color: #9bbc0f; }
     select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 6px 8px; font: inherit; font-size: 13px; }
-    input[type=text] { background: #0b0b0b; color: #9bbc0f; border: 1px solid #333; border-radius: 4px; padding: 6px 8px; font: inherit; width: 9em; }
+    input[type=text] { background: #0b0b0b; color: #9bbc0f; border: 1px solid #333; border-radius: 4px; padding: 6px 8px; font: inherit; width: 7em; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
+    th { color: #888; font-weight: normal; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    /* one byte of switches */
     .bits { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin: 8px 0 4px; }
-    .bits.w16 { grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 2px; }
     .bit { aspect-ratio: 1; padding: 0; min-width: 0; font: 14px ui-monospace, Menlo, monospace; background: #111; color: #555; }
     .bit.one { background: #22300a; color: #c8e86a; border-color: #5a7a12; }
-    .bits.w16 .bit { font-size: 10px; }
     .weights { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; color: #555; font-size: 11px; text-align: center; }
+    /* a 16-step pattern, one group of four bits per beat */
+    .word { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 8px 0 4px; }
+    .nib-bits { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
+    .nib-bits .bit { font-size: 11px; }
+    .nib-hex { text-align: center; color: #888; font-size: 12px; margin-top: 4px; }
+    .nib-hex b { color: #c8e86a; font-weight: normal; font-size: 15px; }
     .readout { font-size: 14px; margin: 6px 0 4px; }
     .readout b { color: #c8e86a; font-weight: normal; }
-    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
-    .next { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; gap: 12px; }
-    label.voice { display: inline-flex; gap: 4px; align-items: center; margin-right: 10px; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
     h1, h2, .sub { text-wrap: balance; }
     p, li { text-wrap: pretty; }
-    @media (max-width: 600px) { input[type=text], select { font-size: 16px; } }
+    @media (max-width: 600px) { input[type=text], select { font-size: 16px; } .word { gap: 6px; } }
   </style>
 </head>
 <body>
   <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson1.html">Lesson 1</a> / Lesson 2 of 3</div>
   <h1>Bits and Patterns</h1>
-  <p class="sub">A byte is not one thing. It is eight switches, each on or off. A drum pattern is a row of switches too, so the two fit together.</p>
+  <p class="sub">A drum pattern is a row of on and off switches, and so is a byte. Learn to read each one as the other.</p>
 
-  <h2>Eight switches make a byte</h2>
-  <p>Each switch is a <b>bit</b>: 0 or 1. Each position is worth twice the one to its right. Add up the positions that are on, and that is the byte's value. Click the switches.</p>
-  <div class="bits" id="byte"></div>
-  <div class="weights"><span>128</span><span>64</span><span>32</span><span>16</span><span>8</span><span>4</span><span>2</span><span>1</span></div>
-  <p class="readout" id="byte-out"></p>
-  <div id="goal-byte"></div>
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 15 minutes, sound on). You will be able to:
+    <ul>
+      <li>hear a rhythm as hits and rests</li>
+      <li>read a byte in binary and work out its value</li>
+      <li>write any 16-step rhythm as four hex digits, one per beat</li>
+    </ul>
+    You will use what lesson 1 taught: beats, bars, sixteenths, steps, bytes and hex.
+  </aside>
 
-  <h2>Why hex</h2>
-  <p>Split the eight bits into two groups of four. Four bits count from 0 to 15, and hex has exactly 16 digits: <code>0</code> to <code>9</code>, then <code>A</code> to <code>F</code>. So every hex digit is exactly four bits, and a byte is always two hex digits. That is why addresses and bytes are written in hex: you can read the bits straight off it.</p>
-<pre>1000 0000  =  $80  = 128
-1111 1111  =  $FF  = 255
-0001 0000  =  $10  =  16</pre>
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
 
-  <h2>A pattern is 16 bits</h2>
-  <p>A bar of 16 steps is 16 switches: on for a hit, off for a rest. Sixteen bits is two bytes, which is four hex digits. Step 0 is the leftmost bit. Click steps, or type four hex digits and press LOAD.</p>
-  <div class="bits w16" id="word"></div>
-  <p class="readout" id="word-out"></p>
-  <div class="row">
-    <input type="text" id="hex-in" value="$8888" aria-label="Pattern as hex" spellcheck="false">
-    <select id="target" aria-label="Voice">
-      <option value="4096">kick ($1000)</option>
-      <option value="4128">snare ($1020)</option>
-      <option value="4864">noise ($1300)</option>
-    </select>
-    <button id="load">LOAD</button>
-    <button id="play">PLAY</button>
-  </div>
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: hits and rests</h2>
+  <p>Press PLAY. The kick and snare from lesson 1 are back, with a new sound on top. Together they make a <dfn data-term="rhythm">rhythm</dfn>: the pattern of when sounds happen, and when they don't. <a class="more" href="https://en.wikipedia.org/wiki/Rhythm" target="_blank" rel="noopener" aria-label="More about rhythm, on Wikipedia">more</a></p>
+  <p>Look at the boxes below. A step with a 1 is a hit. A step with a 0 is a <dfn data-term="rest">rest</dfn>: a step where nothing plays. <a class="more" href="https://en.wikipedia.org/wiki/Rest_(music)" target="_blank" rel="noopener" aria-label="More about rests, on Wikipedia">more</a> Rests matter as much as hits. Without them there is no rhythm, only noise.</p>
+  <p>The new sound is a <dfn data-term="hi-hat">hi-hat</dfn>, the ticking cymbal that keeps time over the drums. <a class="more" href="https://en.wikipedia.org/wiki/Hi-hat" target="_blank" rel="noopener" aria-label="More about hi-hats, on Wikipedia">more</a> The chip's fifth voice, the noise voice, plays it here. It hits every other step: on each beat and each &amp;.</p>
+  <p>A note half a beat long is an <dfn data-term="eighth note">eighth note</dfn>, because a bar of four beats holds eight of them. <a class="more" href="https://en.wikipedia.org/wiki/Eighth_note" target="_blank" rel="noopener" aria-label="More about eighth notes, on Wikipedia">more</a> The hi-hat is playing eighth notes. Count them: 1 &amp; 2 &amp; 3 &amp; 4 &amp;.</p>
   <div id="kick"></div>
   <div id="snare"></div>
-  <div id="noise"></div>
+  <div id="hats"></div>
+  <p>Now press NEW KICK, and listen to the kick change.</p>
+  <div class="row"><button id="tresillo">NEW KICK</button><button id="four">FOUR ON THE FLOOR</button></div>
+  <p>The kick now hits on 1, on the &amp; of 2, and on 4. A hit placed between the beats, where you don't expect it, is <dfn data-term="syncopation">syncopation</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Syncopation" target="_blank" rel="noopener" aria-label="More about syncopation, on Wikipedia">more</a> It is what makes a rhythm lean forward.</p>
+  <p>This kick pattern is the <dfn data-term="tresillo">tresillo</dfn>: three hits spaced 3, 3 and 2 eighth notes apart. <a class="more" href="https://en.wikipedia.org/wiki/Clave_(rhythm)#Tresillo" target="_blank" rel="noopener" aria-label="More about the tresillo, on Wikipedia">more</a> It sits at the heart of Cuban music, and you hear it all over pop and dance music today. Press FOUR ON THE FLOOR to switch back and compare.</p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
+  <h2>Every box is a switch</h2>
+  <p>Every box in those rows holds 0 or 1. A single 0 or 1 is a <dfn data-term="bit">bit</dfn>, the smallest piece a computer stores. <a class="more" href="https://en.wikipedia.org/wiki/Bit" target="_blank" rel="noopener" aria-label="More about bits, on Wikipedia">more</a> So a rhythm is a row of bits: 1 for a hit, 0 for a rest.</p>
+
+  <h2>Eight bits make a byte</h2>
+  <p>A byte, the number in one box, is eight bits side by side. Writing numbers with only 0 and 1 is <dfn data-term="binary">binary</dfn>, where each place is worth twice the place to its right. <a class="more" href="https://en.wikipedia.org/wiki/Binary_number" target="_blank" rel="noopener" aria-label="More about binary numbers, on Wikipedia">more</a> The eight places are worth 128, 64, 32, 16, 8, 4, 2 and 1. Add up the places that are on, and you have the byte's value. Click the switches.</p>
+  <div class="bits" id="byte"></div>
+  <div class="weights" aria-hidden="true"><span>128</span><span>64</span><span>32</span><span>16</span><span>8</span><span>4</span><span>2</span><span>1</span></div>
+  <p class="readout" id="byte-out" aria-live="polite"></p>
+  <div id="goal-byte"></div>
+  <p>Turn every switch on and you get 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = 255. That is why a byte stops at 255: there are no more places.</p>
+
+  <h2>Four bits, one beat</h2>
+  <p>Now split the bits into groups of four. A group of four bits is a <dfn data-term="nibble">nibble</dfn>, half a byte. <a class="more" href="https://en.wikipedia.org/wiki/Nibble" target="_blank" rel="noopener" aria-label="More about nibbles, on Wikipedia">more</a> Four bits count from 0000 to 1111, which is 0 to 15. Hex has exactly 16 digits, 0 to 9 and then A to F, so one hex digit is exactly one nibble. That is why programmers write in hex: you can read the bits straight off it.</p>
+<pre>1000 = 8      0010 = 2      1010 = A
+0100 = 4      0001 = 1      1111 = F</pre>
+  <p>Here is the musical part. A beat is four sixteenths, and a nibble is four bits. So in a 16-step pattern, each hex digit is one beat, and four hex digits are a whole bar.</p>
+  <p>Click steps below and watch each beat's hex digit change. Or type four hex digits, pick a voice, and press LOAD to copy the pattern into that voice's 16 boxes.</p>
+  <div class="word" id="word"></div>
+  <p class="readout" id="word-out" aria-live="polite"></p>
+  <div class="row">
+    <input type="text" id="hex-in" value="$0808" aria-label="Pattern as four hex digits" spellcheck="false">
+    <select id="target" aria-label="Voice to load into">
+      <option value="4096">kick ($1000)</option>
+      <option value="4128" selected>snare ($1020)</option>
+      <option value="4864">hi-hat ($1300)</option>
+    </select>
+    <button id="load">LOAD</button>
+  </div>
+  <div id="goal-hex"></div>
+
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again</h2>
+  <p>Now you can read a rhythm straight from its hex. Each digit says where the hits fall inside one beat:</p>
+  <table>
+    <tr><th>Digit</th><th>Bits</th><th>Hits in that beat</th></tr>
+    <tr><td>8</td><td>1000</td><td>on the beat</td></tr>
+    <tr><td>2</td><td>0010</td><td>on the &amp;, between beats</td></tr>
+    <tr><td>A</td><td>1010</td><td>on the beat and the &amp;: two eighth notes</td></tr>
+    <tr><td>F</td><td>1111</td><td>all four sixteenths</td></tr>
+    <tr><td>0</td><td>0000</td><td>a whole beat of rest</td></tr>
+  </table>
+<pre>$8888   kick:   four on the floor, every beat
+$0808   snare:  backbeat, beats 2 and 4
+$AAAA   hi-hat: eighth notes, every 1 and &amp;
+$8208   kick:   tresillo, 1, the &amp; of 2, and 4</pre>
+  <p>Look at the tresillo, <code>$8208</code>. Beat 1 is an 8, a hit on the beat. Beat 2 is a 2, a hit on the &amp;: that is the syncopation, written as one digit. Beat 3 is a 0, a whole beat of rest. You can see the groove without hearing it.</p>
+
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>House music often moves the hi-hat off the beat: a hit on every &amp; and nowhere else. Work out its four hex digits on paper first, then type them, pick the hi-hat, and LOAD.</p>
   <div id="goal-hats"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>What is 1111 1111 in everyday numbers?</summary><p>255. All eight places are on: 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1. See "Eight bits make a byte".</p></details>
+  <details class="q"><summary>Why is one hex digit exactly one beat here?</summary><p>A hex digit is four bits, a beat is four sixteenths, and each sixteenth is one bit. See "Four bits, one beat".</p></details>
+  <details class="q"><summary>What would <code>$F000</code> sound like on the snare?</summary><p>Four quick hits on beat 1, then three beats of rest: a short drum roll. F is 1111, and each 0 is a silent beat.</p></details>
+  <details class="q"><summary>Sixteen bits fit in two bytes. So why does the chip spend sixteen boxes on a pattern, one per step?</summary><p>So a box can hold more than on or off, like the pitch numbers in lesson 1's click track, and so one POKE changes one step without any bit math. Saving space and keeping things simple pull against each other; this chip picks simple.</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>all three goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
 
-  <h2>Packed or one byte per step?</h2>
-  <p>LOAD <b>unpacks</b> the 16 bits into 16 bytes, one box per step, because that is how this chip stores a pattern. Packed, a bar would take 2 bytes instead of 16. Old chips often packed, because memory was precious. REGISTER spends the bytes so each step's box can also hold a note or a pitch, and so a beginner can POKE one step without doing bit math. Both are real designs. Choosing between them is a trade-off of space against simplicity.</p>
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
+  <h2>What you just learned</h2>
+  <table>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>rhythm</td><td>the pattern of when sounds happen, and when they don't</td></tr>
+    <tr><td>rest</td><td>a step where nothing plays</td></tr>
+    <tr><td>hi-hat</td><td>the ticking cymbal that keeps time</td></tr>
+    <tr><td>eighth note</td><td>half a beat; eight in a bar</td></tr>
+    <tr><td>syncopation</td><td>a hit between the beats, where you don't expect it</td></tr>
+    <tr><td>tresillo</td><td>three hits spaced 3, 3 and 2 eighths apart: <code>$8208</code></td></tr>
+  </table>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>bit</td><td>a single 0 or 1</td></tr>
+    <tr><td>binary</td><td>numbers written with only 0 and 1; each place is worth twice the next</td></tr>
+    <tr><td>nibble</td><td>four bits, which is one hex digit</td></tr>
+    <tr><td>hex, again</td><td>one digit per nibble, so here one digit per beat</td></tr>
+  </table>
+  <p>The big idea: a rhythm and a number are both rows of bits. Hex is just a short way to write the bits, and in a 16-step bar each hex digit is one beat.</p>
+  </section>
 
-  <h2>A byte as a list of choices</h2>
-  <p>Sometimes the bits of a byte are not a number at all. Each one is a yes or no. The filter envelope's FOLLOW byte at <code>$1084</code> has one bit per voice: which voices open the filter.</p>
-  <div class="row" id="follow"></div>
-  <p class="readout" id="follow-out"></p>
-  <p>To ask "is the lead on the list?", the chip uses <b>AND</b>: keep only the bits that are on in both numbers. The lead is bit 2, worth 4. If <code>FOLLOW AND 4</code> is not zero, the lead is on the list. <b>OR</b> does the opposite job: it switches a bit on and leaves the others alone.</p>
-  <div id="goal-follow"></div>
-
-  <div class="next"><a href="lesson1.html">Lesson 1: memory and POKE</a><a href="lesson3.html">Lesson 3: a sound is a struct</a></div>
+  <nav class="next" data-terms-ok><a href="lesson1.html">Lesson 1: memory and POKE</a><a href="lesson3.html">Lesson 3: a sound is a struct</a></nav>
 
   <script src="engine.js"></script>
   <script src="memory-map.js"></script>
@@ -95,89 +188,89 @@
     Kit.boot();
     Kit.playButton(document.getElementById('play'));
     const bin = (n, w) => n.toString(2).padStart(w, '0');
+    const hex4 = n => n.toString(16).toUpperCase().padStart(4, '0');
+
+    // Copy a 16-bit pattern into a voice's 16 boxes: step 0 is the leftmost bit
+    const unpack = (word, base) => { for (let s = 0; s < 16; s++) MEM[base + s] = (word >> (15 - s)) & 1; };
+    const asWord = base => Array.from({ length: 16 }, (_, s) => (MEM[base + s] ? 1 : 0) << (15 - s)).reduce((a, b) => a | b, 0);
+
+    // The groove the lesson opens with
+    unpack(0x8888, 0x1000);
+    unpack(0x0808, 0x1020);
+    unpack(0xAAAA, 0x1300);
+    Kit.grid(document.getElementById('kick'), { addr: 0x1000, label: 'KICK_GATE' });
+    Kit.grid(document.getElementById('snare'), { addr: 0x1020, label: 'SNARE_GATE' });
+    Kit.grid(document.getElementById('hats'), { addr: 0x1300, label: 'NOISE_GATE (hi-hat)' });
+    document.getElementById('tresillo').onclick = () => unpack(0x8208, 0x1000);
+    document.getElementById('four').onclick = () => unpack(0x8888, 0x1000);
 
     // One byte of switches, kept in a variable: not chip memory
     let byte = 0;
     const byteEl = document.getElementById('byte');
     for (let i = 7; i >= 0; i--) {
       const b = Object.assign(document.createElement('button'), { className: 'bit' });
-      b.setAttribute('aria-label', `bit ${i}, worth ${1 << i}`);
+      b.setAttribute('aria-label', `switch worth ${1 << i}`);
       b.onclick = () => { byte ^= 1 << i; drawByte(); };
       byteEl.append(b);
     }
     function drawByte() {
-      [...byteEl.children].forEach((b, k) => { const on = (byte >> (7 - k)) & 1; b.textContent = on; b.classList.toggle('one', !!on); });
+      [...byteEl.children].forEach((b, k) => { const on = (byte >> (7 - k)) & 1; b.textContent = on; b.classList.toggle('one', !!on); b.setAttribute('aria-pressed', !!on); });
       document.getElementById('byte-out').innerHTML =
-        `binary <b>${bin(byte >> 4, 4)} ${bin(byte & 15, 4)}</b> &nbsp; hex <b>$${byte.toString(16).toUpperCase().padStart(2, '0')}</b> &nbsp; decimal <b>${byte}</b>`;
+        `binary <b>${bin(byte >> 4, 4)} ${bin(byte & 15, 4)}</b> &nbsp; hex <b>$${byte.toString(16).toUpperCase().padStart(2, '0')}</b> &nbsp; value <b>${byte}</b>`;
     }
     drawByte();
     Kit.check(document.getElementById('goal-byte'), {
       goal: 'make the byte 42.',
       hint: '42 = 32 + 8 + 2. Turn on the switches worth those.',
-      ok: '42 is 0010 1010, or $2A. The hex digits 2 and A are the two groups of four bits.',
+      ok: '42 is 0010 1010, or $2A. The two hex digits are the two nibbles: 0010 is 2, and 1010 is A.',
       test: () => byte === 42
     });
 
-    // A 16-bit pattern word
-    let word = 0x8888;
+    // A 16-step pattern, drawn as four nibbles: one hex digit per beat
+    let word = 0x0808;
     const wordEl = document.getElementById('word');
-    for (let s = 0; s < 16; s++) {
-      const b = Object.assign(document.createElement('button'), { className: 'bit' });
-      b.setAttribute('aria-label', `step ${s}`);
-      b.onclick = () => { word ^= 1 << (15 - s); drawWord(); };
-      wordEl.append(b);
+    const stepBtns = [];
+    for (let beat = 0; beat < 4; beat++) {
+      const group = document.createElement('div');
+      group.innerHTML = '<div class="nib-bits"></div><div class="nib-hex"></div>';
+      for (let k = 0; k < 4; k++) {
+        const s = beat * 4 + k;
+        const b = Object.assign(document.createElement('button'), { className: 'bit' });
+        b.setAttribute('aria-label', `step ${s}, beat ${beat + 1} ${['', 'e', '&', 'a'][k]}`.trim());
+        b.onclick = () => { word ^= 1 << (15 - s); drawWord(); };
+        group.firstChild.append(b);
+        stepBtns.push(b);
+      }
+      wordEl.append(group);
     }
     function drawWord() {
-      [...wordEl.children].forEach((b, s) => { const on = (word >> (15 - s)) & 1; b.textContent = on; b.classList.toggle('one', !!on); });
-      const h = word.toString(16).toUpperCase().padStart(4, '0');
-      document.getElementById('word-out').innerHTML = `binary <b>${bin(word, 16).replace(/(.{4})/g, '$1 ').trim()}</b><br>hex <b>$${h}</b> &nbsp; bytes <b>$${h.slice(0, 2)} $${h.slice(2)}</b>`;
+      stepBtns.forEach((b, s) => { const on = (word >> (15 - s)) & 1; b.textContent = on; b.classList.toggle('one', !!on); b.setAttribute('aria-pressed', !!on); });
+      const h = hex4(word);
+      [...wordEl.querySelectorAll('.nib-hex')].forEach((el, beat) => { el.innerHTML = `beat ${beat + 1}: <b>${h[beat]}</b>`; });
+      document.getElementById('word-out').innerHTML = `binary <b>${bin(word, 16).replace(/(.{4})/g, '$1 ').trim()}</b> &nbsp; hex <b>$${h}</b>`;
       document.getElementById('hex-in').value = '$' + h;
     }
     drawWord();
-    document.getElementById('hex-in').onchange = e => {
-      const v = parseInt(e.target.value.replace(/^\$|^0x/i, ''), 16);
+    const hexIn = document.getElementById('hex-in');
+    const readHex = () => {
+      const v = parseInt(hexIn.value.trim().replace(/^\$|^0x/i, ''), 16);
       if (!isNaN(v) && v >= 0 && v <= 0xFFFF) { word = v; drawWord(); }
     };
-    // Unpack: bit (15 - s) becomes the byte at base + s
-    document.getElementById('load').onclick = () => {
-      document.getElementById('hex-in').onchange({ target: document.getElementById('hex-in') });
-      const base = Number(document.getElementById('target').value);
-      for (let s = 0; s < 16; s++) MEM[base + s] = (word >> (15 - s)) & 1;
-    };
-    Kit.grid(document.getElementById('kick'), { addr: 0x1000, label: 'KICK_GATE' });
-    Kit.grid(document.getElementById('snare'), { addr: 0x1020, label: 'SNARE_GATE' });
-    Kit.grid(document.getElementById('noise'), { addr: 0x1300, label: 'NOISE_GATE' });
-    const asWord = base => Array.from({ length: 16 }, (_, s) => (MEM[base + s] ? 1 : 0) << (15 - s)).reduce((a, b) => a | b, 0);
-    Kit.check(document.getElementById('goal-hats'), {
-      goal: 'kick $8888, snare $0808, and hats on every other step on the noise voice.',
-      hint: 'Every other step is 1010 1010 1010 1010. Each 1010 is one hex digit: A. Then pick noise and LOAD.',
-      ok: 'Three voices, six bytes of pattern if packed. Hats on every other step is $AAAA.',
-      test: () => asWord(0x1000) === 0x8888 && asWord(0x1020) === 0x0808 && asWord(0x1300) === 0xAAAA
-    });
+    hexIn.onchange = readHex;
+    document.getElementById('load').onclick = () => { readHex(); unpack(word, Number(document.getElementById('target').value)); };
 
-    // FOLLOW bitmask at $1084, real chip memory
-    const voices = ['kick', 'snare', 'lead', 'bass', 'noise'];
-    const followEl = document.getElementById('follow');
-    voices.forEach((v, i) => {
-      const l = document.createElement('label'); l.className = 'voice';
-      const c = Object.assign(document.createElement('input'), { type: 'checkbox' });
-      c.onchange = () => { MEM[0x1084] = c.checked ? (MEM[0x1084] | (1 << i)) : (MEM[0x1084] & ~(1 << i)); drawFollow(); };
-      l.append(c, `${v} (bit ${i})`);
-      followEl.append(l);
+    const only = (base, steps) => asWord(base) === steps.reduce((w, s) => w | (1 << (15 - s)), 0);
+    Kit.check(document.getElementById('goal-hex'), {
+      goal: 'put the snare on steps 4, 12 and 14 only: the backbeat plus one more hit on the & of beat 4. Work out its hex, then LOAD it onto the snare.',
+      hint: 'One nibble per beat. Beat 1: 0000. Beat 2: 1000. Beat 3: 0000. Beat 4: 1010. Now turn each nibble into one hex digit.',
+      ok: '$080A. Read it beat by beat: rest, a hit on the beat, rest, then hits on the beat and the &.',
+      test: () => only(0x1020, [4, 12, 14])
     });
-    function drawFollow() {
-      const f = MEM[0x1084];
-      [...followEl.querySelectorAll('input')].forEach((c, i) => { c.checked = !!(f & (1 << i)); });
-      document.getElementById('follow-out').innerHTML =
-        `FOLLOW = <b>%${bin(f, 8)}</b> = <b>${f}</b> &nbsp; FOLLOW AND 4 = <b>${f & 4}</b>, so the lead ${f & 4 ? 'is' : 'is not'} on the list`;
-    }
-    drawFollow();
-    setInterval(drawFollow, 400);
-    Kit.check(document.getElementById('goal-follow'), {
-      goal: 'make FOLLOW equal 5. Which voices is that?',
-      hint: '5 = 4 + 1: bit 2 and bit 0.',
-      ok: '5 is %00000101: the kick and the lead. In the console, POKE $1084, 5 does the same thing.',
-      test: () => MEM[0x1084] === 5
+    Kit.check(document.getElementById('goal-hats'), {
+      goal: 'put the hi-hat on every & and nowhere else, using four hex digits and LOAD.',
+      hint: 'The & is the third sixteenth of a beat, so every beat is 0010. What one hex digit is 0010? Write it four times.',
+      ok: '$2222: every beat is 0010, a hit on the & only. That off-beat hi-hat is the sound of a lot of house music.',
+      test: () => only(0x1300, [2, 6, 10, 14])
     });
   </script>
 </body>

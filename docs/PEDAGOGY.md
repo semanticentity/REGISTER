@@ -21,7 +21,7 @@ Someone curious who has never programmed and never studied music. They can count
 9. **Recap.** Every new term appears in a "What you just learned" table at the end.
 10. **Plain language.** Short sentences. No jargon that is not defined.
 
-Headings and the objectives box may name a term before its definition, since they preview what is coming. Body text may not.
+Headings, the objectives box and links to other lessons may name a term before its definition, since they preview what is coming. Mark the box and the links with `data-terms-ok`. Body text may not.
 
 ## The lesson template
 
@@ -82,21 +82,23 @@ Only lessons rewritten to this standard have glossary entries. Add a lesson's te
 
 Scored against the rubric above.
 
-| # | Criterion | Lesson 1 (before) | Lesson 1 (now) | Lesson 2 | Lesson 3 |
-|---|---|---|---|---|---|
-| 1 | Objectives | 0 | 2 | 0 | 0 |
-| 2 | One big idea | 2 | 2 | 0 (bits, hex, packing, bitmasks) | 0 (struct, array, pointer, compiler) |
-| 3 | Builds on earlier lessons | 2 | 2 | 1 (filter envelope before envelopes) | 2 |
-| 4 | Terms defined at first use | 1 (voice, step, loop) | 2 | 1 | 1 (pan, fine tune) |
-| 5 | Terms link out | 0 | 2 | 0 | 0 |
-| 6 | Music before | 0 | 2 | 0 | 1 |
-| 7 | Music after | 1 | 2 | 0 | 0 |
-| 8 | Hands on early | 2 | 2 | 2 | 2 |
-| 9 | Check yourself | 1 (no transfer task) | 2 | 1 | 1 |
-| 10 | Recap | 1 (missing hex) | 2 | 0 (none) | 2 |
-| 11 | Plain language | 2 | 2 | 2 | 2 |
-| 12 | Works for everyone | 2 | 2 | 2 | 2 |
-| | **Total** | **14** | **24** | **9** | **13** |
+| # | Criterion | Lesson 1 before | Lesson 1 now | Lesson 2 before | Lesson 2 now | Lesson 3 |
+|---|---|---|---|---|---|---|
+| 1 | Objectives | 0 | 2 | 0 | 2 | 0 |
+| 2 | One big idea | 2 | 2 | 0 (bits, hex, packing, bitmasks) | 2 | 0 (struct, array, pointer, compiler) |
+| 3 | Builds on earlier lessons | 2 | 2 | 1 (filter envelope before envelopes) | 2 | 2 |
+| 4 | Terms defined at first use | 1 (voice, step, loop) | 2 | 1 | 2 | 1 (pan, fine tune) |
+| 5 | Terms link out | 0 | 2 | 0 | 2 | 0 |
+| 6 | Music before | 0 | 2 | 0 | 2 | 1 |
+| 7 | Music after | 1 | 2 | 0 | 2 | 0 |
+| 8 | Hands on early | 2 | 2 | 2 | 2 | 2 |
+| 9 | Check yourself | 1 (no transfer task) | 2 | 1 | 2 | 1 |
+| 10 | Recap | 1 (missing hex) | 2 | 0 (none) | 2 | 2 |
+| 11 | Plain language | 2 | 2 | 2 | 2 | 2 |
+| 12 | Works for everyone | 2 | 2 | 2 | 2 | 2 |
+| | **Total** | **14** | **24** | **9** | **24** | **13** |
+
+One known soft spot in both rewritten lessons: a goal checks memory, not how the learner got there, so a transfer task meant to be worked out on paper can still be solved by clicking boxes. The hidden-answer questions are what catch that.
 
 ## The lesson map
 
@@ -105,9 +107,10 @@ One big idea per lesson, each paired with the music it explains.
 | # | Music idea | Computer idea | Status |
 |---|---|---|---|
 | 1 | Beat, bar, sixteenth notes | Memory, addresses, POKE | Rewritten |
-| 2 | Rhythm as on and off | Bits, binary, hex | From today's lesson 2 |
+| 2 | Rhythm as hits and rests, the tresillo | Bits, binary, hex as one digit per beat | Rewritten |
 | 3 | Notes and octaves (+12) | Numbers and arithmetic | New |
 | 4 | Envelope and timbre (ADSR) | Structs and offsets | From today's lesson 3 |
 | 5 | One sound on every voice | Arrays and pointers | From today's lesson 3 |
 | 6 | Playing a note by hand | Registers and instructions | New |
 | 7 | Repeats, Euclidean rhythms | Loops and branching | New |
+| 8 | Muting and picking voices | Bitmasks: AND and OR | Moved out of the old lesson 2 |

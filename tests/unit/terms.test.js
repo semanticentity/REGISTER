@@ -16,8 +16,9 @@ const escape = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const wordsFor = t => new RegExp(`\\b(${[t.term, ...t.aliases].map(escape).join('|')})(s|es)?\\b`, 'i');
 
 // The body a learner reads, as one string the same length as the HTML: tags,
-// the head, scripts, headings and the objectives box are blanked out, so an
-// index in it is an index in the HTML.
+// the head, scripts, headings, and asides and navs marked data-terms-ok (the
+// objectives box, links to the next lesson) are blanked out, so an index in it
+// is an index in the HTML.
 function readable(html) {
   const blank = m => m.replace(/[^\n]/g, ' ');
   return html
@@ -25,7 +26,7 @@ function readable(html) {
     .replace(/<script[\s\S]*?<\/script>/g, blank)
     .replace(/<!--[\s\S]*?-->/g, blank)
     .replace(/<h([1-6])[^>]*>[\s\S]*?<\/h\1>/g, blank)
-    .replace(/<aside[^>]*data-terms-ok[^>]*>[\s\S]*?<\/aside>/g, blank)
+    .replace(/<(aside|nav)[^>]*data-terms-ok[^>]*>[\s\S]*?<\/\1>/g, blank)
     .replace(/<[^>]+>/g, blank);
 }
 
