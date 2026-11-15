@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 7: Play It Again | REGISTER</title>
+  <meta name="description" content="Lesson 7 of REGISTER: music says play it again with a repeat sign, and a program says it with a jump. Learn labels, jumps, counters and branches by writing a hi-hat loop and Euclidean rhythms like the tresillo in x366.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button, select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible, select:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
+    th { color: #888; font-weight: normal; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    td.hit { color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .readout { color: #c8e86a; font-size: 13px; margin: 4px 0 10px; min-height: 1.6em; letter-spacing: 0.1em; }
+    textarea { width: 100%; height: 170px; background: #0b0b0b; color: #9bbc0f; border: 1px solid #222; border-radius: 4px; padding: 8px;
+      font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
+    .tall { height: 290px; }
+    .regs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin: 8px 0; }
+    .regs div { border: 1px solid #222; border-radius: 4px; padding: 4px 8px; font-size: 12px; color: #666; }
+    .regs b { display: block; color: #c8e86a; font-weight: normal; font-size: 15px; }
+    .regs div.hot { border-color: #9bbc0f; background: #12180a; }
+    .status { font-size: 12px; color: #888; margin: 4px 0; white-space: pre-line; }
+    .status.err { color: #ff8a5a; }
+    .out { background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; padding: 8px; color: #8a9a7a; white-space: pre-wrap; font-size: 12px; min-height: 2.4em; margin: 4px 0; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+    @media (max-width: 600px) { textarea, select { font-size: 16px; } .regs b { font-size: 14px; } }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson6.html">Lesson 6</a> / Lesson 7 of 7</div>
+  <h1>Play It Again</h1>
+  <p class="sub">Music saves writing by saying "again". A program does the same: it goes back and runs the same lines again, and each time round it can decide what to do.</p>
+
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 25 minutes, sound on). You will be able to:
+    <ul>
+      <li>write a loop that fills a whole row of steps in a few lines</li>
+      <li>spread any number of hits evenly over a bar, using a branch</li>
+      <li>explain how a program decides which line runs next</li>
+    </ul>
+    You will use what lessons 1 to 6 taught: loops, the tresillo, pointers, registers, and x366 instructions.
+  </aside>
+
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
+
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: again and again</h2>
+  <p>Press PLAY. A kick on every beat, a hi-hat on every eighth note. Lesson 1 called a section that plays again from the start a loop.</p>
+  <p>Sheet music saves ink the same way. A drum part writes one bar once and puts a <dfn data-term="repeat sign">repeat sign</dfn> at each end, a thick line with two dots, meaning "play this again". <a class="more" href="https://en.wikipedia.org/wiki/Repeat_sign" target="_blank" rel="noopener" aria-label="More about repeat signs, on Wikipedia">more</a> Written out in text, the kick looks like this, with x for a hit:</p>
+<pre>|: x . . . x . . . x . . . x . . . :|</pre>
+  <p>Sixteen steps, written once, played as many times as the song needs.</p>
+
+  <h2>Hear it: hits spread evenly</h2>
+  <p>Here is another way to make a rhythm. Pick how many hits, and how many slots to spread them over. The page spaces them as evenly as it can, starting with a hit in the first slot, and puts them on the kick.</p>
+  <div class="row">
+    <label>hits <select id="hits"></select></label>
+    <label>over <select id="slots"><option value="8">8 eighth notes</option><option value="16">16 sixteenth notes</option></select></label>
+  </div>
+  <p class="readout" id="pattern" aria-live="polite"></p>
+  <p>It starts on 4 hits over 16 sixteenth notes: four on the floor. Now pick 3 hits over 8 eighth notes. That is the tresillo from lesson 2. Try 5 over 8, then 7 over 16.</p>
+  <p>A rhythm made by spreading a number of hits over a number of slots as evenly as they will go is a <dfn data-term="Euclidean rhythm">Euclidean rhythm</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Euclidean_rhythm" target="_blank" rel="noopener" aria-label="More about Euclidean rhythms, on Wikipedia">more</a> The computer scientist Godfried Toussaint noticed in 2004 that rhythms from all over the world are made this way, and named them after Euclid's algorithm, a method from ancient Greece that can do the spreading. Four on the floor and the tresillo are both Euclidean.</p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
+  <h2>Going back</h2>
+  <p>In lesson 6 every program ran straight down, one line after another. Eight hi-hat hits that way take eight store lines that all say nearly the same thing. Instead, a program can go back up and run the same lines again.</p>
+  <p>First it needs a name for the place to go back to. A name with a colon after it, marking a line of the program, is a <dfn data-term="label">label</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Label_(computer_science)" target="_blank" rel="noopener" aria-label="More about labels, on Wikipedia">more</a> Below, <code>again:</code> is a label.</p>
+  <p>An instruction that makes the processor carry on from somewhere other than the next line is a <dfn data-term="jump">jump</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Control_flow#Jump" target="_blank" rel="noopener" aria-label="More about jumps, on Wikipedia">more</a> <code>JMP again</code> means "carry on from the label again".</p>
+<pre>MOV BX, 0x1300   ; BX points at the hi-hat's step 0
+MOV AL, 1
+again:
+MOV [BX], AL     ; a hit where BX points
+ADD BX, 2        ; two steps on
+JMP again        ; and back up</pre>
+  <p>BX is a pointer, from lesson 5: <code>MOV [BX], AL</code> stores AL at whatever address BX holds. x366 gives each register two names. AX, BX, CX and DX hold two bytes, enough for an address. AL, BL, CL and DL are the same registers, used a byte at a time.</p>
+  <p>There is a problem: nothing ever stops it. After the hi-hat's 16 steps, BX walks on through the rest of the chip, writing 1 everywhere. On the real MTMC-16 it keeps going until it runs off the end of memory and the computer halts it with an error.</p>
+
+  <h2>Counting down</h2>
+  <p>The fix is to count. A register that keeps track of how many times are left is a <dfn data-term="counter">counter</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Loop_(statement)#Loop_counter" target="_blank" rel="noopener" aria-label="More about loop counters, on Wikipedia">more</a> x366 uses CX as its counter, with one instruction made for it: <code>LOOP again</code> takes 1 from CX, then goes back to <code>again</code> if CX is not 0 yet.</p>
+  <textarea wrap="off" id="prog1" spellcheck="false" aria-label="x366 program: the hi-hat loop"></textarea>
+  <div class="regs" id="regs1" aria-label="Registers"></div>
+  <div class="row"><button id="one1">ONE LINE</button><button id="all1">RUN ALL</button><button id="clear1">CLEAR DRUMS</button></div>
+  <p class="status" id="status1" aria-live="polite"></p>
+  <pre class="out" id="trace1" aria-label="What each line did"></pre>
+  <div id="hats"></div>
+  <div id="kick1"></div>
+  <p>Press CLEAR DRUMS, then ONE LINE again and again. Each time round, CX goes down by 1 and BX goes up by 2. When CX reaches 0, LOOP stops going back and the program ends. Eight hits from seven lines, and sixteen would take no more.</p>
+  <p>Now change three numbers so the same program puts four on the floor on the kick: a hit on every beat, from <code>0x1000</code>.</p>
+  <div id="goal1"></div>
+
+  <h2>Deciding</h2>
+  <p>Back to Euclidean rhythms. The page above spread its hits with a trick you could do with a jar. Every slot, pour in as many cups as there are hits. The jar holds as many cups as there are slots. Whenever it is full, play a hit and pour one jarful out. Start the jar at slots minus hits, so the first pour fills it and the first slot gets a hit.</p>
+  <p>Here it is for 3 hits over 8 slots. The jar holds 8 and starts at 8 − 3 = 5:</p>
+  <table>
+    <tr><th>Slot</th><th>Pour in 3</th><th>Full?</th></tr>
+    <tr><td>1</td><td>5 + 3 = 8</td><td class="hit">yes: hit, 8 − 8 = 0</td></tr>
+    <tr><td>2</td><td>0 + 3 = 3</td><td>no</td></tr>
+    <tr><td>3</td><td>3 + 3 = 6</td><td>no</td></tr>
+    <tr><td>4</td><td>6 + 3 = 9</td><td class="hit">yes: hit, 9 − 8 = 1</td></tr>
+    <tr><td>5</td><td>1 + 3 = 4</td><td>no</td></tr>
+    <tr><td>6</td><td>4 + 3 = 7</td><td>no</td></tr>
+    <tr><td>7</td><td>7 + 3 = 10</td><td class="hit">yes: hit, 10 − 8 = 2</td></tr>
+    <tr><td>8</td><td>2 + 3 = 5</td><td>no</td></tr>
+  </table>
+  <p>Hits on slots 1, 4 and 7: <code>x . . x . . x .</code>, the tresillo.</p>
+  <p>Every slot, the program has to decide: is the jar full? <code>CMP DL, 8</code> compares the jar in DL with 8. A jump that only happens when a test passes is a <dfn data-term="branch">branch</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Branch_(computer_science)" target="_blank" rel="noopener" aria-label="More about branches, on Wikipedia">more</a> <code>JL skip</code> means "if it was less, carry on from skip". A jar that is not full yet goes around the hit.</p>
+  <textarea wrap="off" id="prog2" class="tall" spellcheck="false" aria-label="x366 program: a Euclidean rhythm"></textarea>
+  <div class="regs" id="regs2" aria-label="Registers"></div>
+  <div class="row"><button id="one2">ONE LINE</button><button id="all2">RUN ALL</button><button id="clear2">CLEAR DRUMS</button></div>
+  <p class="status" id="status2" aria-live="polite"></p>
+  <pre class="out" id="trace2" aria-label="What each line did"></pre>
+  <div id="kick2"></div>
+  <p>Press CLEAR DRUMS, then RUN ALL. The tresillo, from three numbers and a branch. Then step through with ONE LINE and watch DL fill and empty, the same as the table.</p>
+  <p>Now make it spread 5 hits over the same 8 eighth notes.</p>
+  <div id="goal2"></div>
+
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again</h2>
+  <p>A repeat sign and LOOP do the same job: go back to a marked place and play on. The chip works this way too. It plays steps 0 to 15, then carries on from step 0 again. The loop from lesson 1 works like a jump back at the end of every bar.</p>
+  <p>And a Euclidean rhythm is a loop with a choice inside: every slot, hit or no hit. The tresillo you wrote as bits in lesson 2 came out of a jar: three hits, eight slots, and one branch. Change two numbers and the same lines make any of them.</p>
+  <p>Every program on this page runs on the real MTMC-16 too, with <code>.MEMORY 16K</code> on the first line, and stores the same bytes.</p>
+
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>Four on the floor is Euclidean too: 4 hits over 16 sixteenth notes. Change the jar program so it makes four on the floor that way, visiting every step. Work out every number first: where the jar starts, how much to pour, how big the jar is, how many slots to visit, and how far BX moves each time.</p>
+  <div id="goal3"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>CX is 3 and the processor reaches LOOP again. What happens?</summary><p>CX becomes 2. That is not 0, so the program goes back to the label again and runs those lines another time. See "Counting down".</p></details>
+  <details class="q"><summary>What would the hi-hat program do with JMP and no counter?</summary><p>Never stop. It would keep storing hits further and further along, past the hi-hat and through the rest of memory. See "Going back".</p></details>
+  <details class="q"><summary>What is the difference between JMP and JL?</summary><p>JMP always jumps. JL only jumps when the last compare found the register was less, so it is a branch. See "Deciding".</p></details>
+  <details class="q"><summary>Why does the jar start at slots minus hits?</summary><p>So that the first pour fills it exactly, and the rhythm starts with a hit in the first slot. See "Deciding".</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>all three goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
+
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
+  <h2>What you just learned</h2>
+  <table>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>repeat sign</td><td>a mark in sheet music that means "play this section again"</td></tr>
+    <tr><td>Euclidean rhythm</td><td>a number of hits spread as evenly as they will go over a number of slots</td></tr>
+  </table>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>label</td><td>a name that marks a line of a program</td></tr>
+    <tr><td>jump</td><td>an instruction that carries on from somewhere other than the next line</td></tr>
+    <tr><td>counter</td><td>a register that counts how many times are left</td></tr>
+    <tr><td>branch</td><td>a jump that only happens when a test passes</td></tr>
+  </table>
+  <p>The big idea: a program does not have to run straight down. Jumps send it back to repeat, and branches let it choose. A loop with a branch inside can build a whole family of rhythms from a few lines.</p>
+  </section>
+
+  <nav class="next" data-terms-ok><a href="lesson6.html">Lesson 6: one instruction at a time</a><a href="asm.html">More x366: playing REGISTER from assembly</a></nav>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script src="tiny-x366.js"></script>
+  <script>
+    Kit.boot();
+    Kit.playButton(document.getElementById('play'));
+    MEM[0x1501] = 100;
+    const KICK = 0x1000, HAT = 0x1300;
+    const hex = n => '0x' + n.toString(16).toUpperCase().padStart(4, '0');
+    const row = a => Array.from({ length: 16 }, (_, i) => MEM[a + i]);
+
+    // The opening groove: four on the floor and eighth-note hats
+    for (let s = 0; s < 16; s++) { MEM[KICK + s] = s % 4 ? 0 : 1; MEM[HAT + s] = s % 2 ? 0 : 1; }
+
+    // The jar, exactly as the program does it: start at slots - hits, pour, hit when full
+    function euclid(hits, slots) {
+      const out = [];
+      let jar = slots - hits;
+      for (let i = 0; i < slots; i++) { jar += hits; if (jar >= slots) { jar -= slots; out.push(1); } else out.push(0); }
+      return out;
+    }
+    const hitsSel = document.getElementById('hits'), slotsSel = document.getElementById('slots'), patternEl = document.getElementById('pattern');
+    function fillHits() {
+      const n = Number(slotsSel.value), keep = Number(hitsSel.value) || 4;
+      hitsSel.innerHTML = '';
+      for (let k = 1; k <= n; k++) hitsSel.add(new Option(k, k));
+      hitsSel.value = Math.min(keep, n);
+    }
+    function writeEuclid() {
+      const n = Number(slotsSel.value), p = euclid(Number(hitsSel.value), n);
+      const stride = 16 / n;
+      for (let s = 0; s < 16; s++) MEM[KICK + s] = s % stride ? 0 : p[(s / stride) % n];
+      patternEl.textContent = p.map(v => (v ? 'x' : '.')).join(' ');
+    }
+    slotsSel.value = '16'; fillHits(); hitsSel.value = '4';
+    slotsSel.onchange = () => { fillHits(); writeEuclid(); };
+    hitsSel.onchange = writeEuclid;
+    patternEl.textContent = euclid(4, 16).map(v => (v ? 'x' : '.')).join(' ');
+
+    // Programs may store to the five step rows, and nowhere else
+    const ROWS = [[0x1000, 'kick'], [0x1020, 'snare'], [0x1100, 'lead'], [0x1200, 'bass'], [0x1300, 'hi-hat']];
+    const guard = a => (ROWS.some(([b]) => a >= b && a < b + 16) ? null
+      : `${hex(a)} is not on a step row. This page lets a program store to the kick, snare, lead, bass and hi-hat steps (0x1000, 0x1020, 0x1100, 0x1200, 0x1300, 16 each).`);
+
+    const runs = [];   // what each finished pass stored, with the program text
+    const SHOW = ['AL', 'BX', 'CX', 'DL'];
+    const grids = [];
+    function stepper(n, start) {
+      const $ = id => document.getElementById(id + n);
+      const ta = $('prog'), regsEl = $('regs'), statusEl = $('status'), traceEl = $('trace');
+      ta.value = start;
+      let cpu, trace = [], hot = '';
+      function load() { cpu = TinyX366.machine(ta.value, MEM, { guard }); trace = []; hot = ''; draw(); }
+      function draw() {
+        regsEl.innerHTML = SHOW.map(r => `<div class="${TinyX366.WIDE.includes(r) ? r : r[0] + 'X'}" data-r="${r}">${r}<b>${r[1] === 'X' && cpu.regs[r] >= 0x1000 ? hex(cpu.regs[r]) : cpu.regs[r]}</b></div>`).join('');
+        regsEl.querySelectorAll('div').forEach(d => d.classList.toggle('hot', d.className.split(' ')[0] === hot));
+        traceEl.textContent = trace.slice(-8).join('\n');
+        if (cpu.errors.length) {
+          statusEl.className = 'status err';
+          statusEl.textContent = cpu.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+        } else if (cpu.stopped) {
+          statusEl.className = 'status err';
+          statusEl.textContent = cpu.stopped;
+        } else {
+          statusEl.className = 'status';
+          const l = cpu.next();
+          statusEl.textContent = l ? `next: line ${l}` : 'End of the program. ONE LINE starts again from the top.';
+        }
+        grids.forEach(g => g.draw());
+      }
+      function did(r) {
+        trace.push(`line ${String(r.line).padEnd(3)} ${r.text.replace(/\s*;.*$/, '').padEnd(14)} ${r.did}`);
+        hot = r.reg || '';
+      }
+      const finished = () => { if (!cpu.stopped) runs.push({ writes: new Map(cpu.writes), src: ta.value }); };
+      $('one').onclick = () => {
+        if (cpu.errors.length) return draw();
+        if (!cpu.next()) { cpu.reset(); trace = []; }
+        const r = cpu.step();
+        if (r) did(r);
+        if (!cpu.next()) finished();
+        draw();
+      };
+      $('all').onclick = () => {
+        if (cpu.errors.length) return draw();
+        cpu.reset(); trace = [];
+        cpu.run().forEach(did);
+        if (!cpu.next()) finished();
+        draw();
+      };
+      $('clear').onclick = () => { for (let i = 0; i < 16; i++) { MEM[KICK + i] = 0; MEM[HAT + i] = 0; } grids.forEach(g => g.draw()); };
+      ta.oninput = load;
+      load();
+    }
+
+    grids.push(Kit.grid(document.getElementById('hats'), { addr: HAT, label: 'hi-hat' }));
+    grids.push(Kit.grid(document.getElementById('kick1'), { addr: KICK, label: 'kick' }));
+    grids.push(Kit.grid(document.getElementById('kick2'), { addr: KICK, label: 'kick' }));
+    stepper(1, "MOV BX, 0x1300   ; BX points at the hi-hat's step 0\nMOV CX, 8        ; CX counts the hits left\nMOV AL, 1\nagain:\nMOV [BX], AL     ; a hit where BX points\nADD BX, 2        ; move 2 steps on\nLOOP again       ; CX - 1; if it isn't 0 yet, back to again\n");
+    stepper(2, "MOV BX, 0x1000   ; the kick's step 0\nMOV CX, 8        ; how many slots to visit\nMOV DL, 5        ; the jar starts at 8 - 3, so the first slot gets a hit\nMOV AL, 1\nslot:\nADD DL, 3        ; pour in 3, the number of hits\nCMP DL, 8        ; compare the jar with 8, the number of slots\nJL skip          ; less than 8? not full: no hit, skip ahead\nSUB DL, 8        ; full: empty one jar's worth\nMOV [BX], AL     ; and play a hit\nskip:\nADD BX, 2        ; the next eighth note\nLOOP slot\n");
+
+    // A goal is met when one pass of a program stored hits on exactly these kick steps
+    const kickSteps = w => [...w.keys()].filter(a => a >= KICK && a < KICK + 16 && w.get(a)).map(a => a - KICK).join();
+    const made = (steps, test = () => true) => runs.some(r => kickSteps(r.writes) === steps.join() && test(r.src));
+    const branches = src => /^\s*(\w+:\s*)?CMP\b/im.test(src) && /^\s*(\w+:\s*)?J(E|NE|L|LE|G|GE)\b/im.test(src);
+    Kit.check(document.getElementById('goal1'), {
+      goal: 'make the loop put four on the floor on the kick: steps 0, 4, 8 and 12.',
+      hint: 'Point BX at the kick, 0x1000. Four hits, so CX starts at 4. A beat is 4 steps, so ADD BX, 4.',
+      ok: 'Same seven lines, a different row. The counter decides how many, the pointer decides where.',
+      test: () => made([0, 4, 8, 12])
+    });
+    Kit.check(document.getElementById('goal2'), {
+      goal: 'change the jar program to spread 5 hits over 8 eighth notes.',
+      hint: 'Pour in 5 (ADD DL, 5) and start the jar at 8 - 5 = 3 (MOV DL, 3). The jar still holds 8, and there are still 8 slots.',
+      ok: 'x . x . x x . x on eighth notes. Two numbers changed, and the branch did the rest.',
+      test: () => made([0, 4, 8, 10, 14], branches)
+    });
+    Kit.check(document.getElementById('goal3'), {
+      goal: 'with the jar program, make four on the floor as 4 hits over 16 steps.',
+      hint: 'Start the jar at 16 - 4 = 12, pour in 4, compare with and empty 16, visit 16 slots (CX = 16), and move one step each time (ADD BX, 1).',
+      ok: 'Four on the floor is Euclidean: 4 over 16, from the same lines as the tresillo.',
+      test: () => made([0, 4, 8, 12], branches)
+    });
+  </script>
+</body>
+</html>

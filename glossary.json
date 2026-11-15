@@ -522,6 +522,59 @@
       "kind": "computer",
       "define": "Instructions written as short words, one per line.",
       "more": "https://en.wikipedia.org/wiki/Assembly_language"
+    },
+    {
+      "term": "repeat sign",
+      "aliases": [],
+      "lesson": 7,
+      "kind": "music",
+      "define": "A mark in sheet music that means \"play this section again\".",
+      "more": "https://en.wikipedia.org/wiki/Repeat_sign"
+    },
+    {
+      "term": "Euclidean rhythm",
+      "aliases": [
+        "Euclidean"
+      ],
+      "lesson": 7,
+      "kind": "music",
+      "define": "A number of hits spread as evenly as they will go over a number of slots.",
+      "more": "https://en.wikipedia.org/wiki/Euclidean_rhythm"
+    },
+    {
+      "term": "label",
+      "aliases": [],
+      "lesson": 7,
+      "kind": "computer",
+      "define": "A name with a colon after it that marks a line of a program.",
+      "more": "https://en.wikipedia.org/wiki/Label_(computer_science)"
+    },
+    {
+      "term": "jump",
+      "aliases": [
+        "jumped",
+        "jumping"
+      ],
+      "lesson": 7,
+      "kind": "computer",
+      "define": "An instruction that makes the processor carry on from somewhere other than the next line.",
+      "more": "https://en.wikipedia.org/wiki/Control_flow#Jump"
+    },
+    {
+      "term": "counter",
+      "aliases": [],
+      "lesson": 7,
+      "kind": "computer",
+      "define": "A register that keeps track of how many times are left.",
+      "more": "https://en.wikipedia.org/wiki/Loop_(statement)#Loop_counter"
+    },
+    {
+      "term": "branch",
+      "aliases": [],
+      "lesson": 7,
+      "kind": "computer",
+      "define": "A jump that only happens when a test passes.",
+      "more": "https://en.wikipedia.org/wiki/Branch_(computer_science)"
     }
   ]
 }

@@ -2,7 +2,7 @@
 const { test } = require('../lib');
 const B = { browser: true };
 
-for (const n of [1, 2, 3, 4, 5, 6]) {
+for (const n of [1, 2, 3, 4, 5, 6, 7]) {
   test(`lesson ${n} loads with no errors and fits a phone`, async t => {
     const p = await t.page(`lesson${n}.html`, { device: 'iPhone 13' });
     t.equal(p.errors, []);
@@ -192,5 +192,57 @@ test('lesson 6: gaps make a scale, a program builds it one line at a time, and o
   await p.click('#play');
   await p.waitForTimeout(1200);
   t.above(await p.evaluate(() => window.__osc), 2, 'the scale plays');
+  t.equal(p.errors, []);
+}, B);
+
+test('lesson 7: spreading hits, a counted loop, a branch, and goals only a program can meet', async t => {
+  const P = require('../fixtures/x366-lesson7.json');
+  const p = await t.page('lesson7.html');
+  const row = a => p.evaluate(a => Array.from({ length: 16 }, (_, i) => MEM[a + i]).join(''), a);
+  t.equal([await row(0x1000), await row(0x1300)], ['1000100010001000', '1010101010101010'], 'it opens on four on the floor and eighth-note hats');
+  t.equal([await p.inputValue('#prog1'), await p.inputValue('#prog2')], [P.hats, P.tresillo], 'the page starts from the tested programs');
+  await p.selectOption('#slots', '8');
+  await p.selectOption('#hits', '3');
+  t.equal(await row(0x1000), '1000001000001000', '3 over 8 is the tresillo, $8208');
+  t.equal(await p.textContent('#pattern'), 'x . . x . . x .', 'and reads x . . x . . x .');
+  await p.waitForTimeout(400);
+  t.equal(await p.locator('.k-check.done').count(), 0, 'the widget alone meets no goal');
+
+  await p.click('#clear1');
+  for (let i = 0; i < 7; i++) await p.click('#one1');
+  t.ok(/CX\s*7/.test(await p.textContent('#regs1')), 'after one time round, CX is 7');
+  t.ok(/CX: 8 → 7, back to again/.test(await p.textContent('#trace1')), 'LOOP goes back');
+  t.equal(await row(0x1300), '1010000000000000', 'two hits so far');
+  await p.click('#all1');
+  t.equal(await row(0x1300), '1010101010101010', 'RUN ALL finishes the row');
+
+  await p.fill('#prog1', P.forever);
+  await p.click('#all1');
+  t.ok(/line 4: 0x1310 is not on a step row/.test(await p.textContent('#status1')), 'a runaway loop is stopped before it leaves the hi-hat');
+  t.equal(await p.evaluate(() => MEM[0x1310]), 0, 'and wrote nothing past it');
+  await p.fill('#prog1', 'top:\nJMP top');
+  await p.click('#all1');
+  t.ok(/Stopped after 10,000 instructions/.test(await p.textContent('#status1')), 'a loop that never stores hits the limit');
+  await p.fill('#prog1', 'Hit:\nJMP hit');
+  t.ok(/line 2: There is no label called hit/.test(await p.textContent('#status1')), 'label mistakes get a plain message');
+
+  const run = async (n, src) => { await p.fill(`#prog${n}`, src); await p.click(`#all${n}`); await p.waitForTimeout(400); };
+  await run(1, P.four);
+  t.equal(await p.locator('.k-check.done').count(), 1, 'goal 1: four on the floor from the loop');
+  await run(2, P.tresillo);
+  t.equal(await row(0x1000), '1000101010001000', 'the tresillo lands on top of what was there');
+  await p.click('#clear2');
+  await run(2, P.tresillo);
+  t.equal(await row(0x1000), '1000001000001000', 'cleared first, it is the tresillo alone');
+  t.ok(/CX: 1 → 0, done, carry on/.test(await p.textContent('#trace2')), 'the trace ends where LOOP falls through');
+  await run(2, P.five_eight);
+  t.equal(await p.locator('.k-check.done').count(), 2, 'goal 2: five over eight');
+  await run(2, P.four);
+  t.equal(await p.locator('.k-check.done').count(), 2, 'four on the floor without a branch does not count for goal 3');
+  await run(2, P.four_euclid);
+  t.equal(await p.locator('.k-check.done').count(), 3, 'goal 3: four on the floor as a Euclidean rhythm');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.above(await p.evaluate(() => window.__osc), 2, 'it plays');
   t.equal(p.errors, []);
 }, B);
