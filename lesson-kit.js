@@ -64,6 +64,15 @@ const Kit = (() => {
     listeners.forEach(f => f(-1, false));
   }
 
+  // Play one note right now, outside the sequencer: for an on-page keyboard
+  function note(n, voice = 'lead') {
+    initAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const t = audioCtx.currentTime + 0.02;
+    if (voice === 'bass') playBass(t, n, MEM[0x1210] || 40, MEM[0x1220] || 70);
+    else playLead(t, n, 0);
+  }
+
   function playButton(btn) {
     btn.onclick = () => {
       if (playing) { stop(); btn.textContent = 'PLAY'; btn.classList.remove('on'); }
@@ -175,5 +184,5 @@ const Kit = (() => {
   style.textContent = CSS;
   document.head.appendChild(style);
 
-  return { hex, play, stop, playButton, grid, pokeBox, check, boot, onStep: f => listeners.push(f) };
+  return { hex, play, stop, playButton, note, grid, pokeBox, check, boot, onStep: f => listeners.push(f) };
 })();

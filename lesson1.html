@@ -44,7 +44,7 @@
   </style>
 </head>
 <body>
-  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="tour.html">Tour</a> / Lesson 1 of 3</div>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="tour.html">Tour</a> / Lesson 1 of 4</div>
   <h1>Memory and POKE</h1>
   <p class="sub">Make a drum groove by writing numbers into a computer, and find out how a program talks to a sound chip.</p>
 
@@ -93,7 +93,7 @@ POKE $1004, 1    ; step 4: kick on
 PEEK $1004       ; read it back</pre>
   <p>To find a step's box, add the step number to the voice's first address. Step 4 is <code>$1000 + 4 = $1004</code>. Press RUN on the lines below, then change them.</p>
   <div id="poke"></div>
-  <p>The second voice is the <dfn data-term="snare drum">snare drum</dfn>, the sharp crack that answers the kick. <a class="more" href="https://en.wikipedia.org/wiki/Snare_drum" target="_blank" rel="noopener" aria-label="More about snare drums, on Wikipedia">more</a> Its boxes are <code>$1020</code> to <code>$102F</code>. Same rule: one box per step, and 1 means hit.</p>
+  <p>The second voice is the <dfn data-term="snare drum">snare drum</dfn>, the bright crack that answers the kick. <a class="more" href="https://en.wikipedia.org/wiki/Snare_drum" target="_blank" rel="noopener" aria-label="More about snare drums, on Wikipedia">more</a> Its boxes are <code>$1020</code> to <code>$102F</code>. Same rule: one box per step, and 1 means hit.</p>
   <div id="snare"></div>
   <p>Pop music puts a <dfn data-term="backbeat">backbeat</dfn> over the kick: the snare on beats 2 and 4. <a class="more" href="https://en.wikipedia.org/wiki/Beat_(music)#Backbeat" target="_blank" rel="noopener" aria-label="More about the backbeat, on Wikipedia">more</a> Which steps are those? Write it with POKE lines in the box above.</p>
   <div id="goal2"></div>
@@ -144,7 +144,7 @@ POKE $102C, 1    ; snare, beat 4 (step 12)</pre>
     <tr><td>loop</td><td>music that plays again from the start each time it ends</td></tr>
     <tr><td>voice</td><td>one sound the chip can play alongside the others</td></tr>
     <tr><td>kick drum</td><td>the low boom</td></tr>
-    <tr><td>snare drum</td><td>the sharp crack</td></tr>
+    <tr><td>snare drum</td><td>the bright crack</td></tr>
     <tr><td>four on the floor</td><td>a kick on every beat</td></tr>
     <tr><td>backbeat</td><td>the snare on beats 2 and 4</td></tr>
   </table>

@@ -2,7 +2,7 @@
 const { test } = require('../lib');
 const B = { browser: true };
 
-for (const n of [1, 2, 3]) {
+for (const n of [1, 2, 3, 4]) {
   test(`lesson ${n} loads with no errors and fits a phone`, async t => {
     const p = await t.page(`lesson${n}.html`, { device: 'iPhone 13' });
     t.equal(p.errors, []);
@@ -62,8 +62,41 @@ test('lesson 2: a groove of bits, the tresillo, a byte of switches, and hex one 
   t.equal(p.errors, []);
 }, B);
 
-test('lesson 3: base plus offset, and one sound on two voices', async t => {
+test('lesson 3: keys with numbers, transposing by arithmetic, and the bass two octaves down', async t => {
   const p = await t.page('lesson3.html');
+  const evens = base => p.evaluate(b => Array.from({ length: 8 }, (_, k) => MEM[b + k * 2]), base);
+  const ode = [64, 64, 65, 67, 67, 65, 64, 62];
+  t.equal(await evens(0x1100), ode, 'the melody opens as Ode to Joy on every other step');
+  t.equal(await p.evaluate(() => MEM[0x1101]), 0, 'with rests between');
+  t.equal(await p.evaluate(() => MEM[0x1501]), 90, 'at a slower tempo');
+  t.equal(await p.locator('#keys1 .key').count(), 13, 'a keyboard from middle C to the C above');
+  t.equal(await p.textContent('#keys2 .key >> nth=0'), 'C60', 'the second keyboard shows note numbers');
+  await p.click('#keys1 .key >> nth=0');
+  await p.waitForTimeout(300);
+  t.above(await p.evaluate(() => window.__osc), 0, 'a key plays a note');
+  await p.click('#up');
+  t.equal((await evens(0x1100))[0], 66, 'HIGHER moves every note up 2');
+  await p.click('#orig');
+  t.equal(await evens(0x1100), ode, 'ORIGINAL puts it back');
+  await p.fill('#poke textarea', ode.map((n, k) => `POKE $${(0x1100 + k * 2).toString(16).toUpperCase()}, ${n + 12}`).join('\n'));
+  await p.click('#poke .k-run');
+  await p.waitForTimeout(400);
+  t.equal(await evens(0x1100), ode.map(n => n + 12), 'POKE lines transpose it up an octave');
+  t.ok(/E5/.test(await p.textContent('#names')), 'the names follow: 76 is E5');
+  await p.fill('#poke textarea', 'POKE $1100, 300');
+  await p.click('#poke .k-run');
+  t.ok(/not a byte/.test(await p.textContent('#poke .k-out')), 'a note past 255 is refused');
+  await p.fill('#poke2 textarea', ode.map((n, k) => `POKE $${(0x1200 + k * 2).toString(16).toUpperCase()}, ${n - 24}`).join('\n'));
+  await p.click('#poke2 .k-run');
+  await p.waitForTimeout(500);
+  t.equal(await p.locator('.k-check.done').count(), 2, 'both goals done');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.equal(p.errors, []);
+}, B);
+
+test('lesson 4: base plus offset, and one sound on two voices', async t => {
+  const p = await t.page('lesson4.html');
   await p.selectOption('#voice', '3');
   t.ok(/\$1060 \+ 3 × 4 \+ 0 = \$106C/.test(await p.textContent('#fields')), 'the bass attack address is worked out');
   await p.evaluate(() => { const i = document.querySelector('#fields input'); i.value = 100; i.dispatchEvent(new Event('input')); });

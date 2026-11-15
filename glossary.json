@@ -135,7 +135,7 @@
       ],
       "lesson": 1,
       "kind": "music",
-      "define": "the sharp crack that answers the kick",
+      "define": "the bright crack that answers the kick",
       "more": "https://en.wikipedia.org/wiki/Snare_drum"
     },
     {
@@ -232,6 +232,99 @@
       "kind": "computer",
       "define": "four bits, half a byte, which is exactly one hex digit",
       "more": "https://en.wikipedia.org/wiki/Nibble"
+    },
+    {
+      "term": "pitch",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "how high or low a sound is",
+      "more": "https://en.wikipedia.org/wiki/Pitch_(music)"
+    },
+    {
+      "term": "melody",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "notes played one after another, so they make a tune",
+      "more": "https://en.wikipedia.org/wiki/Melody"
+    },
+    {
+      "term": "middle C",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "the C near the middle of a piano, the usual starting point for counting notes",
+      "more": "https://en.wikipedia.org/wiki/C_(musical_note)#Middle_C"
+    },
+    {
+      "term": "semitone",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "the smallest step between two notes: from one piano key to the very next, black keys included",
+      "more": "https://en.wikipedia.org/wiki/Semitone"
+    },
+    {
+      "term": "octave",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "12 semitones; a note an octave up sounds like the same note, only higher",
+      "more": "https://en.wikipedia.org/wiki/Octave"
+    },
+    {
+      "term": "transpose",
+      "aliases": [
+        "transposing",
+        "transposed"
+      ],
+      "lesson": 3,
+      "kind": "music",
+      "define": "move a whole melody up or down by the same number of semitones",
+      "more": "https://en.wikipedia.org/wiki/Transposition_(music)"
+    },
+    {
+      "term": "note number",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "computer",
+      "define": "one number per piano key: middle C is 60, and each semitone up adds 1",
+      "more": "https://en.wikipedia.org/wiki/MIDI"
+    },
+    {
+      "term": "sharp",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "written ♯: one semitone up, so F♯ is the black key just above F",
+      "more": "https://en.wikipedia.org/wiki/Sharp_(music)"
+    },
+    {
+      "term": "encoding",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "computer",
+      "define": "a rule that turns things into numbers, so a computer can store them",
+      "more": "https://en.wikipedia.org/wiki/Character_encoding"
+    },
+    {
+      "term": "frequency",
+      "aliases": [],
+      "lesson": 3,
+      "kind": "music",
+      "define": "how many times per second a sound vibrates",
+      "more": "https://en.wikipedia.org/wiki/Frequency"
+    },
+    {
+      "term": "hertz",
+      "aliases": [
+        "Hz"
+      ],
+      "lesson": 3,
+      "kind": "music",
+      "define": "the unit of frequency: vibrations per second",
+      "more": "https://en.wikipedia.org/wiki/Hertz"
     }
   ]
 }

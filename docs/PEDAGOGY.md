@@ -80,23 +80,23 @@ Only lessons rewritten to this standard have glossary entries. Add a lesson's te
 
 ## Where the lessons stand
 
-Scored against the rubric above.
+Scored against the rubric above. Lesson 3 is new; the old lesson 3 is now lesson 4 and is not yet rewritten.
 
-| # | Criterion | Lesson 1 before | Lesson 1 now | Lesson 2 before | Lesson 2 now | Lesson 3 |
-|---|---|---|---|---|---|---|
-| 1 | Objectives | 0 | 2 | 0 | 2 | 0 |
-| 2 | One big idea | 2 | 2 | 0 (bits, hex, packing, bitmasks) | 2 | 0 (struct, array, pointer, compiler) |
-| 3 | Builds on earlier lessons | 2 | 2 | 1 (filter envelope before envelopes) | 2 | 2 |
-| 4 | Terms defined at first use | 1 (voice, step, loop) | 2 | 1 | 2 | 1 (pan, fine tune) |
-| 5 | Terms link out | 0 | 2 | 0 | 2 | 0 |
-| 6 | Music before | 0 | 2 | 0 | 2 | 1 |
-| 7 | Music after | 1 | 2 | 0 | 2 | 0 |
-| 8 | Hands on early | 2 | 2 | 2 | 2 | 2 |
-| 9 | Check yourself | 1 (no transfer task) | 2 | 1 | 2 | 1 |
-| 10 | Recap | 1 (missing hex) | 2 | 0 (none) | 2 | 2 |
-| 11 | Plain language | 2 | 2 | 2 | 2 | 2 |
-| 12 | Works for everyone | 2 | 2 | 2 | 2 | 2 |
-| | **Total** | **14** | **24** | **9** | **24** | **13** |
+| # | Criterion | 1 before | 1 now | 2 before | 2 now | 3 (new) | 4 |
+|---|---|---|---|---|---|---|---|
+| 1 | Objectives | 0 | 2 | 0 | 2 | 2 | 0 |
+| 2 | One big idea | 2 | 2 | 0 | 2 | 2 | 0 (struct, array, pointer, compiler) |
+| 3 | Builds on earlier lessons | 2 | 2 | 1 | 2 | 2 | 2 |
+| 4 | Terms defined at first use | 1 | 2 | 1 | 2 | 2 | 1 (pan, fine tune) |
+| 5 | Terms link out | 0 | 2 | 0 | 2 | 2 | 0 |
+| 6 | Music before | 0 | 2 | 0 | 2 | 2 | 1 |
+| 7 | Music after | 1 | 2 | 0 | 2 | 2 | 0 |
+| 8 | Hands on early | 2 | 2 | 2 | 2 | 2 | 2 |
+| 9 | Check yourself | 1 | 2 | 1 | 2 | 2 | 1 |
+| 10 | Recap | 1 | 2 | 0 | 2 | 2 | 2 |
+| 11 | Plain language | 2 | 2 | 2 | 2 | 2 | 2 |
+| 12 | Works for everyone | 2 | 2 | 2 | 2 | 2 | 2 |
+| | **Total** | **14** | **24** | **9** | **24** | **24** | **13** |
 
 One known soft spot in both rewritten lessons: a goal checks memory, not how the learner got there, so a transfer task meant to be worked out on paper can still be solved by clicking boxes. The hidden-answer questions are what catch that.
 
@@ -108,9 +108,9 @@ One big idea per lesson, each paired with the music it explains.
 |---|---|---|---|
 | 1 | Beat, bar, sixteenth notes | Memory, addresses, POKE | Rewritten |
 | 2 | Rhythm as hits and rests, the tresillo | Bits, binary, hex as one digit per beat | Rewritten |
-| 3 | Notes and octaves (+12) | Numbers and arithmetic | New |
-| 4 | Envelope and timbre (ADSR) | Structs and offsets | From today's lesson 3 |
-| 5 | One sound on every voice | Arrays and pointers | From today's lesson 3 |
+| 3 | Pitch, semitones, octaves, transposing | Note numbers, encoding, arithmetic | Written |
+| 4 | Envelope and timbre (ADSR) | Structs and offsets | `lesson4.html`, not yet rewritten |
+| 5 | One sound on every voice | Arrays and pointers | To split out of `lesson4.html` |
 | 6 | Playing a note by hand | Registers and instructions | New |
 | 7 | Repeats, Euclidean rhythms | Loops and branching | New |
 | 8 | Muting and picking voices | Bitmasks: AND and OR | Moved out of the old lesson 2 |

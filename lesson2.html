@@ -60,7 +60,7 @@
   </style>
 </head>
 <body>
-  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson1.html">Lesson 1</a> / Lesson 2 of 3</div>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson1.html">Lesson 1</a> / Lesson 2 of 4</div>
   <h1>Bits and Patterns</h1>
   <p class="sub">A drum pattern is a row of on and off switches, and so is a byte. Learn to read each one as the other.</p>
 
@@ -146,7 +146,7 @@ $8208   kick:   tresillo, 1, the &amp; of 2, and 4</pre>
   <details class="q"><summary>What is 1111 1111 in everyday numbers?</summary><p>255. All eight places are on: 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1. See "Eight bits make a byte".</p></details>
   <details class="q"><summary>Why is one hex digit exactly one beat here?</summary><p>A hex digit is four bits, a beat is four sixteenths, and each sixteenth is one bit. See "Four bits, one beat".</p></details>
   <details class="q"><summary>What would <code>$F000</code> sound like on the snare?</summary><p>Four quick hits on beat 1, then three beats of rest: a short drum roll. F is 1111, and each 0 is a silent beat.</p></details>
-  <details class="q"><summary>Sixteen bits fit in two bytes. So why does the chip spend sixteen boxes on a pattern, one per step?</summary><p>So a box can hold more than on or off, like the pitch numbers in lesson 1's click track, and so one POKE changes one step without any bit math. Saving space and keeping things simple pull against each other; this chip picks simple.</p></details>
+  <details class="q"><summary>Sixteen bits fit in two bytes. So why does the chip spend sixteen boxes on a pattern, one per step?</summary><p>So a box can hold more than on or off, like the numbers in lesson 1's click track, and so one POKE changes one step without any bit math. Saving space and keeping things simple pull against each other; this chip picks simple.</p></details>
   <aside data-terms-ok>
     <b>You've got it when</b>
     <ul>
@@ -178,7 +178,7 @@ $8208   kick:   tresillo, 1, the &amp; of 2, and 4</pre>
   <p>The big idea: a rhythm and a number are both rows of bits. Hex is just a short way to write the bits, and in a 16-step bar each hex digit is one beat.</p>
   </section>
 
-  <nav class="next" data-terms-ok><a href="lesson1.html">Lesson 1: memory and POKE</a><a href="lesson3.html">Lesson 3: a sound is a struct</a></nav>
+  <nav class="next" data-terms-ok><a href="lesson1.html">Lesson 1: memory and POKE</a><a href="lesson3.html">Lesson 3: notes are numbers</a></nav>
 
   <script src="engine.js"></script>
   <script src="memory-map.js"></script>
