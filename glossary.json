@@ -325,6 +325,144 @@
       "kind": "music",
       "define": "the unit of frequency: vibrations per second",
       "more": "https://en.wikipedia.org/wiki/Hertz"
+    },
+    {
+      "term": "timbre",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "music",
+      "define": "the character of a sound: what makes a piano and a flute sound different on the same note",
+      "more": "https://en.wikipedia.org/wiki/Timbre"
+    },
+    {
+      "term": "envelope",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "music",
+      "define": "how a note's loudness changes from the moment it starts to the moment it is gone",
+      "more": "https://en.wikipedia.org/wiki/Envelope_(music)"
+    },
+    {
+      "term": "attack",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "music",
+      "define": "how long a note takes to rise to full loudness",
+      "more": "https://en.wikipedia.org/wiki/Envelope_(music)#ADSR"
+    },
+    {
+      "term": "decay",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "music",
+      "define": "how long a note then takes to fall back to a steady level",
+      "more": "https://en.wikipedia.org/wiki/Envelope_(music)#ADSR"
+    },
+    {
+      "term": "sustain",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "music",
+      "define": "the steady level a note holds before it fades",
+      "more": "https://en.wikipedia.org/wiki/Envelope_(music)#ADSR"
+    },
+    {
+      "term": "release",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "music",
+      "define": "how long a note takes to fade to silence at the end",
+      "more": "https://en.wikipedia.org/wiki/Envelope_(music)#ADSR"
+    },
+    {
+      "term": "struct",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "computer",
+      "define": "a group of bytes kept together in a fixed order, so each one is always in the same place",
+      "more": "https://en.wikipedia.org/wiki/Struct_(C_programming_language)"
+    },
+    {
+      "term": "field",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "computer",
+      "define": "one named part of a struct, like attack",
+      "more": "https://en.wikipedia.org/wiki/Field_(computer_science)"
+    },
+    {
+      "term": "base address",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "computer",
+      "define": "the address where a struct starts",
+      "more": "https://en.wikipedia.org/wiki/Base_address"
+    },
+    {
+      "term": "offset",
+      "aliases": [],
+      "lesson": 4,
+      "kind": "computer",
+      "define": "how far a field is from the base address",
+      "more": "https://en.wikipedia.org/wiki/Offset_(computer_science)"
+    },
+    {
+      "term": "doubling",
+      "aliases": [
+        "doubled"
+      ],
+      "lesson": 5,
+      "kind": "music",
+      "define": "playing the same part on two voices at once, often an octave or two apart",
+      "more": "https://en.wikipedia.org/wiki/Voicing_(music)#Doubling"
+    },
+    {
+      "term": "patch",
+      "aliases": [],
+      "lesson": 5,
+      "kind": "music",
+      "define": "a saved set of settings that makes a sound, ready to load onto any instrument",
+      "more": "https://en.wikipedia.org/wiki/Synthesizer#1970s:_Portability,_polyphony_and_patch_memory"
+    },
+    {
+      "term": "array",
+      "aliases": [],
+      "lesson": 5,
+      "kind": "computer",
+      "define": "the same kind of thing repeated back to back",
+      "more": "https://en.wikipedia.org/wiki/Array_(data_structure)"
+    },
+    {
+      "term": "element",
+      "aliases": [],
+      "lesson": 5,
+      "kind": "computer",
+      "define": "one item in an array",
+      "more": "https://en.wikipedia.org/wiki/Array_(data_structure)#Element_identifier_and_addressing_formulas"
+    },
+    {
+      "term": "index",
+      "aliases": [],
+      "lesson": 5,
+      "kind": "computer",
+      "define": "an element's position in an array, counted from 0",
+      "more": "https://en.wikipedia.org/wiki/Array_(data_structure)#Element_identifier_and_addressing_formulas"
+    },
+    {
+      "term": "pointer",
+      "aliases": [],
+      "lesson": 5,
+      "kind": "computer",
+      "define": "a value that holds an address, so code can work on whatever is stored there",
+      "more": "https://en.wikipedia.org/wiki/Pointer_(computer_programming)"
+    },
+    {
+      "term": "compiler",
+      "aliases": [],
+      "lesson": 5,
+      "kind": "computer",
+      "define": "a program that turns names into the addresses and numbers a machine runs",
+      "more": "https://en.wikipedia.org/wiki/Compiler"
     }
   ]
 }

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 5: One Sound, Every Voice | REGISTER</title>
+  <meta name="description" content="Lesson 5 of REGISTER: five envelopes sit back to back, so one formula finds any of them, and one description of a sound fits every voice. Learn arrays, indexes, pointers and compilers by doubling a melody.">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+      max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+    a { color: #9bbc0f; }
+    .crumb { font-size: 12px; color: #666; }
+    .crumb a { color: #888; }
+    h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
+    .sub { color: #888; margin: 0 0 18px; }
+    code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
+    pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
+    button, select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+    button:hover, button:focus-visible, select:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
+    th { color: #888; font-weight: normal; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+    .map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 8px 0; font-size: 11px; text-align: center; }
+    .map div { border: 1px solid #222; border-radius: 3px; padding: 4px 0; color: #666; }
+    .map div.sel { border-color: #9bbc0f; color: #c8e86a; background: #12180a; }
+    .field { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) 3em; gap: 8px; align-items: center; margin: 4px 0 0; }
+    .field input { width: 100%; accent-color: #9bbc0f; }
+    .field .v { text-align: right; color: #c8e86a; }
+    .calc { font-size: 12px; color: #777; margin: 0 0 4px 5.4em; }
+    .calc b { color: #c8e86a; font-weight: normal; }
+    textarea { width: 100%; height: 130px; background: #0b0b0b; color: #9bbc0f; border: 1px solid #222; border-radius: 4px; padding: 8px;
+      font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
+    .out { background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; padding: 8px; color: #8a9a7a; white-space: pre-wrap; font-size: 12px; min-height: 2.4em; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
+    h1, h2, .sub { text-wrap: balance; }
+    p, li { text-wrap: pretty; }
+    @media (max-width: 600px) { textarea, select { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson4.html">Lesson 4</a> / Lesson 5 of 5</div>
+  <h1>One Sound, Every Voice</h1>
+  <p class="sub">All five voices keep the same kind of settings. Line them up in a row, and one formula finds any of them, and one description of a sound fits them all.</p>
+
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 15 minutes, sound on). You will be able to:
+    <ul>
+      <li>find any voice's envelope field with one formula</li>
+      <li>explain what a pointer is by moving one from voice to voice</li>
+      <li>load one sound onto two voices and hear them blend</li>
+    </ul>
+    You will use what lessons 1 to 4 taught: addresses, POKE, octaves, and the envelope struct.
+  </aside>
+
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
+
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: two voices, one tune</h2>
+  <p>Press PLAY. The melody from lesson 3 is back, twice: the lead plays it, and the bass plays it two octaves lower, the way you set it up in lesson 3. Playing the same part on two voices at once is <dfn data-term="doubling">doubling</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Voicing_(music)#Doubling" target="_blank" rel="noopener" aria-label="More about doubling, on Wikipedia">more</a> Doubling an octave or two apart is one of the oldest tricks there is, in orchestras and in pop.</p>
+  <p>Right now the two voices sound like two different instruments. The lead is plucked and short. The bass uses the chip's default shape. Press MATCH THEM to give both the same envelope, then UNMATCH to hear the difference again.</p>
+  <div class="row"><button id="match">MATCH THEM</button><button id="unmatch">UNMATCH</button></div>
+  <p>When they match, the two voices fuse into one bigger sound. A saved set of settings that makes a sound, ready to load onto any instrument, is a <dfn data-term="patch">patch</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Synthesizer#1970s:_Portability,_polyphony_and_patch_memory" target="_blank" rel="noopener" aria-label="More about patches, on Wikipedia">more</a> The name comes from early synthesizers, where you made a sound by connecting parts with patch cables. MATCH THEM loaded one patch onto two voices. This lesson is about how that can work.</p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
+  <h2>Five structs in a row</h2>
+  <p>Every voice has an envelope struct like the lead's in lesson 4. The five sit back to back starting at <code>$1060</code>: kick, snare, lead, bass, noise. The same kind of thing repeated back to back is an <dfn data-term="array">array</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Array_(data_structure)" target="_blank" rel="noopener" aria-label="More about arrays, on Wikipedia">more</a></p>
+  <p>Each struct in the row is one <dfn data-term="element">element</dfn> of the array. <a class="more" href="https://en.wikipedia.org/wiki/Array_(data_structure)#Element_identifier_and_addressing_formulas" target="_blank" rel="noopener" aria-label="More about array elements, on Wikipedia">more</a> An element's position, counted from 0, is its <dfn data-term="index">index</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Array_(data_structure)#Element_identifier_and_addressing_formulas" target="_blank" rel="noopener" aria-label="More about array indexes, on Wikipedia">more</a> Here the index is the voice number: kick 0, snare 1, lead 2, bass 3, noise 4.</p>
+  <div class="map" id="map"></div>
+  <p>Each element is 4 bytes, so element number <i>i</i> starts 4 × <i>i</i> bytes into the array. That gives one formula for any field of any voice:</p>
+<pre>address = $1060 + index × 4 + offset
+
+lead attack   $1060 + 2 × 4 + 0  =  $1068
+bass attack   $1060 + 3 × 4 + 0  =  $106C
+noise release $1060 + 4 × 4 + 3  =  $1073</pre>
+  <p>That is where lesson 4's <code>$1068</code> came from: the lead is element 2, so its struct starts 8 bytes in.</p>
+
+  <h2>A pointer picks the voice</h2>
+  <p>Pick a voice below and move a slider. The sum under each slider is worked out in front of you.</p>
+  <div class="row"><label>voice <select id="voice"></select></label></div>
+  <div id="fields"></div>
+  <p>Notice what changes when you pick another voice: one number, the base address of the struct you are editing. The offsets never move. A value that holds an address, so code can work on whatever is stored there, is a <dfn data-term="pointer">pointer</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Pointer_(computer_programming)" target="_blank" rel="noopener" aria-label="More about pointers, on Wikipedia">more</a> The voice picker is a pointer. Point it at <code>$106C</code> and the same four sliders edit the bass instead of the lead.</p>
+  <div id="goal1"></div>
+
+  <h2>Same index, other arrays</h2>
+  <p>Envelopes are not the only setting every voice has. Volume is another array, one byte per voice, starting at <code>$10B0</code>. A 0 means "not set", which plays at full volume. 1 to 127 sets a level, from very quiet to full. The voice number is the index here too:</p>
+<pre>lead volume   $10B0 + 2  =  $10B2
+bass volume   $10B0 + 3  =  $10B3</pre>
+  <p>One index, many arrays. A voice is really just a number that picks one element out of each table.</p>
+
+  <h2>Names instead of addresses</h2>
+  <p>Working out addresses by hand is slow and easy to get wrong. So REGISTER lets you write a patch with field names, and the voice you load it on supplies the base address. A program that turns names like these into the addresses and numbers a machine runs is a <dfn data-term="compiler">compiler</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Compiler" target="_blank" rel="noopener" aria-label="More about compilers, on Wikipedia">more</a> A compiler for C, one of the oldest programming languages still in wide use, does the same with a struct: you write <code>voice.attack</code>, and it works out base plus offset for you.</p>
+  <textarea id="sound" spellcheck="false" aria-label="Patch text">SOUND Soft Pad
+A = 120
+D = 80
+S = 200
+R = 160
+VOL = 100</textarea>
+  <div class="row">
+    <label>load on <select id="target"></select></label>
+    <button id="apply">APPLY</button>
+    <button id="pokes">SHOW AS POKES</button>
+  </div>
+  <div class="out" id="sound-out" aria-live="polite"></div>
+  <p>Press SHOW AS POKES with the lead, then with the bass. Same names, different addresses. The compiler did the base-plus-index sums. Then APPLY the patch to both.</p>
+  <div id="goal2"></div>
+
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again</h2>
+  <p>Listen now. The lead and the bass play the same patch, two octaves apart, and they blend like one instrument with a deep bottom. That is doubling done with data: one description of a sound, written into two places in memory, found with one formula.</p>
+  <p>It is also why a patch from the sequencer's sound menu works on any voice. Every voice has the same struct layout, so the field names always mean the same offsets. Only the index changes.</p>
+
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>In a doubled part, the lower voice is often kept a little quieter so it supports the tune instead of covering it. Set the bass's volume to 40 with one POKE. Work out the address from the volume array first.</p>
+  <div id="poke"></div>
+  <div id="goal3"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>Where is the noise voice's release byte?</summary><p><code>$1073</code>: <code>$1060 + 4 × 4 + 3</code>. It is the very last byte of the array. See "Five structs in a row".</p></details>
+  <details class="q"><summary>When you move the pointer to another voice, what changes and what stays the same?</summary><p>The base address changes. The offsets, and the layout of the struct, stay the same. See "A pointer picks the voice".</p></details>
+  <details class="q"><summary>Where is the snare's volume?</summary><p><code>$10B1</code>: the snare is index 1, and each volume element is 1 byte. See "Same index, other arrays".</p></details>
+  <details class="q"><summary>Why can one patch load onto any voice?</summary><p>Every voice uses the same struct layout, so each field name means the same offset everywhere. The compiler only has to change the base address. See "Names instead of addresses".</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>all three goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
+
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
+  <h2>What you just learned</h2>
+  <table>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>doubling</td><td>the same part on two voices at once</td></tr>
+    <tr><td>patch</td><td>a saved sound, ready to load onto any instrument</td></tr>
+  </table>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>array</td><td>the same kind of thing repeated back to back</td></tr>
+    <tr><td>element</td><td>one item in an array</td></tr>
+    <tr><td>index</td><td>an element's position, counted from 0</td></tr>
+    <tr><td>pointer</td><td>a value that holds an address</td></tr>
+    <tr><td>compiler</td><td>a program that turns names into addresses and numbers</td></tr>
+  </table>
+  <p>The big idea: when every element has the same layout, one formula, base plus index times size plus offset, finds anything. That is why one patch fits every voice.</p>
+  </section>
+
+  <nav class="next" data-terms-ok><a href="lesson4.html">Lesson 4: a sound is a struct</a><a href="sequencer.html">Try it all in the sequencer</a></nav>
+
+  <script src="engine.js"></script>
+  <script src="memory-map.js"></script>
+  <script src="register-console.js"></script>
+  <script src="sounds.js"></script>
+  <script src="lesson-kit.js"></script>
+  <script>
+    Kit.boot();
+    Kit.playButton(document.getElementById('play'));
+    MEM[0x1501] = 90;
+
+    // The melody from lesson 3 on the lead, doubled two octaves down on the bass
+    const ODE = [64, 64, 65, 67, 67, 65, 64, 62];
+    for (let s = 0; s < 16; s++) {
+      MEM[0x1100 + s] = s % 2 ? 0 : ODE[s / 2];
+      MEM[0x1200 + s] = s % 2 ? 0 : ODE[s / 2] - 24;
+    }
+    const ENV = 0x1060, LEAD = 2, BASS = 3;
+    const envAt = i => [0, 1, 2, 3].map(k => MEM[ENV + i * 4 + k]);
+    const setEnvAt = (i, v) => v.forEach((b, k) => { MEM[ENV + i * 4 + k] = b; });
+    const PLUCK = [0, 30, 0, 30], BASS_START = envAt(BASS), MATCHED = [10, 90, 150, 140];
+    setEnvAt(LEAD, PLUCK);
+    document.getElementById('match').onclick = () => { setEnvAt(LEAD, MATCHED); setEnvAt(BASS, MATCHED); };
+    document.getElementById('unmatch').onclick = () => { setEnvAt(LEAD, PLUCK); setEnvAt(BASS, BASS_START); };
+
+    const VOICE_NAMES = ['kick', 'snare', 'lead', 'bass', 'noise'];
+    const FIELDS = ['attack', 'decay', 'sustain', 'release'];
+    const hex = Kit.hex;
+    const voiceSel = document.getElementById('voice'), targetSel = document.getElementById('target');
+    VOICE_NAMES.forEach((v, i) => { voiceSel.add(new Option(`${i}: ${v}`, i)); targetSel.add(new Option(v, v)); });
+    voiceSel.value = LEAD; targetSel.value = 'lead';
+
+    const mapEl = document.getElementById('map');
+    VOICE_NAMES.forEach((v, i) => { const d = document.createElement('div'); d.innerHTML = `${i}: ${v}<br>${hex(ENV + 4 * i)}`; mapEl.append(d); });
+
+    // The pointer: one base address, the same four offsets
+    const fieldsEl = document.getElementById('fields');
+    let rows = [];
+    function drawFields() {
+      const i = Number(voiceSel.value), base = ENV + 4 * i;
+      [...mapEl.children].forEach((d, k) => d.classList.toggle('sel', k === i));
+      fieldsEl.innerHTML = '';
+      rows = FIELDS.map((name, off) => {
+        const addr = base + off;
+        const row = document.createElement('div');
+        row.innerHTML = `<div class="field"><span>${name}</span><input type="range" min="0" max="255" value="${MEM[addr]}" aria-label="${VOICE_NAMES[i]} ${name}, address ${hex(addr)}"><span class="v">${MEM[addr]}</span></div>
+          <div class="calc">$1060 + ${i} × 4 + ${off} = <b>${hex(addr)}</b></div>`;
+        const input = row.querySelector('input'), val = row.querySelector('.v');
+        input.oninput = () => { MEM[addr] = Number(input.value); val.textContent = input.value; };
+        fieldsEl.append(row);
+        return { input, val, addr };
+      });
+    }
+    voiceSel.onchange = drawFields;
+    drawFields();
+    setInterval(() => rows.forEach(r => { if (document.activeElement !== r.input) r.input.value = MEM[r.addr]; r.val.textContent = MEM[r.addr]; }), 250);
+
+    Kit.check(document.getElementById('goal1'), {
+      goal: 'point the picker at the bass and set its attack to exactly 100.',
+      hint: 'The bass is index 3. Its attack is $1060 + 3 × 4 + 0 = $106C. Pick "3: bass" and drag attack to 100, or use arrow keys on the slider.',
+      ok: 'The bass attack lives at $106C, because the bass struct starts 12 bytes into the array.',
+      test: () => MEM[0x106C] === 100
+    });
+
+    // The compiler: a patch written with field names becomes addresses for one voice
+    const index = RegisterSounds.buildIndex(window.REGISTER_MAP);
+    const out = document.getElementById('sound-out');
+    const engineOptions = v => SYNTH_IDS[v];
+    document.getElementById('apply').onclick = () => {
+      const v = targetSel.value;
+      const r = RegisterSounds.apply(index, MEM, document.getElementById('sound').value, v, { engineOptions });
+      out.textContent = RegisterSounds.summary(r, v);
+      if (Number(voiceSel.value) === VOICE_NAMES.indexOf(v)) drawFields();
+    };
+    document.getElementById('pokes').onclick = () => {
+      out.textContent = RegisterSounds.toPokes(index, document.getElementById('sound').value, targetSel.value, { engineOptions, mem: MEM });
+    };
+    Kit.check(document.getElementById('goal2'), {
+      goal: 'give the lead and the bass the same envelope by applying the one patch to both.',
+      hint: 'APPLY with "load on" set to lead, then switch it to bass and APPLY again.',
+      ok: 'One description, two places in memory. That is how a patch moves between voices.',
+      test: () => envAt(LEAD).join() === envAt(BASS).join() && MEM[0x1068] === 120 && MEM[0x106C] === 120
+    });
+
+    Kit.pokeBox(document.getElementById('poke'), { start: '; one POKE line here\n' });
+    Kit.check(document.getElementById('goal3'), {
+      goal: 'with one POKE, set the bass volume to 40.',
+      hint: 'Volume is an array of single bytes at $10B0, and the bass is index 3. $10B0 + 3 = $10B3.',
+      ok: 'POKE $10B3, 40. The same index you used for the envelope picks the bass out of a different array.',
+      test: () => MEM[0x10B3] === 40
+    });
+  </script>
+</body>
+</html>

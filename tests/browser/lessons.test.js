@@ -2,7 +2,7 @@
 const { test } = require('../lib');
 const B = { browser: true };
 
-for (const n of [1, 2, 3, 4]) {
+for (const n of [1, 2, 3, 4, 5]) {
   test(`lesson ${n} loads with no errors and fits a phone`, async t => {
     const p = await t.page(`lesson${n}.html`, { device: 'iPhone 13' });
     t.equal(p.errors, []);
@@ -95,18 +95,61 @@ test('lesson 3: keys with numbers, transposing by arithmetic, and the bass two o
   t.equal(p.errors, []);
 }, B);
 
-test('lesson 4: base plus offset, and one sound on two voices', async t => {
+test('lesson 4: an envelope you can see, four fields at base plus offset, and a POKE', async t => {
   const p = await t.page('lesson4.html');
+  const env = () => p.evaluate(() => [0, 1, 2, 3].map(k => MEM[0x1068 + k]));
+  t.equal(await p.evaluate(() => [MEM[0x1100], MEM[0x1102], MEM[0x1501]]), [64, 64, 90], 'the lesson 3 melody, at the slower tempo');
+  await p.click('#pluck');
+  t.equal(await env(), [0, 30, 0, 30], 'PLUCKED: no attack, no sustain');
+  await p.click('#swell');
+  t.equal(await env(), [200, 0, 230, 220], 'SLOW SWELL: long attack and release');
+  await p.waitForTimeout(300);   // the drawing redraws on a timer
+  t.ok(/1\.\d\d s/.test(await p.textContent('#shape2')), 'the drawing shows the swell\'s length');
+  t.ok(/\$1068 \+ 3 = \$106B/.test(await p.textContent('#fields')), 'release is worked out as base plus offset');
+  await p.click('#pluck');
+  await p.evaluate(() => { const i = document.querySelectorAll('#fields input')[1]; i.value = 220; i.dispatchEvent(new Event('input')); });
+  t.equal(await env(), [0, 220, 0, 30], 'the decay slider writes $1069');
+  await p.fill('#poke textarea', 'POKE $106B, 200');
+  await p.click('#poke .k-run');
+  await p.waitForTimeout(500);
+  t.equal(await p.locator('.k-check.done').count(), 2, 'both goals done');
+  await p.evaluate(() => { for (let k = 0; k < 4; k++) MEM[0x1068 + k] = 0; });
+  await p.waitForTimeout(300);
+  t.ok(/default/.test(await p.textContent('#shape1')), 'all four 0 is drawn as the default shape');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.above(await p.evaluate(() => window.__osc), 2, 'the melody plays');
+  t.equal(p.errors, []);
+}, B);
+
+test('lesson 5: doubling, one formula for any voice, a pointer, a compiler, and the volume array', async t => {
+  const p = await t.page('lesson5.html');
+  const evens = base => p.evaluate(b => Array.from({ length: 8 }, (_, k) => MEM[b + k * 2]), base);
+  const ode = [64, 64, 65, 67, 67, 65, 64, 62];
+  t.equal(await evens(0x1100), ode, 'the lead plays the melody');
+  t.equal(await evens(0x1200), ode.map(n => n - 24), 'and the bass doubles it two octaves down');
+  const env = i => p.evaluate(i => [0, 1, 2, 3].map(k => MEM[0x1060 + i * 4 + k]), i);
+  t.equal(await env(2), [0, 30, 0, 30], 'the lead starts plucked');
+  await p.click('#match');
+  t.equal(await env(2), await env(3), 'MATCH THEM gives both the same envelope');
+  await p.click('#unmatch');
+  t.equal(await env(2), [0, 30, 0, 30], 'UNMATCH puts the pluck back');
   await p.selectOption('#voice', '3');
   t.ok(/\$1060 \+ 3 × 4 \+ 0 = \$106C/.test(await p.textContent('#fields')), 'the bass attack address is worked out');
   await p.evaluate(() => { const i = document.querySelector('#fields input'); i.value = 100; i.dispatchEvent(new Event('input')); });
+  await p.waitForTimeout(400);   // goals are checked every 300 ms
   await p.selectOption('#target', 'lead'); await p.click('#apply');
   await p.click('#pokes');
   t.ok(/POKE \$1068, 120/.test(await p.textContent('#sound-out')), 'compiles to lead addresses');
   await p.selectOption('#target', 'bass'); await p.click('#apply');
   await p.click('#pokes');
   t.ok(/POKE \$106C, 120/.test(await p.textContent('#sound-out')), 'and to bass addresses');
+  await p.fill('#poke textarea', 'POKE $10B3, 40');
+  await p.click('#poke .k-run');
   await p.waitForTimeout(500);
-  t.equal(await p.locator('.k-check.done').count(), 1, 'the shared-envelope goal is done');
+  t.equal(await p.locator('.k-check.done').count(), 3, 'all three goals done');
+  await p.click('#play');
+  await p.waitForTimeout(1200);
+  t.above(await p.evaluate(() => window.__osc), 2, 'the doubled melody plays');
   t.equal(p.errors, []);
 }, B);

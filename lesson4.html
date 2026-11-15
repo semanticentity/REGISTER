@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lesson 4: A Sound Is a Struct | REGISTER</title>
-  <meta name="description" content="Lesson 4 of REGISTER: a group of bytes in a fixed order is a struct, a voice is a base address, and field names compile to base plus offset. Learn structs, arrays and pointers by designing sounds.">
+  <meta name="description" content="Lesson 4 of REGISTER: every note has a shape over time, its envelope, stored as four bytes in a fixed order. Learn attack, decay, sustain and release, and structs, fields, base addresses and offsets.">
   <style>
     * { box-sizing: border-box; }
     body { background: #0a0a0f; color: #ccc; font: 15px/1.65 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
@@ -13,140 +13,212 @@
     .crumb { font-size: 12px; color: #666; }
     .crumb a { color: #888; }
     h1 { color: #9bbc0f; font-size: 26px; margin: 6px 0 4px; }
-    h2 { color: #9bbc0f; font-size: 17px; margin: 30px 0 6px; }
+    h2 { color: #9bbc0f; font-size: 17px; margin: 34px 0 6px; }
     .sub { color: #888; margin: 0 0 18px; }
     code { background: #141414; border: 1px solid #222; border-radius: 3px; padding: 0 4px; color: #c8e86a; font-size: 13px; }
     pre { background: #111; border: 1px solid #222; border-radius: 4px; padding: 10px 12px; color: #9bbc0f; overflow-x: auto; font-size: 13px; }
-    button, select { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+    button { background: #111; color: #ccc; border: 1px solid #333; border-radius: 4px; padding: 7px 14px; font: inherit; font-size: 12px; cursor: pointer; }
     button:hover, button:focus-visible { border-color: #9bbc0f; color: #9bbc0f; outline: none; }
+    button.on { border-color: #9bbc0f; color: #9bbc0f; }
+    table { border-collapse: collapse; margin: 8px 0; font-size: 13px; width: 100%; }
+    td, th { border: 1px solid #222; padding: 3px 10px; text-align: left; vertical-align: top; }
+    th { color: #888; font-weight: normal; }
+    td:first-child { white-space: nowrap; color: #c8e86a; }
+    dfn { font-style: normal; font-weight: bold; color: #c8e86a; }
+    a.more { font-size: 11px; color: #6a8a1a; text-decoration: none; border-bottom: 1px dotted #4a6a10; }
+    a.more:hover, a.more:focus-visible { color: #9bbc0f; border-bottom-color: #9bbc0f; outline: none; }
+    aside { border: 1px solid #222; border-radius: 4px; padding: 10px 14px; margin: 14px 0; background: #0e0e12; }
+    aside b { color: #9bbc0f; font-weight: normal; }
+    aside ul { margin: 6px 0 0; padding-left: 20px; }
+    ul.stages { padding-left: 20px; }
+    ul.stages li { margin: 4px 0; }
+    .transport { position: sticky; top: 0; z-index: 2; background: #0a0a0f; padding: 10px 0; display: flex; gap: 12px; align-items: center;
+      border-bottom: 1px solid #1a1a1a; }
+    .transport span { color: #666; font-size: 12px; }
     .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
-    .field { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) 3em; gap: 8px; align-items: center; margin: 4px 0; }
+    .shape { width: 100%; height: auto; display: block; background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; margin: 8px 0; }
+    .field { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) 3em; gap: 8px; align-items: center; margin: 4px 0 0; }
     .field input { width: 100%; accent-color: #9bbc0f; }
     .field .v { text-align: right; color: #c8e86a; }
-    .calc { font-size: 13px; color: #888; margin: 0 0 2px 3em; }
+    .calc { font-size: 12px; color: #777; margin: 0 0 4px 5.4em; }
     .calc b { color: #c8e86a; font-weight: normal; }
-    .map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin: 8px 0; font-size: 11px; text-align: center; }
-    .map div { border: 1px solid #222; border-radius: 3px; padding: 4px 0; color: #666; }
-    .map div.sel { border-color: #9bbc0f; color: #c8e86a; background: #12180a; }
-    textarea { width: 100%; height: 130px; background: #0b0b0b; color: #9bbc0f; border: 1px solid #222; border-radius: 4px; padding: 8px;
-      font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; }
-    .out { background: #0b0b0b; border: 1px solid #1a1a1a; border-radius: 4px; padding: 8px; color: #8a9a7a; white-space: pre-wrap; font-size: 12px; min-height: 2.4em; }
-    .next { display: flex; justify-content: space-between; margin-top: 40px; font-size: 13px; gap: 12px; }
+    details.q { border: 1px solid #222; border-radius: 4px; padding: 8px 12px; margin: 8px 0; }
+    details.q summary { cursor: pointer; color: #ccc; }
+    details.q[open] summary { color: #9bbc0f; margin-bottom: 4px; }
+    details.q p { margin: 0; color: #aaa; }
+    .next { display: flex; justify-content: space-between; gap: 12px; margin-top: 40px; font-size: 13px; }
     h1, h2, .sub { text-wrap: balance; }
     p, li { text-wrap: pretty; }
-    @media (max-width: 600px) { textarea, select { font-size: 16px; } }
   </style>
 </head>
 <body>
-  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson3.html">Lesson 3</a> / Lesson 4 of 4</div>
+  <div class="crumb"><a href="index.html">REGISTER</a> / <a href="lesson3.html">Lesson 3</a> / Lesson 4 of 5</div>
   <h1>A Sound Is a Struct</h1>
-  <p class="sub">A pattern is one byte per step. A sound is different: a handful of settings that belong together. Keeping them together, in a fixed order, is the idea behind structs, arrays and pointers.</p>
+  <p class="sub">Every note has a shape over time. That shape is four numbers kept in a fixed row, and keeping things in a fixed row is how programs organize what they store.</p>
 
+  <aside data-terms-ok>
+    <b>In this lesson</b> (about 15 minutes, sound on). You will be able to:
+    <ul>
+      <li>name the four stages of a note's envelope: attack, decay, sustain, release</li>
+      <li>find any part of a struct from where it starts plus how far in</li>
+      <li>change one part of a sound with one POKE</li>
+    </ul>
+    You will use what lessons 1 to 3 taught: addresses, bytes, POKE, and the melody from lesson 3.
+  </aside>
+
+  <div class="transport"><button id="play">PLAY</button><span>It keeps playing while you scroll.</span></div>
+
+  <!-- ==================== HEAR IT ==================== -->
+  <h2>Hear it: same notes, different sound</h2>
+  <p>Press PLAY. It is the melody from lesson 3. Now press PLUCKED, then SLOW SWELL, then MIDDLE. The notes and their pitches never change. What changes is how each note starts and ends.</p>
+  <div class="row"><button id="pluck">PLUCKED</button><button id="swell">SLOW SWELL</button><button id="middle">MIDDLE</button></div>
+  <p>The character of a sound, what makes a piano and a flute sound different playing the same note, is its <dfn data-term="timbre">timbre</dfn>, said "TAM-ber". <a class="more" href="https://en.wikipedia.org/wiki/Timbre" target="_blank" rel="noopener" aria-label="More about timbre, on Wikipedia">more</a></p>
+  <p>A big part of timbre is a note's <dfn data-term="envelope">envelope</dfn>: how its loudness changes from the moment it starts to the moment it is gone. <a class="more" href="https://en.wikipedia.org/wiki/Envelope_(music)" target="_blank" rel="noopener" aria-label="More about envelopes, on Wikipedia">more</a> Here is the lead's envelope right now. Left to right is time. Up is loud.</p>
+  <svg class="shape" id="shape1" viewBox="0 0 320 96" role="img" aria-label="The lead's envelope"></svg>
+  <p>Synthesizers describe an envelope in four stages, always in this order:</p>
+  <ul class="stages">
+    <li><dfn data-term="attack">Attack</dfn>: how long the note takes to rise to full loudness. <a class="more" href="https://en.wikipedia.org/wiki/Envelope_(music)#ADSR" target="_blank" rel="noopener" aria-label="More about attack, on Wikipedia">more</a></li>
+    <li><dfn data-term="decay">Decay</dfn>: how long it then takes to fall back to a steady level. <a class="more" href="https://en.wikipedia.org/wiki/Envelope_(music)#ADSR" target="_blank" rel="noopener" aria-label="More about decay, on Wikipedia">more</a></li>
+    <li><dfn data-term="sustain">Sustain</dfn>: that steady level, which the note holds before it fades. <a class="more" href="https://en.wikipedia.org/wiki/Envelope_(music)#ADSR" target="_blank" rel="noopener" aria-label="More about sustain, on Wikipedia">more</a></li>
+    <li><dfn data-term="release">Release</dfn>: how long the note takes to fade to silence at the end. <a class="more" href="https://en.wikipedia.org/wiki/Envelope_(music)#ADSR" target="_blank" rel="noopener" aria-label="More about release, on Wikipedia">more</a></li>
+  </ul>
+  <p>Press the buttons again and watch the shape. PLUCKED has no attack and no sustain: it hits at once and dies fast, like a plucked string. SLOW SWELL has a long attack and a long release, so the notes fade in and blur into each other.</p>
+
+  <!-- ==================== THE COMPUTER IDEA ==================== -->
   <h2>Four bytes in a fixed order</h2>
-  <p>An <b>envelope</b> shapes a note over time: how fast it rises (attack), how far it falls (decay), the level it holds (sustain), and how long it fades after (release). REGISTER stores those as four bytes in a row, always in the order A, D, S, R. A group of bytes with a fixed layout is a <b>struct</b>. Each part is a <b>field</b>, found by its <b>offset</b> from the start: A is +0, D is +1, S is +2, R is +3.</p>
-
-  <h2>Five structs in a row is an array</h2>
-  <p>Every voice has an envelope, and the five sit back to back starting at <code>$1060</code>. That is an <b>array of structs</b>. To find any field: start of the array, plus the voice number times the size of one struct, plus the field's offset.</p>
-  <div class="map" id="map"></div>
-  <div class="row">
-    <label>voice <select id="voice"></select></label>
-    <button id="hear">HEAR IT</button>
-  </div>
+  <p>In memory, the lead's envelope is four bytes in a row, starting at <code>$1068</code>. They are always in the same order: attack, decay, sustain, release. A group of bytes kept together in a fixed order is a <dfn data-term="struct">struct</dfn>, short for structure. <a class="more" href="https://en.wikipedia.org/wiki/Struct_(C_programming_language)" target="_blank" rel="noopener" aria-label="More about structs, on Wikipedia">more</a> Each named part of it, like attack, is a <dfn data-term="field">field</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Field_(computer_science)" target="_blank" rel="noopener" aria-label="More about fields, on Wikipedia">more</a></p>
+  <p>The address where a struct starts is its <dfn data-term="base address">base address</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Base_address" target="_blank" rel="noopener" aria-label="More about base addresses, on Wikipedia">more</a> How far a field is from that start is its <dfn data-term="offset">offset</dfn>. <a class="more" href="https://en.wikipedia.org/wiki/Offset_(computer_science)" target="_blank" rel="noopener" aria-label="More about offsets, on Wikipedia">more</a> Attack is +0, decay +1, sustain +2 and release +3. So any field's address is the base address plus the field's offset:</p>
+<pre>attack    $1068 + 0  =  $1068
+decay     $1068 + 1  =  $1069
+sustain   $1068 + 2  =  $106A
+release   $1068 + 3  =  $106B</pre>
+  <p>What each byte means: attack and decay run from 0 to 500 milliseconds, thousandths of a second, as the byte goes from 0 to 255. Sustain is a level, from silent at 0 to full at 255. Release runs from 0 to 1,000 milliseconds. If all four bytes are 0, the chip uses its own default shape.</p>
+  <p>Move the sliders while the melody plays. Each one writes one field, and the line under it shows the sum.</p>
   <div id="fields"></div>
-  <p>Pick a voice and move a slider. The address it writes is worked out in front of you. Changing the voice changes only the <b>base</b>, the start of that voice's struct. The offsets never change. A variable that holds a base address like that is a <b>pointer</b>.</p>
-  <div id="goal-bass"></div>
+  <svg class="shape" id="shape2" viewBox="0 0 320 96" role="img" aria-label="The lead's envelope, from the four bytes"></svg>
+  <p>Try a plucked note that rings much longer, like a harp: still no attack and no sustain, but a long decay.</p>
+  <div id="goal1"></div>
 
-  <h2>One voice, many arrays</h2>
-  <p>The envelope is not the whole sound. Volume is an array at <code>$10B0</code>, one byte per voice. Pan is an array at <code>$10B5</code>. Fine tune is an array at <code>$10A3</code>. Each array has a different size of element, but the voice number is the same index into all of them. A voice is one index that lands in many tables.</p>
-<pre>lead volume     $10B0 + 2       = $10B2
-lead pan        $10B5 + 2       = $10B7
-lead attack     $1060 + 2 × 4 + 0 = $1068</pre>
+  <!-- ==================== HEAR IT AGAIN ==================== -->
+  <h2>Hear it again</h2>
+  <p>Listen to the melody and watch the shape at the same time. The four bytes are the four stages, in the order you hear them. The struct's layout follows the note: the first field is the first thing your ear meets.</p>
+  <p>That is also why a plucked string and a slow swell can come from the same chip. They are the same struct with different numbers in it. Same pitches, same layout, different bytes, different timbre.</p>
+  <p>Every voice has this same struct. The kick, snare, bass and noise each have their own four bytes somewhere else in memory. Lesson 5 shows where, and why one formula finds them all.</p>
 
-  <h2>Names instead of addresses</h2>
-  <p>Working out addresses by hand is slow and easy to get wrong. So REGISTER lets you write a sound with field names, and the voice you load it on supplies the base. This is exactly what a compiler does with a struct in C: you write <code>voice.attack</code>, and it emits "base plus offset".</p>
-  <textarea id="sound" spellcheck="false" aria-label="Sound text">SOUND Soft Pad
-A = 120
-D = 80
-S = 200
-R = 160
-VOL = 100</textarea>
-  <div class="row">
-    <label>load on <select id="target"></select></label>
-    <button id="apply">APPLY</button>
-    <button id="pokes">SHOW AS POKES</button>
-  </div>
-  <div class="out" id="sound-out" aria-live="polite"></div>
-  <p>Press SHOW AS POKES with the lead, then with the bass. Same names, different addresses. The compiler did the base-plus-offset sums.</p>
-  <div id="goal-both"></div>
+  <!-- ==================== CHECK YOURSELF ==================== -->
+  <h2>Check yourself</h2>
+  <p>Give the lead a long, slow fade at the end of every note: a release of exactly 200. Do it with one POKE line, no sliders. Work out the address first.</p>
+  <div id="poke"></div>
+  <div id="goal2"></div>
+  <p>Now answer these out loud before you open them.</p>
+  <details class="q"><summary>Where is the lead's sustain byte?</summary><p><code>$106A</code>: the base address <code>$1068</code> plus sustain's offset, 2. See "Four bytes in a fixed order".</p></details>
+  <details class="q"><summary>What do attack 255 and release 255 sound like?</summary><p>The slowest possible swell: about half a second to fade in and a full second to fade out, so the notes smear into each other. See "Hear it: same notes, different sound".</p></details>
+  <details class="q"><summary>Why keep the four bytes in a fixed order?</summary><p>So any field can be found with one sum, base address plus offset, without searching. Everything that reads the struct agrees where each field is.</p></details>
+  <details class="q"><summary>The bass has the same struct, with its base address at <code>$106C</code>. Where is the bass's release?</summary><p><code>$106F</code>: <code>$106C + 3</code>. The base changes; release's offset is still 3. Lesson 5 shows why the bass starts there.</p></details>
+  <aside data-terms-ok>
+    <b>You've got it when</b>
+    <ul>
+      <li>both goals on this page say Done, and</li>
+      <li>you can answer all four questions before opening them.</li>
+    </ul>
+    If an answer surprised you, reread the section it points to.
+  </aside>
 
+  <!-- ==================== RECAP ==================== -->
+  <section id="recap">
   <h2>What you just learned</h2>
-  <p><b>Struct:</b> related bytes in a fixed layout. <b>Offset:</b> where a field sits inside it. <b>Array:</b> the same struct repeated back to back. <b>Pointer:</b> a base address that picks one of them. <b>Compiling:</b> turning names into addresses. The sequencer's SND button uses this same format, and its sounds move between voices for the same reason.</p>
+  <table>
+    <tr><th>Music word</th><th>Meaning</th></tr>
+    <tr><td>timbre</td><td>the character of a sound, beyond its pitch</td></tr>
+    <tr><td>envelope</td><td>how a note's loudness changes over time</td></tr>
+    <tr><td>attack</td><td>the rise to full loudness</td></tr>
+    <tr><td>decay</td><td>the fall back to a steady level</td></tr>
+    <tr><td>sustain</td><td>the steady level the note holds</td></tr>
+    <tr><td>release</td><td>the fade to silence at the end</td></tr>
+  </table>
+  <table>
+    <tr><th>Computer word</th><th>Meaning</th></tr>
+    <tr><td>struct</td><td>bytes kept together in a fixed order</td></tr>
+    <tr><td>field</td><td>one named part of a struct</td></tr>
+    <tr><td>base address</td><td>where a struct starts</td></tr>
+    <tr><td>offset</td><td>how far a field is from the start</td></tr>
+  </table>
+  <p>The big idea: a fixed layout means one sum, base plus offset, finds any field. The envelope is four stages in time, stored as four bytes in that same order.</p>
+  </section>
 
-  <div class="next"><a href="lesson3.html">Lesson 3: notes are numbers</a><a href="sequencer.html">Try it in the sequencer</a></div>
+  <nav class="next" data-terms-ok><a href="lesson3.html">Lesson 3: notes are numbers</a><a href="lesson5.html">Lesson 5: one sound, every voice</a></nav>
 
   <script src="engine.js"></script>
   <script src="memory-map.js"></script>
   <script src="register-console.js"></script>
-  <script src="sounds.js"></script>
   <script src="lesson-kit.js"></script>
   <script>
     Kit.boot();
-    const VOICE_NAMES = ['kick', 'snare', 'lead', 'bass', 'noise'];
-    const FIELDS = ['A', 'D', 'S', 'R'];
-    const LONG = { A: 'attack', D: 'decay', S: 'sustain', R: 'release' };
-    const hex = Kit.hex;
-    const voiceSel = document.getElementById('voice'), targetSel = document.getElementById('target');
-    VOICE_NAMES.forEach((v, i) => { voiceSel.add(new Option(`${i}: ${v}`, i)); targetSel.add(new Option(v, v)); });
-    voiceSel.value = 2; targetSel.value = 'lead';
+    Kit.playButton(document.getElementById('play'));
+    MEM[0x1501] = 90;
 
-    const mapEl = document.getElementById('map');
-    VOICE_NAMES.forEach((v, i) => { const d = document.createElement('div'); d.innerHTML = `${v}<br>${hex(0x1060 + 4 * i)}`; mapEl.append(d); });
+    // The melody from lesson 3: "Ode to Joy" (Beethoven, 1824), one note every other step
+    const ODE = [64, 64, 65, 67, 67, 65, 64, 62];
+    for (let s = 0; s < 16; s++) MEM[0x1100 + s] = s % 2 ? 0 : ODE[s / 2];
 
-    const fieldsEl = document.getElementById('fields');
-    function drawFields() {
-      const vi = Number(voiceSel.value), base = 0x1060 + 4 * vi;
-      [...mapEl.children].forEach((d, i) => d.classList.toggle('sel', i === vi));
-      fieldsEl.innerHTML = '';
-      FIELDS.forEach((f, off) => {
-        const addr = base + off;
-        const row = document.createElement('div');
-        row.innerHTML = `<div class="field"><span>${f}</span><input type="range" min="0" max="255" value="${MEM[addr]}" aria-label="${LONG[f]}"><span class="v">${MEM[addr]}</span></div>
-          <div class="calc">${LONG[f]}: $1060 + ${vi} × 4 + ${off} = <b>${hex(addr)}</b></div>`;
-        const input = row.querySelector('input'), val = row.querySelector('.v');
-        input.oninput = () => { MEM[addr] = Number(input.value); val.textContent = input.value; };
-        fieldsEl.append(row);
-      });
+    const BASE = 0x1068;
+    const NAMES = ['attack', 'decay', 'sustain', 'release'];
+    const setEnv = v => { v.forEach((b, k) => { MEM[BASE + k] = b; }); };
+    const MIDDLE = [0, 1, 2, 3].map(k => MEM[BASE + k]);
+    document.getElementById('pluck').onclick = () => setEnv([0, 30, 0, 30]);
+    document.getElementById('swell').onclick = () => setEnv([200, 0, 230, 220]);
+    document.getElementById('middle').onclick = () => setEnv(MIDDLE);
+
+    // Draw the envelope the way the chip plays it: rise over A, fall to S over D,
+    // hold for a tenth of a second, then fade over R. All four 0 means the default.
+    function drawShape(svg) {
+      const raw = [0, 1, 2, 3].map(k => MEM[BASE + k]);
+      const dflt = raw.every(b => b === 0);
+      const a = dflt ? 0.01 : raw[0] / 255 * 0.5, d = dflt ? 0.1 : raw[1] / 255 * 0.5;
+      const s = dflt ? 0.5 : raw[2] / 255, r = dflt ? 0.2 : raw[3] / 255;
+      const W = 300, H = 70, x0 = 10, y0 = 82, per = W / 2.1;
+      const pts = [[0, 0], [a, 1], [a + d, s], [a + d + 0.1, s], [a + d + 0.1 + r, 0]]
+        .map(([t, l]) => `${(x0 + t * per).toFixed(1)},${(y0 - l * H).toFixed(1)}`);
+      const lab = (t, txt) => `<text x="${(x0 + t * per).toFixed(1)}" y="94" fill="#666" font-size="9" text-anchor="middle">${txt}</text>`;
+      svg.innerHTML = `<line x1="${x0}" y1="${y0}" x2="${x0 + W}" y2="${y0}" stroke="#222"/>
+        <polyline points="${pts.join(' ')}" fill="none" stroke="#9bbc0f" stroke-width="2" stroke-linejoin="round"/>
+        ${lab(a / 2, 'A')}${lab(a + d / 2, 'D')}${lab(a + d + 0.05, 'S')}${lab(a + d + 0.1 + r / 2, 'R')}
+        <text x="${x0 + W}" y="12" fill="#555" font-size="9" text-anchor="end">${dflt ? 'all 0: the default shape' : (a + d + 0.1 + r).toFixed(2) + ' s'}</text>`;
+      svg.setAttribute('aria-label', `The lead's envelope: attack ${raw[0]}, decay ${raw[1]}, sustain ${raw[2]}, release ${raw[3]}`);
     }
-    voiceSel.onchange = drawFields;
-    drawFields();
-    document.getElementById('hear').onclick = () => previewVoice(VOICE_NAMES[Number(voiceSel.value)]);
 
-    Kit.check(document.getElementById('goal-bass'), {
-      goal: 'set the bass attack to exactly 100. Use the sliders, or open the console with the ` key and POKE it.',
-      hint: 'The bass is voice 3. Its attack is $1060 + 3 × 4 + 0 = $106C. In the console: POKE $106C, 100',
-      ok: 'The bass attack lives at $106C, because the bass struct starts 12 bytes into the array.',
-      test: () => MEM[0x106C] === 100
+    // One slider per field, with its address worked out underneath
+    const fieldsEl = document.getElementById('fields');
+    const sliders = NAMES.map((name, off) => {
+      const row = document.createElement('div');
+      row.innerHTML = `<div class="field"><span>${name}</span><input type="range" min="0" max="255" aria-label="${name}, address ${Kit.hex(BASE + off)}"><span class="v"></span></div>
+        <div class="calc">${Kit.hex(BASE)} + ${off} = <b>${Kit.hex(BASE + off)}</b></div>`;
+      const input = row.querySelector('input');
+      input.oninput = () => { MEM[BASE + off] = Number(input.value); };
+      fieldsEl.append(row);
+      return { input, val: row.querySelector('.v'), addr: BASE + off };
     });
+    function sync() {
+      sliders.forEach(s => { if (document.activeElement !== s.input) s.input.value = MEM[s.addr]; s.val.textContent = MEM[s.addr]; });
+      drawShape(document.getElementById('shape1'));
+      drawShape(document.getElementById('shape2'));
+    }
+    sync();
+    setInterval(sync, 200);
 
-    const index = RegisterSounds.buildIndex(window.REGISTER_MAP);
-    const out = document.getElementById('sound-out');
-    const engineOptions = v => SYNTH_IDS[v];
-    document.getElementById('apply').onclick = () => {
-      const v = targetSel.value;
-      const r = RegisterSounds.apply(index, MEM, document.getElementById('sound').value, v, { engineOptions });
-      out.textContent = RegisterSounds.summary(r, v);
-      if (Number(voiceSel.value) === VOICE_NAMES.indexOf(v)) drawFields();
-      previewVoice(v);
-    };
-    document.getElementById('pokes').onclick = () => {
-      out.textContent = RegisterSounds.toPokes(index, document.getElementById('sound').value, targetSel.value, { engineOptions, mem: MEM });
-    };
-    const env = b => [0, 1, 2, 3].map(k => MEM[b + k]).join(',');
-    Kit.check(document.getElementById('goal-both'), {
-      goal: 'give the lead and the bass the same envelope by applying one sound to both.',
-      hint: 'APPLY with "load on" set to lead, then switch it to bass and APPLY again.',
-      ok: 'One description, two places in memory. That is the whole idea behind portable sounds.',
-      test: () => env(0x1068) === env(0x106C) && MEM[0x1068] === 120 && MEM[0x106C] === 120
+    Kit.pokeBox(document.getElementById('poke'), { start: '; one POKE line here\n' });
+
+    Kit.check(document.getElementById('goal1'), {
+      goal: 'make a plucked note that rings like a harp: attack 0, sustain 0, and decay 200 or more.',
+      hint: 'Press PLUCKED to start from a pluck, then drag only the decay slider up past 200.',
+      ok: 'A long decay with no sustain: the note hits at once and rings away. Three fields, one shape.',
+      test: () => MEM[BASE] === 0 && MEM[BASE + 2] === 0 && MEM[BASE + 1] >= 200
+    });
+    Kit.check(document.getElementById('goal2'), {
+      goal: 'with one POKE, set the lead\'s release to exactly 200.',
+      hint: 'The base address is $1068 and release is the fourth field, offset 3. $1068 + 3 = $106B.',
+      ok: 'POKE $106B, 200. Base plus offset, worked out by you.',
+      test: () => MEM[BASE + 3] === 200
     });
   </script>
 </body>
